@@ -182,7 +182,7 @@ async function apiUpdateForma(
   if (token) {
     const URL: string = `${URL_API}/formas-pgto/${idForma}`;
     // console.log(URL);
-    // console.log(body);
+    console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {

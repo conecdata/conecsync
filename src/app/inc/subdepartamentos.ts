@@ -66,6 +66,7 @@ function apiUpdateSubdepartamento(
   if (token) {
     const URL: string = `${URL_API}/departamentos/${idDepartamento}/subdepartamentos/${idSubdepartamento}`;
     // console.log(URL);
+    console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {

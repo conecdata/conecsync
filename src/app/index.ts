@@ -214,7 +214,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
           for (const LOJA of LOJAS_MERCADEIRO) {
             // console.log(LOJA);
             const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
-            console.log('ID_LOJA:', ID_LOJA);
+            // console.log('ID_LOJA:', ID_LOJA);
 
             try {
               const PRODUTOS: any = (await buscaProdutosFB(ID_LOJA));

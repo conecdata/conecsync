@@ -279,7 +279,7 @@ async function apiUpdateProduto(
   if (token) {
     const URL: string = `${URL_API}/produtos/${idProduto}`;
     // console.log(URL);
-    // console.log(body);
+    console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -331,9 +331,9 @@ function findOne(
         "valor": parseFloat(get(produto, 'atacado_valor')) || 0,
       },
       "ativo": chkBool(get(produto, 'ativo_produto', true)),
-      "online": chkBool(get(produto, 'online_produto', true)),
       "barcode": get(produto, 'barcode_produto') || '',
       "descricao": get(produto, 'descricao_produto') || '',
+      "destaque": chkBool(get(produto, 'destaque', false)),
       "estoqueMinimo": ESTOQUE.controlado && ESTOQUE.min
         ? ESTOQUE.atual <= ESTOQUE.min
         : false,
@@ -341,6 +341,8 @@ function findOne(
       "idSubdepartamento": get(produto, 'id_subdepartamento') || '',
       "industrializado": chkBool(get(produto, 'industrializado', true)),
       "limiteVenda": LIMITE_VENDA.menorValor,
+      "nome": get(produto, 'nome_produto') || '',
+      "online": chkBool(get(produto, 'online_produto', true)),
       "pesavel": {
         "status": chkBool(get(produto, 'pesavel_status', false)),
         "unidade": {
@@ -348,11 +350,9 @@ function findOne(
           "tipo": get(produto, 'pesavel_tipo') || ''
         }
       },
-      "nome": get(produto, 'nome_produto') || '',
-      "preco": parseFloat(get(produto, 'preco_venda')) || 0,
-      "destaque": chkBool(get(produto, 'destaque', false))
+      "preco": parseFloat(get(produto, 'preco_venda')) || 0
     };
-    console.log(BODY_PRODUTO);
+    // console.log(BODY_PRODUTO);
     const HASH_PRODUTO: string = hash(BODY_PRODUTO);
     // console.log(HASH_PRODUTO);
 
