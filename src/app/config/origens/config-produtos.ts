@@ -35,6 +35,7 @@ export const CONFIG_PRODUTOS = {
     0 AS qtde_estoque_minimo,
     0 AS qtde_estoque_atual,
     
+    0 AS atacado_status,
     0 AS atacado_qtde,
     0 AS atacado_valor,
     
@@ -86,6 +87,7 @@ export const CONFIG_PRODUTOS = {
     pro_f_qtde_estoque_min AS qtde_estoque_minimo,
     pro_f_qtde_estoque_loja AS qtde_estoque_atual,
     
+    pro_b_atacado AS atacado_status,
     pro_f_qtde_atacado AS atacado_qtde,
     pro_f_valor_atacado AS atacado_valor,
     
@@ -138,6 +140,7 @@ CREATE VIEW view_conecdata_produtos
     qtde_estoque_minimo,
     qtde_estoque_atual,
 
+    atacado_status,
     atacado_qtde,
     atacado_valor,
 
@@ -176,6 +179,7 @@ AS SELECT
   pro_f_qtde_estoque_min,
   pro_f_qtde_estoque_loja,
   
+  pro_b_atacado,
   pro_f_qtde_atacado,
   pro_f_valor_atacado,
   

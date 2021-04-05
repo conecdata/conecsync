@@ -211,12 +211,12 @@ function findOne(
     // console.log(BODY);
 
     const DOC = {
-      _id: ID_PRODUTO,
+      id: ID_PRODUTO,
       estoqueMinimo: BODY.estoqueMinimo
     };
 
     neDB.findOne(
-      { _id: ID_PRODUTO },
+      { id: ID_PRODUTO },
       async function (err, doc) {
         try {
           if (!doc) {
@@ -247,7 +247,7 @@ function findOne(
                 idLoja
               );
               neDB.remove(
-                { _id: ID_PRODUTO },
+                { id: ID_PRODUTO },
                 { multi: true },
                 function (err, numRemoved) {
                   // console.log('newDoc', newDoc);

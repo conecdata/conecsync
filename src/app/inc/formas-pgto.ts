@@ -213,12 +213,12 @@ function findOne(
     // console.log(HASH_FORMA);
 
     const DOC = {
-      _id: ID_FORMA,
+      id: ID_FORMA,
       hash: HASH_FORMA
     };
 
     neDB.findOne(
-      { _id: ID_FORMA },
+      { id: ID_FORMA },
       async function (err, doc) {
         try {
           if (!doc) {
@@ -249,7 +249,7 @@ function findOne(
                 idLoja
               );
               neDB.remove(
-                { _id: ID_FORMA },
+                { id: ID_FORMA },
                 { multi: true },
                 function (err, numRemoved) {
                   // console.log('newDoc', newDoc);

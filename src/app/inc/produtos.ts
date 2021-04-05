@@ -191,7 +191,7 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
 
     // Gera lista de departamentos dos produtos.
     RETORNO.departamentos.push({
-      _id: `${get(produtos[i], 'id_departamento') || ''}`,
+      id: `${get(produtos[i], 'id_departamento') || ''}`,
       ativo: chkBool(get(produtos[i], 'ativo_departamento')),
       nome: get(produtos[i], 'nome_departamento') || '',
       online: get(produtos[i], 'online_departamento') || ''
@@ -201,7 +201,7 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
     // console.log('idSubdepartamento', get(produtos[i], 'idSubdepartamento') || '');
     if (get(produtos[i], 'id_subdepartamento') || '') {
       RETORNO.subdepartamentos.push({
-        _id: `${get(produtos[i], 'id_subdepartamento') || ''}`,
+        id: `${get(produtos[i], 'id_subdepartamento') || ''}`,
         idDepartamento: `${get(produtos[i], 'id_departamento') || ''}`,
         ativo: chkBool(get(produtos[i], 'ativo_subdepartamento')),
         nome: get(produtos[i], 'nome_subdepartamento') || ''
@@ -209,9 +209,9 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
     } // if
   } // for
 
-  RETORNO.departamentos = uniqBy(RETORNO.departamentos, '_id'); // Elimina repetições
+  RETORNO.departamentos = uniqBy(RETORNO.departamentos, 'id'); // Elimina repetições
   // console.log(RETORNO.departamentos);
-  RETORNO.subdepartamentos = uniqBy(RETORNO.subdepartamentos, '_id'); // Elimina repetições
+  RETORNO.subdepartamentos = uniqBy(RETORNO.subdepartamentos, 'id'); // Elimina repetições
   // console.log(RETORNO.subdepartamentos);
 
   return RETORNO;
@@ -327,6 +327,7 @@ function findOne(
     // console.log(produto);
     const BODY_PRODUTO = {
       "atacado": {
+        "status": chkBool(get(produto, 'atacado_status', false)),
         "qtde": parseFloat(get(produto, 'atacado_qtde')) || 0,
         "valor": parseFloat(get(produto, 'atacado_valor')) || 0,
       },
@@ -357,13 +358,13 @@ function findOne(
     // console.log(HASH_PRODUTO);
 
     const DOC = {
-      _id: ID_PRODUTO,
+      id: ID_PRODUTO,
       hash: HASH_PRODUTO,
       // estoqueMinimo: false
     };
 
     neDB.findOne(
-      { _id: ID_PRODUTO },
+      { id: ID_PRODUTO },
       async function (err, doc) {
         try {
           if (!doc) {
@@ -394,7 +395,7 @@ function findOne(
                 idLoja
               );
               neDB.remove(
-                { _id: ID_PRODUTO },
+                { id: ID_PRODUTO },
                 { multi: true },
                 function (err, numRemoved) {
                   // console.log('newDoc', newDoc);

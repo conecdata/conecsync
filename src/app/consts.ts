@@ -5,6 +5,7 @@ export const PRODUTOS_REQ_FIELDS: string[] = [
   'id_produto', // INTEGER
   'id_departamento', // INTEGER
   'id_subdepartamento', // INTEGER
+  'atacado_status', // BOOLEAN
   'atacado_qtde', // INTEGER
   'atacado_valor', // INTEGER/FLOAT
   'ativo_departamento', // BOOLEAN
@@ -151,6 +152,10 @@ export const CAMPOS_PRODUTOS: any = {
   ativo_produto: {
     type: DataTypes.BOOLEAN,
     field: 'ativo_produto'
+  },
+  atacado_status: {
+    type: DataTypes.BOOLEAN,
+    field: 'atacado_status'
   },
   atacado_qtde: {
     type: DataTypes.INTEGER,

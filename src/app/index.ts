@@ -62,6 +62,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
         total: 0,
         sincronizados: 0
       },
+      promocoes: {
+        total: 0,
+        sincronizados: 0
+      },
       estoque: {
         total: 0,
         sincronizados: 0
@@ -264,6 +268,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               id_produto: -1,
               id_departamento: -1,
               id_subdepartamento: -1,
+              atacado_status: -1,
               atacado_qtde: -1,
               atacado_valor: -1,
               ativo_departamento: -1,
@@ -392,6 +397,9 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
                       'ativo_departamento': FIELDPOS['ativo_departamento'] >= 0
                         && parseInt(ROW[FIELDPOS['ativo_departamento']] || '') > 0,
+
+                      'atacado_status': FIELDPOS['atacado_status'] >= 0
+                        && parseInt(ROW[FIELDPOS['atacado_status']] || '') > 0,
 
                       'atacado_qtde': FIELDPOS['atacado_qtde'] >= 0
                         && parseFloat(ROW[FIELDPOS['atacado_qtde']] || ''),

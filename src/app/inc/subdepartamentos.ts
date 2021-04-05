@@ -28,7 +28,7 @@ export async function syncSubdepartamentos(
     log('Sincronizando subdepartamentos.');
     for (let i = 0; i < subdepartamentos.length; i++) {
       const BODY_SUBDEPARTAMENTO = subdepartamentos[i] || {};
-      const ID_SUBDEPARTAMENTO: string = get(BODY_SUBDEPARTAMENTO, '_id');
+      const ID_SUBDEPARTAMENTO: string = get(BODY_SUBDEPARTAMENTO, 'id');
 
       try {
         count += await findOne(
@@ -86,20 +86,20 @@ function findOne(
   body: any
 ): Promise<number> {
   return new Promise((resolve, reject) => {
-    const ID_SUBDEPARTAMENTO: string = get(body, '_id') || '';
+    const ID_SUBDEPARTAMENTO: string = get(body, 'id') || '';
     const ID_DEPARTAMENTO: string = get(body, 'idDepartamento') || '';
-    delete body._id;
+    delete body.id;
     const HASH_SUBDEPARTAMENTO: string = hash(body) || '';
     // console.log(BODY_SUBDEPARTAMENTO);
 
     const DOC = {
-      _id: ID_SUBDEPARTAMENTO,
+      id: ID_SUBDEPARTAMENTO,
       hash: HASH_SUBDEPARTAMENTO
     };
     // console.log(DOC);
 
     neDB.findOne(
-      { _id: ID_SUBDEPARTAMENTO },
+      { id: ID_SUBDEPARTAMENTO },
       async function (err, doc) {
         try {
           if (!doc) {
@@ -133,7 +133,7 @@ function findOne(
               );
 
               neDB.remove(
-                { _id: ID_SUBDEPARTAMENTO },
+                { id: ID_SUBDEPARTAMENTO },
                 { multi: true },
                 function (err, numRemoved) {
                   // console.log('newDoc', newDoc);

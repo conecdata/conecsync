@@ -29,7 +29,7 @@ export async function syncDepartamentos(
     log('Sincronizando departamentos.');
     for (let i = 0; i < departamentos.length; i++) {
       const BODY_DEPARTAMENTO = departamentos[i];
-      const ID_DEPARTAMENTO: string = get(BODY_DEPARTAMENTO, '_id');
+      const ID_DEPARTAMENTO: string = get(BODY_DEPARTAMENTO, 'id');
       // console.log('BODY_DEPARTAMENTO: ', BODY_DEPARTAMENTO);
       try {
         count += await findOne(
@@ -86,19 +86,19 @@ function findOne(
   body: any
 ): Promise<number> {
   return new Promise((resolve, reject) => {
-    const ID_DEPARTAMENTO: string = get(body, '_id');
-    delete body._id;
+    const ID_DEPARTAMENTO: string = get(body, 'id');
+    delete body.id;
     const HASH_DEPARTAMENTO: string = hash(body);
     // console.log(body);
 
     const DOC = {
-      _id: ID_DEPARTAMENTO,
+      id: ID_DEPARTAMENTO,
       hash: HASH_DEPARTAMENTO
     };
     // console.log(DOC);
 
     neDB.findOne(
-      { _id: ID_DEPARTAMENTO },
+      { id: ID_DEPARTAMENTO },
       async function (err, doc) {
         // console.log(doc);
         try {
@@ -128,7 +128,7 @@ function findOne(
                 idLoja
               );
               neDB.remove(
-                { _id: ID_DEPARTAMENTO },
+                { id: ID_DEPARTAMENTO },
                 { multi: true },
                 function (err, numRemoved) {
                   // console.log('numRemoved', numRemoved);
