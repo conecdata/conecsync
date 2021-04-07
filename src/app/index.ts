@@ -9,15 +9,24 @@ import {
   processaProdutosLoja
 } from './inc/produtos';
 import {
-  buscaFormasDB,
-  buscaFormasFB,
-  processaFormasLoja
-} from './inc/formas-pgto';
-import {
   buscaEstoqueDB,
   buscaEstoqueFB,
   processaEstoqueLoja
 } from './inc/estoque';
+import {
+  buscaProdutosPromocoesDB,
+  buscaProdutosPromocoesFB,
+} from './inc/produtos-promocoes';
+import {
+  buscaPromocoesDB,
+  buscaPromocoesFB,
+  processaPromocoesLoja
+} from './inc/promocoes';
+import {
+  buscaFormasDB,
+  buscaFormasFB,
+  processaFormasLoja
+} from './inc/formas-pgto';
 import {
   ESTOQUE_REQ_FIELDS,
   FORMAS_REQ_FIELDS,
@@ -30,11 +39,15 @@ import { CONFIG } from './config/config';
 import { CONFIG_FORMAS } from './config/origens/config-formas-pgto';
 import { CONFIG_MERCADEIRO } from './config/projetos/config-mercadeiro';
 import { CONFIG_PRODUTOS } from './config/origens/config-produtos';
+import { CONFIG_PROMOCOES } from './config/origens/config-promocoes';
+import { CONFIG_PRODUTOS_PROMOCOES } from './config/origens/config-produtos-promocoes';
 import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
 (async function main() {
   try {
     let sequelize;
+
+    const PRODUTOS_PROMOCOES_MAP: Map<string, string[]> = new Map();
 
     // const ARGS: string[] = yargs.argv._;
     // const PATH: string = (ARGS[0] || '').trim();
@@ -62,6 +75,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
         total: 0,
         sincronizados: 0
       },
+      produtosPromocoes: {
+        total: 0,
+        sincronizados: 0
+      },
       promocoes: {
         total: 0,
         sincronizados: 0
@@ -82,12 +99,15 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
       throw new Error('Nenhuma loja indicada em projetos: config/projetos/config-*.ts');
     } // if
 
+    //#region checkCsv
     log('Verificando configurações de pasta csv.');
     const PASTA_CSV: string = get(CONFIG, 'csv.path') || '';
     if ( // Alguma integração com csv?
       CONFIG_PRODUTOS.tipo.toLowerCase() === 'csv'
-      || CONFIG_FORMAS.tipo.toLowerCase() === 'csv'
       || CONFIG_ESTOQUE.tipo.toLowerCase() === 'csv'
+      || CONFIG_PROMOCOES.tipo.toLowerCase() === 'csv'
+      || CONFIG_PRODUTOS_PROMOCOES.tipo.toLowerCase() === 'csv'
+      || CONFIG_FORMAS.tipo.toLowerCase() === 'csv'
     ) {
       if (PASTA_CSV) {
         log('Encontrado: ' + PASTA_CSV);
@@ -97,12 +117,17 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     } else {
       log('Nenhuma integração csv encontrada');
     } // else
+    //#endregion
+
+    //#region checkDb
 
     log('Verificando configurações de conexão db.');
     if ( // Alguma conexão com db?
       CONFIG_PRODUTOS.tipo.toLowerCase() === 'db'
-      || CONFIG_FORMAS.tipo.toLowerCase() === 'db'
       || CONFIG_ESTOQUE.tipo.toLowerCase() === 'db'
+      || CONFIG_PROMOCOES.tipo.toLowerCase() === 'db'
+      || CONFIG_PRODUTOS_PROMOCOES.tipo.toLowerCase() === 'db'
+      || CONFIG_FORMAS.tipo.toLowerCase() === 'db'
     ) {
       // Erros de conexão com DB?
       if (
@@ -135,12 +160,16 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     } else {
       log('OBS: Nenhuma integração db indicada.');
     } // else
+    //#endregion
 
+    //#region checkFb
     log('Verificando configurações de conexão fb (Firebird).');
     if (
       CONFIG_PRODUTOS.tipo.toLowerCase() === 'fb'
-      || CONFIG_FORMAS.tipo.toLowerCase() === 'fb'
       || CONFIG_ESTOQUE.tipo.toLowerCase() === 'fb'
+      || CONFIG_PROMOCOES.tipo.toLowerCase() === 'fb'
+      || CONFIG_PRODUTOS_PROMOCOES.tipo.toLowerCase() === 'fb'
+      || CONFIG_FORMAS.tipo.toLowerCase() === 'fb'
     ) {
       // Erros de conexão com FB?
       if (
@@ -175,8 +204,9 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     } else {
       log('OBS: Nenhuma integração com Firebird indicada.');
     } // else
+    //#endregion
 
-    /* PRODUTOS */
+    //#region produtos
     const TIPO_PRODUTOS: string = (get(CONFIG_PRODUTOS, 'tipo') || '').toLowerCase();
     // console.log(TIPO_PRODUTOS);
     log('Verificando integração PRODUTOS.');
@@ -475,8 +505,6 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
             } // try-catch
           } // for
           break;
-
-
         default:
           errorLog('Tipo de origem inválido: config/origens/config-produtos.ts: tipo');
           break;
@@ -488,223 +516,9 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
         produtos: resultado.produtos,
       }));
     } // if
+    //#endregion
 
-    /* FORMAS PGTO */
-    const TIPO_FORMAS: string = (get(CONFIG_FORMAS, 'tipo') || '').toLowerCase();
-    log('Verificando integração FORMAS PGTO.');
-    if (TIPO_FORMAS) {
-      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
-      const VIEW_FORMAS: string = get(CONFIG_FORMAS, 'nomeView') || '';
-
-      // console.log(TIPO_FORMAS);
-      switch (TIPO_FORMAS) {
-        case 'db':
-          log('Encontrado: ' + VIEW_FORMAS);
-
-          for (const LOJA of LOJAS_MERCADEIRO) {
-            // console.log(LOJA);
-            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
-
-            try {
-              const FORMAS = (await buscaFormasDB(
-                sequelize,
-                ID_LOJA
-              ))
-                .map(p => get(p, 'dataValues') || {});
-
-              resultado = {
-                ...resultado,
-                ...await processaFormasLoja(
-                  ID_LOJA,
-                  FORMAS
-                )
-              };
-            } catch (error) {
-              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
-            } // try-catch
-          } // for
-          break;
-
-        case 'fb':
-          log('Encontrado: ' + VIEW_FORMAS);
-          for (const LOJA of LOJAS_MERCADEIRO) {
-            // console.log(LOJA);
-            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
-
-            try {
-              const FORMAS: any = (await buscaFormasFB(ID_LOJA));
-
-              // Object.Keys.toLowercase() && Object.values.trim()
-              let formas: any[] = [];
-              FORMAS.forEach(f => {
-                // let o: any = 
-                const obj: any = {};
-                Object.entries(f)
-                  .forEach((e: any) => {
-                    // console.log(e);
-                    const [K, V] = e;
-                    // console.log(K, V);
-                    obj[K.toLowerCase()] = typeof V === 'string'
-                      ? (V || '').trim()
-                      : (typeof V === 'number' ? V : V || '');
-                  });
-                formas.push(obj);
-              });
-              // console.log(formas);
-
-              resultado = {
-                ...resultado,
-                ...await processaFormasLoja(
-                  ID_LOJA,
-                  formas
-                )
-              };
-            } catch (error) {
-              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
-            } // try-catch
-          } // for
-          break;
-
-        case 'csv':
-          // const SOURCE: string = `${PATH}\\assets\\${ORIGEM_PRODUTOS}.csv`;
-          for (const LOJA of LOJAS_MERCADEIRO) {
-            // console.log(LOJA);
-            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
-
-            const CSV_PATH: string = `${PASTA_CSV}\\formas-pgto\\${ID_LOJA}.csv`;
-            const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
-            const FIELDPOS = {
-              id_interno: -1,
-              forma_ativa: -1,
-              nome_forma: -1,
-              id_externo: -1
-            };
-            if (EXTENSION !== '.csv') {
-              errorLog('Formato inválido. Apenas arquivos .csv são aceitos: config/config.ts: csv.path/formas-pgto/{idLoja}.csv');
-              break;
-            } // if
-            log(`Lendo ${CSV_PATH}`);
-            try {
-              const VALUE = await fs.readFile(CSV_PATH, 'utf8');
-              // console.log(VALUE);
-              if (VALUE.trim()) {
-                log('Removendo linhas vazias ou comentadas.');
-                // Separa linhas e remove vazias ou comentadas.
-                let rows: string[] = VALUE.split("\n");
-                rows = rows.filter(r => r.trim() && r && r[0] !== '*');
-                const LR: number = rows.length;
-                resultado.formas.total = LR - 1; // Ignora cabeçalho.
-                log(`${resultado.formas.total} forma(s) pgto encontrada(s).`);
-                // qtde.total = LR - 1;
-
-                const HEADER: string[] = rows[0].split(';');
-                // console.log(HEADER);
-
-                log('Validando campos obrigatórios.');
-                // Verifica presença de campos requeridos e guarda suas posições.
-                let req: string[] = FORMAS_REQ_FIELDS;
-                const LH: number = HEADER.length;
-                for (let i = 0; i < LH; i++) {
-                  const FIELD: string = HEADER[i].trim().replace(SEARCH_REG_EXP, '');
-                  // console.log(FIELD);
-                  // i === 1 && console.log(v.trim().toLowerCase().replace(SEARCH_REG_EXP, ''), FIELD);
-                  req = req.filter(v => {
-                    return v.trim().toLowerCase().replace(SEARCH_REG_EXP, '') !== FIELD.toLowerCase();
-                  });
-                  if (FIELD) {
-                    FIELDPOS[FIELD] = i; // Guarda posição da coluna.
-                  } // if
-                } // for
-                // console.log(req);
-                // console.log(FIELDPOS);
-
-                if (req.length) {
-                  throw new Error(`Campos obrigatórios não indicados: ${req.join(', ')}`);
-                } // if
-
-                log('Verificando largura das linhas.');
-                // Verifica se todas linhas batem com header
-                const BADLINES: number[] = [];
-                // console.log(LH);
-                for (let i = 0; i < LR; i++) {
-                  const ROW: string[] = rows[i].split(';');
-                  // console.log(`${i} ${ROW.length}/${LH}`);
-                  // console.log("\n");
-                  // console.log(ROW);
-                  if (ROW.length !== LH) {
-                    BADLINES.push(i);
-                  } else {
-                    /* if (!(
-                        ROW[FIELDPOS['seu_codigo']].trim().length
-                        && ROW[FIELDPOS['barcode']].trim().length
-                        && ROW[FIELDPOS['nome']].trim().length
-                        && ROW[FIELDPOS['preco']].trim().length
-                        && ROW[FIELDPOS['id_departamento']].trim().length
-                    )) {
-                        BADLINES.push(i);
-                    } // if */
-                  } // if
-                } // for
-                // console.log(BADLINES);
-
-                if (BADLINES.length) {
-                  throw new Error(`Linhas inválidas encontradas: ${BADLINES.join(', ')}`);
-                } // if
-
-                log('Convertendo linhas texto para formas pgto.');
-                const FORMAS = [];
-                for (let i = 0; i < LR; i++) {
-                  if (i) { // ignora header
-                    const ROW: string[] = rows[i]
-                      .replace(SEARCH_REG_EXP, '')
-                      .replace("\r", '')
-                      .split(';')
-                      .map((r: string) => r.toLowerCase() === 'null' ? '' : r.trim());
-                    // console.log(ROW);
-                    const FORMA = {
-                      'id_interno': FIELDPOS['id_interno'] >= 0
-                        && `${ROW[FIELDPOS['id_interno']].trim()}`,
-
-                      'forma_ativa': FIELDPOS['forma_ativa'] >= 0
-                        && parseInt(ROW[FIELDPOS['forma_ativa']] || '') > 0,
-
-                      'nome_forma': FIELDPOS['nome_forma'] >= 0
-                        && `${ROW[FIELDPOS['nome_forma']].trim()}`,
-
-                      'id_externo': FIELDPOS['id_externo'] >= 0
-                        && `${ROW[FIELDPOS['id_externo']].trim()}`,
-                    };
-                    FORMAS.push(FORMA);
-                  } // if
-                } // for
-                // console.log(FORMAS);
-                resultado = {
-                  ...resultado,
-                  ...await processaFormasLoja(
-                    ID_LOJA,
-                    FORMAS
-                  )
-                };
-              } else {
-                log('OBS: Arquivo .csv vazio.');
-              } // else
-            } catch (error) {
-              errorLog(error.message);
-            } // try-catch
-          } // for
-          break;
-
-        default:
-          errorLog('Tipo de origem inválido: config/origens/config-formas-pgto.ts: tipo');
-          break;
-      } // switch
-
-      log(JSON.stringify({
-        formas: resultado.formas
-      }));
-    } // if
-
-    /* ESTOQUE */
+    //#region estoque
     let tipoEstoque: string = (get(CONFIG_ESTOQUE, 'tipo') || '').toLowerCase();
     // console.log(tipoEstoque);
 
@@ -931,6 +745,699 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
         estoque: resultado.estoque
       }));
     } // if
+    //#endregion
+
+    //#region produtosPromocoes
+    let tipoProdutosPromocoes: string = (get(CONFIG_PRODUTOS_PROMOCOES, 'tipo') || '').toLowerCase();
+    // console.log(tipoProdutosPromocoes);
+
+    log('Verificando integração PRODUTOS_PROMOCOES.');
+    if (tipoProdutosPromocoes) {
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
+      const VIEW_PRODUTOS_PROMOCOES: string = get(CONFIG_PRODUTOS_PROMOCOES, 'nomeView') || '';
+
+      switch (tipoProdutosPromocoes) {
+        case 'db':
+          log('Encontrado: ' + VIEW_PRODUTOS_PROMOCOES);
+          // console.log(CAMPOS_PRODUTOS_PROMOCOES);
+
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            try {
+              const PRODUTOS_PROMOCOES = (await buscaProdutosPromocoesDB(
+                sequelize,
+                ID_LOJA
+              ))
+                .map(p => get(p, 'dataValues') || {});
+
+              // console.log(PRODUTOS_PROMOCOES);
+
+              PRODUTOS_PROMOCOES.forEach((e: any) => {
+                // PRODUTOS_PROMOCOES_MAP
+                // console.log(e);
+                let {
+                  id_produto_promocao_promocao,
+                  id_produto_promocao_produto,
+                  id_loja
+                } = e;
+
+                const ID_PROMOCAO: string = `${id_loja}_${id_produto_promocao_promocao}`;
+                const ID_PRODUTO: string = `${id_produto_promocao_produto}`;
+                // console.log('ID_PROMOCAO', ID_PROMOCAO);
+                // console.log('ID_PRODUTO', ID_PRODUTO);
+                const IDS: string[] = (PRODUTOS_PROMOCOES_MAP.get(ID_PROMOCAO) || []);
+                IDS.push(ID_PRODUTO)
+                // console.log(IDS);
+                PRODUTOS_PROMOCOES_MAP.set(ID_PROMOCAO, IDS);
+              });
+
+              for (let entry of PRODUTOS_PROMOCOES_MAP.entries()) {
+                // console.log(entry[0]);
+                // console.log(entry[1]);
+                const [KEY, VAL] = entry;
+                PRODUTOS_PROMOCOES_MAP.set(
+                  KEY,
+                  (VAL && VAL.sort()) || []
+                );
+              } // for
+              console.log(PRODUTOS_PROMOCOES_MAP);
+            } catch (error) {
+              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            } // try-catch
+          } // for
+          break;
+
+        case 'fb':
+          log('Encontrado: ' + VIEW_PRODUTOS_PROMOCOES);
+          // console.log(CAMPOS_PRODUTOS_PROMOCOES);
+
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            try {
+              const ESTOQUE: any = (await buscaEstoqueFB(ID_LOJA));
+
+              // Object.Keys.toLowercase() && Object.values.trim()
+              let estoque: any[] = [];
+              ESTOQUE.forEach(p => {
+                // let o: any = 
+                const obj: any = {};
+                Object.entries(p)
+                  .forEach((e: any) => {
+                    // console.log(e);
+                    const [K, V] = e;
+                    // console.log(K, V);
+                    obj[K.toLowerCase()] = typeof V === 'string'
+                      ? (V || '').trim()
+                      : (typeof V === 'number' ? V : V || '');
+                  });
+                estoque.push(obj);
+              });
+              // console.log(produtos);
+
+              resultado = {
+                ...resultado,
+                ...await processaEstoqueLoja(
+                  ID_LOJA,
+                  estoque
+                )
+              };
+            } catch (error) {
+              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            } // try-catch
+          } // for
+          break;
+
+        case 'csv':
+          // const SOURCE: string = `${PATH}\\assets\\${ORIGEM_PRODUTOS}.csv`;
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            const CSV_PATH: string = `${PASTA_CSV}\\estoque\\${ID_LOJA}.csv`;
+            const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
+            const FIELDPOS = {
+              id_produto: -1,
+              barcode_produto: -1,
+              nome_produto: -1,
+              qtde_estoque_atual: -1,
+              qtde_estoque_minimo: -1
+            };
+            if (EXTENSION !== '.csv') {
+              errorLog('Formato inválido. Apenas arquivos .csv são aceitos: config/config.ts: csv.path/estoque/{idLoja}.csv');
+              break;
+            } // if
+            log(`Lendo ${CSV_PATH}`);
+            try {
+              const VALUE = await fs.readFile(CSV_PATH, 'utf8');
+              // console.log(VALUE);
+              if (VALUE.trim()) {
+                log('Removendo linhas vazias ou comentadas.');
+                // Separa linhas e remove vazias ou comentadas.
+                let rows: string[] = VALUE.split("\n");
+                rows = rows.filter(r => r.trim() && r && r[0] !== '*');
+                const LR: number = rows.length;
+                resultado.estoque.total = LR - 1; // Ignora cabeçalho.
+                log(`${resultado.estoque.total} produto(s) estoque controlado encontrado(s).`);
+                // qtde.total = LR - 1;
+
+                const HEADER: string[] = rows[0].split(';');
+                // console.log(HEADER);
+
+                log('Validando campos obrigatórios.');
+                // Verifica presença de campos requeridos e guarda suas posições.
+                let req: string[] = ESTOQUE_REQ_FIELDS;
+                const LH: number = HEADER.length;
+                for (let i = 0; i < LH; i++) {
+                  const FIELD: string = HEADER[i].trim().replace(SEARCH_REG_EXP, '');
+                  // console.log(FIELD);
+                  // i === 1 && console.log(v.trim().toLowerCase().replace(SEARCH_REG_EXP, ''), FIELD);
+                  req = req.filter(v => {
+                    return v.trim().toLowerCase().replace(SEARCH_REG_EXP, '') !== FIELD.toLowerCase();
+                  });
+                  if (FIELD) {
+                    FIELDPOS[FIELD] = i; // Guarda posição da coluna.
+                  } // if
+                } // for
+                // console.log(req);
+                // console.log(FIELDPOS);
+
+                if (req.length) {
+                  throw new Error(`Campos obrigatórios não indicados: ${req.join(', ')}`);
+                } // if
+
+                log('Verificando largura das linhas.');
+                // Verifica se todas linhas batem com header
+                const BADLINES: number[] = [];
+                // console.log(LH);
+                for (let i = 0; i < LR; i++) {
+                  const ROW: string[] = rows[i].split(';');
+                  // console.log(`${i} ${ROW.length}/${LH}`);
+                  // console.log("\n");
+                  // console.log(ROW);
+                  if (ROW.length !== LH) {
+                    BADLINES.push(i);
+                  } else {
+                    /* if (!(
+                        ROW[FIELDPOS['seu_codigo']].trim().length
+                        && ROW[FIELDPOS['barcode']].trim().length
+                        && ROW[FIELDPOS['nome']].trim().length
+                        && ROW[FIELDPOS['preco']].trim().length
+                        && ROW[FIELDPOS['id_departamento']].trim().length
+                    )) {
+                        BADLINES.push(i);
+                    } // if */
+                  } // if
+                } // for
+                // console.log(BADLINES);
+
+                if (BADLINES.length) {
+                  throw new Error(`Linhas inválidas encontradas: ${BADLINES.join(', ')}`);
+                } // if
+
+                log('Convertendo linhas texto para produtos estoque controlado.');
+                const ESTOQUE = [];
+                for (let i = 0; i < LR; i++) {
+                  if (i) { // ignora header
+                    const ROW: string[] = rows[i]
+                      .replace(SEARCH_REG_EXP, '')
+                      .replace("\r", '')
+                      .split(';')
+                      .map((r: string) => r.toLowerCase() === 'null' ? '' : r.trim());
+                    // console.log(ROW);
+                    const PRODUTO = {
+                      'id_produto': FIELDPOS['id_produto'] >= 0
+                        && `${ROW[FIELDPOS['id_produto']].trim()}`,
+
+                      'barcode_produto': FIELDPOS['barcode_produto'] >= 0
+                        && `${ROW[FIELDPOS['barcode_produto']].trim()}`,
+
+                      'nome_produto': FIELDPOS['nome_produto'] >= 0
+                        && `${ROW[FIELDPOS['nome_produto']].trim()}`,
+
+                      'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
+                        && parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || ''),
+
+                      'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
+                        && parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '')
+                    };
+                    ESTOQUE.push(PRODUTO);
+                  } // if
+                } // for
+                // console.log(ESTOQUE);
+                resultado = {
+                  ...resultado,
+                  ...await processaEstoqueLoja(
+                    ID_LOJA,
+                    ESTOQUE
+                  )
+                };
+              } else {
+                log('OBS: Arquivo .csv vazio.');
+              } // else
+            } catch (error) {
+              errorLog(error.message);
+            } // try-catch
+          } // for
+          break;
+
+        default:
+          errorLog('Tipo de origem inválido: config/origens/config-estoque.ts: tipo');
+          break;
+      } // switch
+
+      log(JSON.stringify({
+        estoque: resultado.estoque
+      }));
+    } // if
+    //#endregion
+
+    //#region promocoes
+    let tipoPromocoes: string = (get(CONFIG_PROMOCOES, 'tipo') || '').toLowerCase();
+    // console.log(tipoEstoque);
+
+    log('Verificando promoções.');
+    if (tipoPromocoes) {
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
+      const VIEW_PROMOCOES: string = get(CONFIG_PROMOCOES, 'nomeView') || '';
+
+      switch (tipoPromocoes) {
+        case 'db':
+          log('Encontrado: ' + VIEW_PROMOCOES);
+          // console.log(CAMPOS_ESTOQUE);
+
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            try {
+              const PROMOCOES = (await buscaPromocoesDB(
+                sequelize,
+                ID_LOJA
+              ))
+                .map(p => get(p, 'dataValues') || {});
+
+              console.log(PROMOCOES);
+              // console.log(PRODUTOS_PROMOCOES_MAP);              
+
+              resultado = {
+                ...resultado,
+                ...await processaPromocoesLoja(
+                  ID_LOJA,
+                  PROMOCOES,
+                  PRODUTOS_PROMOCOES_MAP
+                )
+              };
+            } catch (error) {
+              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            } // try-catch
+          } // for
+          break;
+
+        case 'fb':
+          log('Encontrado: ' + VIEW_PROMOCOES);
+          // console.log(CAMPOS_ESTOQUE);
+
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            try {
+              const ESTOQUE: any = (await buscaEstoqueFB(ID_LOJA));
+
+              // Object.Keys.toLowercase() && Object.values.trim()
+              let estoque: any[] = [];
+              ESTOQUE.forEach(p => {
+                // let o: any = 
+                const obj: any = {};
+                Object.entries(p)
+                  .forEach((e: any) => {
+                    // console.log(e);
+                    const [K, V] = e;
+                    // console.log(K, V);
+                    obj[K.toLowerCase()] = typeof V === 'string'
+                      ? (V || '').trim()
+                      : (typeof V === 'number' ? V : V || '');
+                  });
+                estoque.push(obj);
+              });
+              // console.log(produtos);
+
+              resultado = {
+                ...resultado,
+                ...await processaEstoqueLoja(
+                  ID_LOJA,
+                  estoque
+                )
+              };
+            } catch (error) {
+              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            } // try-catch
+          } // for
+          break;
+
+        case 'csv':
+          // const SOURCE: string = `${PATH}\\assets\\${ORIGEM_PRODUTOS}.csv`;
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            const CSV_PATH: string = `${PASTA_CSV}\\estoque\\${ID_LOJA}.csv`;
+            const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
+            const FIELDPOS = {
+              id_produto: -1,
+              barcode_produto: -1,
+              nome_produto: -1,
+              qtde_estoque_atual: -1,
+              qtde_estoque_minimo: -1
+            };
+            if (EXTENSION !== '.csv') {
+              errorLog('Formato inválido. Apenas arquivos .csv são aceitos: config/config.ts: csv.path/estoque/{idLoja}.csv');
+              break;
+            } // if
+            log(`Lendo ${CSV_PATH}`);
+            try {
+              const VALUE = await fs.readFile(CSV_PATH, 'utf8');
+              // console.log(VALUE);
+              if (VALUE.trim()) {
+                log('Removendo linhas vazias ou comentadas.');
+                // Separa linhas e remove vazias ou comentadas.
+                let rows: string[] = VALUE.split("\n");
+                rows = rows.filter(r => r.trim() && r && r[0] !== '*');
+                const LR: number = rows.length;
+                resultado.estoque.total = LR - 1; // Ignora cabeçalho.
+                log(`${resultado.estoque.total} produto(s) estoque controlado encontrado(s).`);
+                // qtde.total = LR - 1;
+
+                const HEADER: string[] = rows[0].split(';');
+                // console.log(HEADER);
+
+                log('Validando campos obrigatórios.');
+                // Verifica presença de campos requeridos e guarda suas posições.
+                let req: string[] = ESTOQUE_REQ_FIELDS;
+                const LH: number = HEADER.length;
+                for (let i = 0; i < LH; i++) {
+                  const FIELD: string = HEADER[i].trim().replace(SEARCH_REG_EXP, '');
+                  // console.log(FIELD);
+                  // i === 1 && console.log(v.trim().toLowerCase().replace(SEARCH_REG_EXP, ''), FIELD);
+                  req = req.filter(v => {
+                    return v.trim().toLowerCase().replace(SEARCH_REG_EXP, '') !== FIELD.toLowerCase();
+                  });
+                  if (FIELD) {
+                    FIELDPOS[FIELD] = i; // Guarda posição da coluna.
+                  } // if
+                } // for
+                // console.log(req);
+                // console.log(FIELDPOS);
+
+                if (req.length) {
+                  throw new Error(`Campos obrigatórios não indicados: ${req.join(', ')}`);
+                } // if
+
+                log('Verificando largura das linhas.');
+                // Verifica se todas linhas batem com header
+                const BADLINES: number[] = [];
+                // console.log(LH);
+                for (let i = 0; i < LR; i++) {
+                  const ROW: string[] = rows[i].split(';');
+                  // console.log(`${i} ${ROW.length}/${LH}`);
+                  // console.log("\n");
+                  // console.log(ROW);
+                  if (ROW.length !== LH) {
+                    BADLINES.push(i);
+                  } else {
+                    /* if (!(
+                        ROW[FIELDPOS['seu_codigo']].trim().length
+                        && ROW[FIELDPOS['barcode']].trim().length
+                        && ROW[FIELDPOS['nome']].trim().length
+                        && ROW[FIELDPOS['preco']].trim().length
+                        && ROW[FIELDPOS['id_departamento']].trim().length
+                    )) {
+                        BADLINES.push(i);
+                    } // if */
+                  } // if
+                } // for
+                // console.log(BADLINES);
+
+                if (BADLINES.length) {
+                  throw new Error(`Linhas inválidas encontradas: ${BADLINES.join(', ')}`);
+                } // if
+
+                log('Convertendo linhas texto para produtos estoque controlado.');
+                const ESTOQUE = [];
+                for (let i = 0; i < LR; i++) {
+                  if (i) { // ignora header
+                    const ROW: string[] = rows[i]
+                      .replace(SEARCH_REG_EXP, '')
+                      .replace("\r", '')
+                      .split(';')
+                      .map((r: string) => r.toLowerCase() === 'null' ? '' : r.trim());
+                    // console.log(ROW);
+                    const PRODUTO = {
+                      'id_produto': FIELDPOS['id_produto'] >= 0
+                        && `${ROW[FIELDPOS['id_produto']].trim()}`,
+
+                      'barcode_produto': FIELDPOS['barcode_produto'] >= 0
+                        && `${ROW[FIELDPOS['barcode_produto']].trim()}`,
+
+                      'nome_produto': FIELDPOS['nome_produto'] >= 0
+                        && `${ROW[FIELDPOS['nome_produto']].trim()}`,
+
+                      'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
+                        && parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || ''),
+
+                      'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
+                        && parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '')
+                    };
+                    ESTOQUE.push(PRODUTO);
+                  } // if
+                } // for
+                // console.log(ESTOQUE);
+                resultado = {
+                  ...resultado,
+                  ...await processaEstoqueLoja(
+                    ID_LOJA,
+                    ESTOQUE
+                  )
+                };
+              } else {
+                log('OBS: Arquivo .csv vazio.');
+              } // else
+            } catch (error) {
+              errorLog(error.message);
+            } // try-catch
+          } // for
+          break;
+
+        default:
+          errorLog('Tipo de origem inválido: config/origens/config-estoque.ts: tipo');
+          break;
+      } // switch
+
+      log(JSON.stringify({
+        estoque: resultado.estoque
+      }));
+    } // if
+    //#endregion
+
+    //#region formasPgto
+    const TIPO_FORMAS: string = (get(CONFIG_FORMAS, 'tipo') || '').toLowerCase();
+    log('Verificando integração FORMAS PGTO.');
+    if (TIPO_FORMAS) {
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
+      const VIEW_FORMAS: string = get(CONFIG_FORMAS, 'nomeView') || '';
+
+      // console.log(TIPO_FORMAS);
+      switch (TIPO_FORMAS) {
+        case 'db':
+          log('Encontrado: ' + VIEW_FORMAS);
+
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            try {
+              const FORMAS = (await buscaFormasDB(
+                sequelize,
+                ID_LOJA
+              ))
+                .map(p => get(p, 'dataValues') || {});
+
+              resultado = {
+                ...resultado,
+                ...await processaFormasLoja(
+                  ID_LOJA,
+                  FORMAS
+                )
+              };
+            } catch (error) {
+              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            } // try-catch
+          } // for
+          break;
+
+        case 'fb':
+          log('Encontrado: ' + VIEW_FORMAS);
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            try {
+              const FORMAS: any = (await buscaFormasFB(ID_LOJA));
+
+              // Object.Keys.toLowercase() && Object.values.trim()
+              let formas: any[] = [];
+              FORMAS.forEach(f => {
+                // let o: any = 
+                const obj: any = {};
+                Object.entries(f)
+                  .forEach((e: any) => {
+                    // console.log(e);
+                    const [K, V] = e;
+                    // console.log(K, V);
+                    obj[K.toLowerCase()] = typeof V === 'string'
+                      ? (V || '').trim()
+                      : (typeof V === 'number' ? V : V || '');
+                  });
+                formas.push(obj);
+              });
+              // console.log(formas);
+
+              resultado = {
+                ...resultado,
+                ...await processaFormasLoja(
+                  ID_LOJA,
+                  formas
+                )
+              };
+            } catch (error) {
+              errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            } // try-catch
+          } // for
+          break;
+
+        case 'csv':
+          // const SOURCE: string = `${PATH}\\assets\\${ORIGEM_PRODUTOS}.csv`;
+          for (const LOJA of LOJAS_MERCADEIRO) {
+            // console.log(LOJA);
+            const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+
+            const CSV_PATH: string = `${PASTA_CSV}\\formas-pgto\\${ID_LOJA}.csv`;
+            const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
+            const FIELDPOS = {
+              id_interno: -1,
+              forma_ativa: -1,
+              nome_forma: -1,
+              id_externo: -1
+            };
+            if (EXTENSION !== '.csv') {
+              errorLog('Formato inválido. Apenas arquivos .csv são aceitos: config/config.ts: csv.path/formas-pgto/{idLoja}.csv');
+              break;
+            } // if
+            log(`Lendo ${CSV_PATH}`);
+            try {
+              const VALUE = await fs.readFile(CSV_PATH, 'utf8');
+              // console.log(VALUE);
+              if (VALUE.trim()) {
+                log('Removendo linhas vazias ou comentadas.');
+                // Separa linhas e remove vazias ou comentadas.
+                let rows: string[] = VALUE.split("\n");
+                rows = rows.filter(r => r.trim() && r && r[0] !== '*');
+                const LR: number = rows.length;
+                resultado.formas.total = LR - 1; // Ignora cabeçalho.
+                log(`${resultado.formas.total} forma(s) pgto encontrada(s).`);
+                // qtde.total = LR - 1;
+
+                const HEADER: string[] = rows[0].split(';');
+                // console.log(HEADER);
+
+                log('Validando campos obrigatórios.');
+                // Verifica presença de campos requeridos e guarda suas posições.
+                let req: string[] = FORMAS_REQ_FIELDS;
+                const LH: number = HEADER.length;
+                for (let i = 0; i < LH; i++) {
+                  const FIELD: string = HEADER[i].trim().replace(SEARCH_REG_EXP, '');
+                  // console.log(FIELD);
+                  // i === 1 && console.log(v.trim().toLowerCase().replace(SEARCH_REG_EXP, ''), FIELD);
+                  req = req.filter(v => {
+                    return v.trim().toLowerCase().replace(SEARCH_REG_EXP, '') !== FIELD.toLowerCase();
+                  });
+                  if (FIELD) {
+                    FIELDPOS[FIELD] = i; // Guarda posição da coluna.
+                  } // if
+                } // for
+                // console.log(req);
+                // console.log(FIELDPOS);
+
+                if (req.length) {
+                  throw new Error(`Campos obrigatórios não indicados: ${req.join(', ')}`);
+                } // if
+
+                log('Verificando largura das linhas.');
+                // Verifica se todas linhas batem com header
+                const BADLINES: number[] = [];
+                // console.log(LH);
+                for (let i = 0; i < LR; i++) {
+                  const ROW: string[] = rows[i].split(';');
+                  // console.log(`${i} ${ROW.length}/${LH}`);
+                  // console.log("\n");
+                  // console.log(ROW);
+                  if (ROW.length !== LH) {
+                    BADLINES.push(i);
+                  } else {
+                    /* if (!(
+                        ROW[FIELDPOS['seu_codigo']].trim().length
+                        && ROW[FIELDPOS['barcode']].trim().length
+                        && ROW[FIELDPOS['nome']].trim().length
+                        && ROW[FIELDPOS['preco']].trim().length
+                        && ROW[FIELDPOS['id_departamento']].trim().length
+                    )) {
+                        BADLINES.push(i);
+                    } // if */
+                  } // if
+                } // for
+                // console.log(BADLINES);
+
+                if (BADLINES.length) {
+                  throw new Error(`Linhas inválidas encontradas: ${BADLINES.join(', ')}`);
+                } // if
+
+                log('Convertendo linhas texto para formas pgto.');
+                const FORMAS = [];
+                for (let i = 0; i < LR; i++) {
+                  if (i) { // ignora header
+                    const ROW: string[] = rows[i]
+                      .replace(SEARCH_REG_EXP, '')
+                      .replace("\r", '')
+                      .split(';')
+                      .map((r: string) => r.toLowerCase() === 'null' ? '' : r.trim());
+                    // console.log(ROW);
+                    const FORMA = {
+                      'id_interno': FIELDPOS['id_interno'] >= 0
+                        && `${ROW[FIELDPOS['id_interno']].trim()}`,
+
+                      'forma_ativa': FIELDPOS['forma_ativa'] >= 0
+                        && parseInt(ROW[FIELDPOS['forma_ativa']] || '') > 0,
+
+                      'nome_forma': FIELDPOS['nome_forma'] >= 0
+                        && `${ROW[FIELDPOS['nome_forma']].trim()}`,
+
+                      'id_externo': FIELDPOS['id_externo'] >= 0
+                        && `${ROW[FIELDPOS['id_externo']].trim()}`,
+                    };
+                    FORMAS.push(FORMA);
+                  } // if
+                } // for
+                // console.log(FORMAS);
+                resultado = {
+                  ...resultado,
+                  ...await processaFormasLoja(
+                    ID_LOJA,
+                    FORMAS
+                  )
+                };
+              } else {
+                log('OBS: Arquivo .csv vazio.');
+              } // else
+            } catch (error) {
+              errorLog(error.message);
+            } // try-catch
+          } // for
+          break;
+
+        default:
+          errorLog('Tipo de origem inválido: config/origens/config-formas-pgto.ts: tipo');
+          break;
+      } // switch
+
+      log(JSON.stringify({
+        formas: resultado.formas
+      }));
+    } // if
+    //#endregion
 
     log(JSON.stringify(resultado));
   } catch (error) {

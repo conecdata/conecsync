@@ -226,3 +226,69 @@ export const CAMPOS_PRODUTOS: any = {
     field: 'online_departamento'
   },
 };
+
+// produtosPromocoes
+export const CAMPOS_PRODUTOS_PROMOCOES: any = {
+  id_produto_promocao: {
+    type: DataTypes.INTEGER,
+    field: 'id_produto_promocao',
+    primaryKey: true
+  },
+  id_loja: {
+    type: DataTypes.INTEGER,
+    field: 'id_loja'
+  },
+  id_produto_promocao_promocao: {
+    type: DataTypes.INTEGER,
+    field: 'id_produto_promocao_promocao'
+  },
+  id_produto_promocao_produto: {
+    type: DataTypes.INTEGER,
+    field: 'id_produto_promocao_produto'
+  },
+};
+
+// promocoes
+export const CAMPOS_PROMOCOES: any = {
+  id_promocao: {
+    type: DataTypes.INTEGER,
+    field: 'id_promocao',
+    primaryKey: true
+  },
+  id_loja: {
+    type: DataTypes.INTEGER,
+    field: 'id_loja'
+  },
+  promocao_ativa: {
+    type: DataTypes.BOOLEAN,
+    field: 'promocao_ativa'
+  },
+  descricao: {
+    type: DataTypes.STRING,
+    field: 'descricao'
+  },
+  tipo: {
+    type: DataTypes.STRING,
+    field: 'tipo'
+  },
+  qtde_apd: {
+    type: DataTypes.DECIMAL,
+    field: 'qtde_apd'
+  },
+  lim_desc_apd: {
+    type: DataTypes.DECIMAL,
+    field: 'lim_desc_apd'
+  },
+  perc_desc_apd: {
+    type: DataTypes.DECIMAL,
+    field: 'perc_desc_apd'
+  },
+  qtde_leve_lp: {
+    type: DataTypes.DECIMAL,
+    field: 'qtde_leve_lp'
+  },
+  qtde_pague_lp: {
+    type: DataTypes.DECIMAL,
+    field: 'qtde_pague_lp'
+  },
+};

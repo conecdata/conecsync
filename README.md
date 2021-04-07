@@ -1,14 +1,12 @@
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/logos%2Flogo_conecsync_dark.svg?alt=media =300x)
+<img src="https://firebasestorage.googleapis.com/v0/b/mercadeiro-896b2.appspot.com/o/misc%2Flogo_mercadeiro_dark.svg?alt=media" alt="Logo Mercadeiro" style="width: 300px;"/>
+
 *Documentação da versão NodeJs do script de sincronização com projetos da Conecdata, ConecSync v 1.0. 
-# Glossário
-*  [API](#glossario-api)
-*  [CLI](#glossario-cli)
-*  [Conecdata](#glossario-conecdata)
-*  [CSV](#glossario-csv)
-*  [ERP](#glossario-erp)
-*  [Integradores ou integradoras](#glossario-integradoras)
-*  [Tokens de loja](#glossario-tokens-loja)
-*  [Views](#glossario-views)
+
+# Propósito
+*  [Leitura direta do banco de dados](#proposito-db)
+*  [Importação de arquivos CSV](#modos-csv)
+*  [Prós e contras de cada modalidade de integração](#proposito-pros-contras)
+
 # Modos de integração
 *  [Modo api](#modos-modo-api)
 *  [Modo script](#modos-modo-script)
@@ -46,45 +44,63 @@
 *  [Linux](#executando-script-linux)
 *  [Windows](#executando-script-windows)
 
-# Glossário
-Antes de mais nada, vamos esclarecer alguns termos, necessários, que surgirão constantemente no decorrer dessa documentação:
-## API<a id="glossario-api"></a>
-É um mecanismo de comunicação entre dois programas distintos.
+# Anexos
+### Glossário
+*  [API](#glossario-api)
+*  [CLI](#glossario-cli)
+*  [Conecdata](#glossario-conecdata)
+*  [CSV](#glossario-csv)
+*  [ERP](#glossario-erp)
+*  [Integradores ou integradoras](#glossario-integradoras)
+*  [Tokens de loja](#glossario-tokens-loja)
+*  [Views](#glossario-views)
 
-## CLI<a id="glossario-cli"></a>
-É uma interface que pode ser acionada por meio de um comando em um terminal de seu sistema operacional.
+# Propósito
+Para permitir a integração com seus produtos, a Conecdata disponibiliza uma API. Veja sua documentação AQUI.
 
-## Conecdata<a id="glossario-conecdata"></a>
-É a softhouse desenvolvedora do **ConecSync** e dos projetos compatíveis com ele, alguns deles, que permitem sincronização (integração) com [ERPs](#glossario-erp) desenvolvidos por softhouses parceiras (aka [integradoras](#glossario-integradoras)).
+A desenvolvedora parceira (integradora) da Conecata, pode modificar os fontes de seus sistemas e acionar a API diretamente, um processo custoso e que levaria um tempo maior para concluir a integração. Mais adiantes veremos os prós e contras de cada modalidade de integração.
 
-## CSV<a id="glossario-csv"></a>
-São arquivos texto puro utilizados para compartilhamento de informações, em que os valores em cada linha são separados por um delimitador (normalmente uma vírgula, mas no nosso caso um ponto e vírgula).
+O ConecSync (script escrito em NodeJs/Typescript) é uma solução rápida e eficiente para reduzir custos e agilizar a integração, permitindo a utilização da API de forma indireta, o que pode ser feito de duas maneiras:
+* Leitura direta do banco de dados
+* Importação de arquivos CSV
 
-## ERP<a id="glossario-erp"></a>
-É o programa que o lojista já usa para administrar sua empresa, desenvolvido por uma softhouse (aka [integradora](#glossario-integradoras)) parceira da [Conecdata](#glossario-conecdata).
-> A integração do ERP com algum de nossos projetos evita o retrabalho de realizar modificações de dados em ambas plataformas, uma vez que o ERP comunica automaticamente suas modificações para nossos projetos.
+## Origens de dados<a id="proposito-origens-dados"></a>
+Antes de analisarmos cada tipo de leitura dos dados a serem integrados, é importante conhecer quais cadastros (aqui chamados de origens) permitem integração na plataforma. São eles:
 
-## Integradores ou integradoras<a id="glossario-integradoras"></a>
-Integradores/integradoras são empresas desenvolvedoras de softwares [ERPs](#glossario-erp) de mercados ou supermercados, que se comunicam com alguma de nossas plataformas, por qualquer um dos modos descritos nessa documentação, permitindo a integração de seus dados. 
-> Para que um lojista possa utilizar alguma de nossas plataformas compatíveis com o **ConecSync**, é essencial que a desenvolvedora de seu sistema (integradora) realize a integração de seu ERP conosco.
+Origem|Descrição|Requerimento|
+|:--|:--|:--:|
+Produtos|Relação de produtos com departamentos (obrigatório) e subdepartamentos (opcional) incluídos.|-
+Estoque|Ativa/desativa venda online de produtos.|Origem **Produtos** não indicada.
+Formas pagamento|Relacionamento de ids de suas formas com indicadas AQUI.|-
+Promoções|Promoções (sem indicação dos produtos).|Requer origem **Produtos promoções**.
+Produtos promoções|Produtos presentes em cada promoção.|Requer origem **Promoções**.
 
-## Tokens de loja<a id="glossario-tokens-loja"></a>
-Podemos entender os tokens de loja, como sendo chaves de acesso às [apis](#glossario-api) de projetos da [Conecdata](#glossario-conecdata) compatíveis com o **ConecSync**. 
-Esses tokens tem as seguintes características:
-* São exclusivos para um [integrador](#glossario-integrador), ou seja, tokens para [ERPs](#glossrio-erp) do **integrador A** não servem para outros do **integrador B**.
-* São exclusivos para uma loja, ou seja, tokens da **loja A** não servem para a **loja B**.
-* São exclusivos para um projeto, ou seja, tokens do **projeto A** não servem para o **projeto B**. 
-* São exclusivos do modo de distribuição, ou seja, tokens de **modo sandbox** não funcionam para **modo produção**.
-* São revogáveis, ou seja, o **integrador** pode invalidar os tokens vigentes e gerar outros que os substituam, sempre que quiser.
-> Para integração via api, o próprio lojista indicará seu token de loja para cada projeto em seu ERP. Em caso de integração via script, o integrador indicará os mesmos tokens, em áreas específicas de configuração do **ConecSync**.
+> Maiores detalhes de cada origem serão apresentados em tópico próprio mais adiante na documentação.
 
-## Views<a id="glossario-views"></a>
-Uma **view** é uma maneira alternativa de observação de dados de uma ou mais entidades (tabelas), que compõem uma base de dados. Pode ser considerada como uma tabela virtual ou uma consulta armazenada.
-> Optamos por utilizar views por diversos motivos, elas podem reunir dados de mais de uma tabela facilmente, por serem uma visão paralela dos dados, podem ter configurações específicas de segurança atribuídas especificamente à ela, entre outros.
+## Leitura direta do banco de dados<a id="proposito-db"></a>
+O primeiro passo para dar acesso ao script a seus cadastros consiste em se criar views para cada origem de dados com as quais se deseja integrar. A utilização de views facilita a renomeação de suas colunas para os nomes padronizados requeridos pelo script, permite a junção de tabelas para compor as informações necessárias e permite a configuração de um usuário com permissões específicas apenas de leitura das próprias views, garantindo assim que o script tenha acesso apenas às informações relevantes à integração.
 
-# Modos de integração
-É importante entender quais opções de integração do **ConecSync** estão disponíveis e as vantagens e desvantagens, de cada uma delas.
-## Modo api<a id="modos-modo-api"></a>
+> É importante observar que o ConecSync **NUNCA** escreve em suas tabelas, ele apenas lê as views indicadas nas configurações. E como é você que configura as credenciais de conexão, elas podem ser específicas às necessidades de integração do script, garantindo o sigilo e segurança das demais informações de seus cadastros.
+
+> Exemplos de criação de cada view para cada banco de dados compatível estão disponíveis nos arquivos de configuração de cada origem na pasta do script, mais adiante na documentação serão apresentados exemplos práticos da montagem de views e de como consultar os exemplos disponíveis.
+
+Uma vez criadas as views, basta modificar alguns arquivos de configuração e rodar o script periodicamente para se iniciar/manter a integração.
+
+## Importação de arquivos CSV<a id="proposito-csv"></a>
+Caso não queira o possa disponibilizar acesso a seus cadastros ao script para facilitar a integração, você mesmo pode ler e exportar as informações desejadas para arquivos CSV e configurar o script para fazer a integração a partir deles.
+
+## Prós e contras de cada modalidade de integração<a id="proposito-pros-contras"></a>
+Característica|Acesso direto API|Uso do ConecSync|
+|:--:|:--:|:--:|
+Facilidade|<font color='Tomato'>**MENOR** Requer modificações de arquivos fontes e testes de funcionamento.</font>|<font color='MediumSeaGreen'>**MAIOR** Requer apenas modificações mínimas nos cadastros e configuração do script.</font>
+Custo|<font color='Tomato'>**MAIOR** Devido à necessidade de ocupação de programadores.</font>|<font color='MediumSeaGreen'>**MENOR** Modificações/configurações necessárias são simples e de rápida implementação.</font>
+Velocidade implementação|<font color='Tomato'>**MENOR** Adaptações mais complexas que levam mais tempo.</font>|<font color='MediumSeaGreen'>**MAIOR** Ajustes rápidos e simples.</font>
+Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações em seus cadastros são replicadas instantaneamente.</font>|<font color='Tomato'>**MENOR** As modificações só são aplicadas a cada execução do script.</font>
+Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamadas à API exigiriam mais código para serem tentados novamente.</font>|<font color='MediumSeaGreen'>**MAIOR** A execução periódica do Script resolve eventuais erros de execuções prévias.</font>
+
+> A situação mais comum e iniciar uma integração utilizando o **ConecSync** e caso a necessidade de atualização instantânea seja necessária fazer a integração diretamente pela API. Outro caso comum e utiliza os métodos de forma mixta, integrando parte pela API e parte pelo script (normalmente a origem **Estoque** que é mais chata de implementar via API).
+
+
 Nesse modo, o [integrador](#glossario-integrador) deve incluir em seu código fonte, chamadas diretamente às [apis](#glossario-api) dos projetos da [Conecdata](#glossari-conecdata) com os quais deseja integrar, reagindo à ocorrência de eventos específicos, tais como:
 * Inclusão e modificação de departamentos, subdepartamentos, produtos, promoções e formas de pagamento.
 * Vendas e entradas de estoque.
@@ -969,3 +985,39 @@ Pasta|Descrição
 Os códigos fontes (na pasta /src) em linguagem typescript utilizada para criação do script, são transpilados (algo como interpretados), o que quer dizer que são convertidos para outros códigos fontes (dessa vez em javascript) para que estejam prontos para execução. O resultado desse processo é gravado na pasta /dist.
 
 A pasta /lojas contém os hashes de todos registros de todas lojas da última execução do script, e serão utilizados na próxima vez que ele rodar, para determinar quais registros foram modificados e só executar chamadas às apis dos projetos dos que precisam ser sincronizados, dessa forma as execuções do **ConecSync** se tornam extremamente rápidas uma vez que só comunicam as modificações ocorridas, o que reduz o tempo e ocupação da rede sem prejuízo ao processo. Se você apagar essa pasta (ou algo dentro dela), os hashes que não forem encontrados serão criados e suas chamadas de api correspondentes executadas.
+
+# Glossário
+Antes de mais nada, vamos esclarecer alguns termos, necessários, que surgirão constantemente no decorrer dessa documentação:
+## API<a id="glossario-api"></a>
+É um mecanismo de comunicação entre dois programas distintos.
+
+## CLI<a id="glossario-cli"></a>
+É uma interface que pode ser acionada por meio de um comando em um terminal de seu sistema operacional.
+
+## Conecdata<a id="glossario-conecdata"></a>
+É a softhouse desenvolvedora do **ConecSync** e dos projetos compatíveis com ele, alguns deles, que permitem sincronização (integração) com [ERPs](#glossario-erp) desenvolvidos por softhouses parceiras (aka [integradoras](#glossario-integradoras)).
+
+## CSV<a id="glossario-csv"></a>
+São arquivos texto puro utilizados para compartilhamento de informações, em que os valores em cada linha são separados por um delimitador (normalmente uma vírgula, mas no nosso caso um ponto e vírgula).
+
+## ERP<a id="glossario-erp"></a>
+É o programa que o lojista já usa para administrar sua empresa, desenvolvido por uma softhouse (aka [integradora](#glossario-integradoras)) parceira da [Conecdata](#glossario-conecdata).
+> A integração do ERP com algum de nossos projetos evita o retrabalho de realizar modificações de dados em ambas plataformas, uma vez que o ERP comunica automaticamente suas modificações para nossos projetos.
+
+## Integradores ou integradoras<a id="glossario-integradoras"></a>
+Integradores/integradoras são empresas desenvolvedoras de softwares [ERPs](#glossario-erp) de mercados ou supermercados, que se comunicam com alguma de nossas plataformas, por qualquer um dos modos descritos nessa documentação, permitindo a integração de seus dados. 
+> Para que um lojista possa utilizar alguma de nossas plataformas compatíveis com o **ConecSync**, é essencial que a desenvolvedora de seu sistema (integradora) realize a integração de seu ERP conosco.
+
+## Tokens de loja<a id="glossario-tokens-loja"></a>
+Podemos entender os tokens de loja, como sendo chaves de acesso às [apis](#glossario-api) de projetos da [Conecdata](#glossario-conecdata) compatíveis com o **ConecSync**. 
+Esses tokens tem as seguintes características:
+* São exclusivos para um [integrador](#glossario-integrador), ou seja, tokens para [ERPs](#glossrio-erp) do **integrador A** não servem para outros do **integrador B**.
+* São exclusivos para uma loja, ou seja, tokens da **loja A** não servem para a **loja B**.
+* São exclusivos para um projeto, ou seja, tokens do **projeto A** não servem para o **projeto B**. 
+* São exclusivos do modo de distribuição, ou seja, tokens de **modo sandbox** não funcionam para **modo produção**.
+* São revogáveis, ou seja, o **integrador** pode invalidar os tokens vigentes e gerar outros que os substituam, sempre que quiser.
+> Para integração via api, o próprio lojista indicará seu token de loja para cada projeto em seu ERP. Em caso de integração via script, o integrador indicará os mesmos tokens, em áreas específicas de configuração do **ConecSync**.
+
+## Views<a id="glossario-views"></a>
+Uma **view** é uma maneira alternativa de observação de dados de uma ou mais entidades (tabelas), que compõem uma base de dados. Pode ser considerada como uma tabela virtual ou uma consulta armazenada.
+> Optamos por utilizar views por diversos motivos, elas podem reunir dados de mais de uma tabela facilmente, por serem uma visão paralela dos dados, podem ter configurações específicas de segurança atribuídas especificamente à ela, entre outros.
