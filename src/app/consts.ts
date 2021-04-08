@@ -7,14 +7,14 @@ export const PRODUTOS_REQ_FIELDS: string[] = [
   'id_subdepartamento', // INTEGER
   'atacado_status', // BOOLEAN
   'atacado_qtde', // INTEGER
-  'atacado_valor', // INTEGER/FLOAT
+  'atacado_preco', // INTEGER/FLOAT
   'ativo_departamento', // BOOLEAN
   'ativo_produto', // BOOLEAN
   'ativo_subdepartamento', // BOOLEAN
   'barcode_produto', // STRING
   'descricao_produto', // STRING
   'estoque_controlado', // BOOLEAN
-  'industrializado', // BOOLEAN
+  // 'industrializado', // BOOLEAN
   'nome_departamento', // STRING
   'nome_produto', // STRING
   'nome_subdepartamento', // STRING
@@ -161,18 +161,18 @@ export const CAMPOS_PRODUTOS: any = {
     type: DataTypes.INTEGER,
     field: 'atacado_qtde'
   },
-  atacado_valor: {
+  atacado_preco: {
     type: DataTypes.DECIMAL,
-    field: 'atacado_valor'
+    field: 'atacado_preco'
   },
   descricao_produto: {
     type: DataTypes.STRING,
     field: 'descricao_produto'
   },
-  industrializado: {
-    type: DataTypes.BOOLEAN,
-    field: 'industrializado'
-  },
+  // industrializado: {
+  //   type: DataTypes.BOOLEAN,
+  //   field: 'industrializado'
+  // },
   id_subdepartamento: {
     type: DataTypes.INTEGER,
     field: 'id_subdepartamento'

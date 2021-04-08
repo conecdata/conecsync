@@ -28,7 +28,6 @@ export const CONFIG_PRODUTOS = {
     '' AS nome_subdepartamento,
     0 AS ativo_subdepartamento,
     
-    1 AS industrializado,
     '' AS nome_produto,
         
     0 AS estoque_controlado,
@@ -37,7 +36,7 @@ export const CONFIG_PRODUTOS = {
     
     0 AS atacado_status,
     0 AS atacado_qtde,
-    0 AS atacado_valor,
+    0 AS atacado_preco,
     
     0 AS percentual_limite_venda,
     0 AS qtde_limite_venda,
@@ -80,7 +79,6 @@ export const CONFIG_PRODUTOS = {
     sub_c_subgrupo AS nome_subdepartamento,
     sub_b_ativo AS ativo_subdepartamento,
     
-    pro_b_industrializado AS industrializado,
     pro_c_produto AS nome_produto,
         
     pro_b_estoque AS estoque_controlado,
@@ -89,7 +87,7 @@ export const CONFIG_PRODUTOS = {
     
     pro_b_atacado AS atacado_status,
     pro_f_qtde_atacado AS atacado_qtde,
-    pro_f_valor_atacado AS atacado_valor,
+    pro_f_valor_atacado AS atacado_preco,
     
     pro_f_perc_limite_venda AS percentual_limite_venda,
     pro_f_qtde_limite_venda AS qtde_limite_venda,
@@ -133,7 +131,6 @@ CREATE VIEW view_conecdata_produtos
     nome_subdepartamento,
     ativo_subdepartamento,
 
-    industrializado,
     nome_produto,
         
     estoque_controlado,
@@ -142,7 +139,7 @@ CREATE VIEW view_conecdata_produtos
 
     atacado_status,
     atacado_qtde,
-    atacado_valor,
+    atacado_preco,
 
     percentual_limite_venda,
     qtde_limite_venda,
@@ -172,7 +169,6 @@ AS SELECT
   sub_c_subgrupo,
   sub_b_ativo,
   
-  pro_b_industrializado,
   pro_c_produto,
       
   pro_b_estoque,

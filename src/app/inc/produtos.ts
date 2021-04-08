@@ -340,7 +340,6 @@ function findOne(
         : false,
       "idDepartamento": get(produto, 'id_departamento') || '',
       "idSubdepartamento": get(produto, 'id_subdepartamento') || '',
-      "industrializado": chkBool(get(produto, 'industrializado', true)),
       "limiteVenda": LIMITE_VENDA.menorValor,
       "nome": get(produto, 'nome_produto') || '',
       "online": chkBool(get(produto, 'online_produto', true)),

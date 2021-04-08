@@ -300,13 +300,13 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               id_subdepartamento: -1,
               atacado_status: -1,
               atacado_qtde: -1,
-              atacado_valor: -1,
+              atacado_preco: -1,
               ativo_departamento: -1,
               ativo_subdepartamento: -1,
               barcode_produto: -1,
               descricao_produto: -1,
               estoque_controlado: -1,
-              industrializado: -1,
+              // industrializado: -1,
               nome_departamento: -1,
               nome_produto: -1,
               nome_subdepartamento: -1,
@@ -434,11 +434,11 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                       'atacado_qtde': FIELDPOS['atacado_qtde'] >= 0
                         && parseFloat(ROW[FIELDPOS['atacado_qtde']] || ''),
 
-                      'atacado_valor': FIELDPOS['atacado_valor'] >= 0
-                        && parseFloat(ROW[FIELDPOS['atacado_valor']] || ''),
+                      'atacado_preco': FIELDPOS['atacado_preco'] >= 0
+                        && parseFloat(ROW[FIELDPOS['atacado_preco']] || ''),
 
-                      'industrializado': FIELDPOS['industrializado'] >= 0
-                        && parseInt(ROW[FIELDPOS['industrializado']] || '') > 0,
+                      // 'industrializado': FIELDPOS['industrializado'] >= 0
+                      //   && parseInt(ROW[FIELDPOS['industrializado']] || '') > 0,
 
                       'id_subdepartamento': FIELDPOS['id_subdepartamento'] >= 0
                         && (ID_SUBDEPARTAMENTO === '0' ? '' : ID_SUBDEPARTAMENTO)
