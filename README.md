@@ -10,7 +10,9 @@
 
 # O que é o ConecSync<a id="o_que_e_o_conecsync"></a>
 
-A integração (replicação de dados específicos de cadastros de desenvolvedoras parceiras) com diversos projetos da Conecdata pode ser feita por acesso direto à suas APIs de integração ou acessando essas mesmas APIs indiretamente utilizando-se o script ConecSync (script em NodeJs/Typescript).
+A integração (sincronização de dados específicos de cadastros de desenvolvedoras parceiras) com diversos projetos da Conecdata pode ser feita por acesso direto à suas APIs de integração ou acessando essas mesmas APIs indiretamente utilizando-se o script ConecSync (script em NodeJs/Typescript).
+
+> Durante o restante da documentação utilizaremos com frequência o termo `script`, sem indicar especificamente outro projeto, como um sinônimo de `ConecSync`,
 
 # Acesso direto API x Utilização ConecSync<a id="api_x_conecsync"></a>
 
@@ -22,7 +24,7 @@ Velocidade implementação|<font color='Tomato'>**MENOR** Adaptações mais comp
 Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações em seus cadastros são replicadas instantaneamente.</font>|<font color='Tomato'>**MENOR** As modificações só são replicadas a cada execução do script.</font>
 Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamadas à API exigiriam mais código para serem tentados novamente.</font>|<font color='MediumSeaGreen'>**MAIOR** A execução periódica do Script resolve eventuais erros de tentativas prévias.</font>
 
-É comum realizar a integração inicial utilizando-se o **ConecSync** e posteriormente, com mais calma, fazer as modificações necessárias nos fontes de seus projetos acionando diretamente as APIs desejadas. Na verdade é comum transferir apenas algumas origens para as APIs e manter outras (normalmente a origem **Estoque**) integrada pelo ConecSync.
+É comum que parceiros realizem a integração inicial utilizando-se o **ConecSync** e posteriormente, com mais calma, façam as modificações necessárias nos fontes de seus projetos acionando diretamente as APIs desejadas. Na verdade é comum transferir apenas algumas origens para as APIs e manter outras (normalmente a origem **Estoque**) integradas pelo ConecSync.
 
 > Conhecendo os prós e contras, caso você opte por realizar a integração diretamente pelas APIs dos projetos, o restante dessa documentação é irrelevante (pois só diz respeito ao uso do ConecSync) e recomendamos que consulte a documentação específica de cada API desejada em seu lugar.
 
@@ -36,10 +38,10 @@ Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamad
 > Basicamente você vai acessar seus dados de alguma maneira (configurada no script) e acionar a o ConecSync periodicamente para acionar as APIs realizando/atualizando a replicação de seus dados para projetos específicos da ConecData (também configurados no script).
 
 # Instalação do nodejs<a id="instalacao_nodejs"></a>
-A execução do script requer o nodejs instalado na máquina. Para tal basta seguir as recomendações específicas para seu sistema operacional em <https://nodejs.org>.
-Uma vez instalado o **nodejs** (necessário para executar o script) também será instalado automaticamente o **npm** um gerenciador de pacotes javascript que permitirá a instalação de algumas dependências do script depois que ele for baixado.
+A execução do script requer o nodejs instalado na máquina. Siga as recomendações específicas para seu sistema operacional no site <https://nodejs.org>.
+Uma vez instalado o **nodejs** (necessário para executar o script) também será instalado automaticamente o **npm**, um gerenciador de pacotes javascript, que permitirá a instalação de algumas dependências do script depois que ele for baixado.
 
-Após a instalação do nodejs, você pode confirmar seu sucesso executando o seguinte comando em um terminal:
+Após a instalação do nodejs, você pode confirmar seu funcionamento executando o seguinte comando em um terminal:
 `node --version` 
 Caso ele esteja instalado, será exibida sua versão como a seguir:
 `v14.15.4`
@@ -66,23 +68,25 @@ Passos:
 
 #### Baixando arquivo zip
 Passos:
-* Acesse o repositório no github por esse <https://github.com/conecdata/conecshare.git>.
+* Acesse o repositório no github em <https://github.com/conecdata/conecshare.git>.
 * Baixe o arquivo zip pelo link dentro do botão <kbd>Code</kbd>.
 ![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fgit_conecsync_zip_download.jpg?alt=media) 
 * Descompacte o arquivo baixado dentro da pasta desejada.
 
+> No restante da documentação vamos nos referir à pasta onde o script está instalado como `PASTA_CONECSYNC`.
 # Instalando dependências do ConecSync<a id="instalando_dependencias_conecsync"></a>
 
-> As dependências estão em um arquivo chamado `package.json` na raiz da pasta do projeto.
+Após o download do script, alguns módulos necessários à sua execução devem ser baixados/instalados dentro de sua pasta. A lista das dependências do script estão no arquivo `PASTA_CONECSYNC/package.json`. 
 
-Uma vez criada a pasta do ConecSync (copiando o repositório ou pelo arquivo ZIP), o próximo passo é a instalação de suas dependências, siga os seguintes passos para isso:
-* Abra o terminal.
-* Acesse a pasta do script.
+Para instalar as dependências do projeto, siga os seguintes passos:
+
+* Abra um terminal.
+* Acesse a pasta do script (`PASTA_CONECSYNC`).
 * Execute o comando `npm install` (Windows) ou `sudo npm install` (Linux ou Mac).
-
+* Aguarde o download das dependências. Elas serão gravadas dentro da pasta `PASTA_CONECSYNC/node_modules`.
 
 # Origens de dados<a id="origens-dados"></a>
-Antes de qualquer configuração, você deve escolher quais informações deseja integrar pelo script selecionando/configurando as origens de dados desejadas. As origens disponíveis no script são:
+Com o script baixado e suas dependências instaladas, você deve escolher quais informações deseja integrar pelo script selecionando/configurando as origens de dados correspondentes. As origens disponíveis para integração pelo script são:
 
 Origem|Descrição|Requerimento|
 |:--:|:--|:--:|
@@ -93,14 +97,14 @@ Promoções|Promoções (sem indicação dos produtos).|Requer origem **Produtos
 Produtos promoções|Produtos presentes em cada promoção.|Requer origem **Promoções**.
 
 # Tipos de acesso a origens de dados<a id="tipos-acessos-origens"></a>
-Selecionadas as origens que deseja integrar, é importante saber que elas podem ser acessadas pelo script de duas maneiras:
+Selecionadas as origens que deseja integrar, devemos decidir como cada uma delas será lida pelo script, são duas as opções:
 
-> Você pode indicar uma maneira diferente de acesso (inclusive de bancos de dados diferentes) para cada origem.
-
-* Leitura direta do banco de dados.
+* Leitura direta das tabelas (na verdade views) do banco de dados.
 * Importação de arquivos CSV.
 
-#### Leitura direta do banco de dados<a id="proposito-db"></a>
+> Cada origem pode ser configurada com um tipo de acesso diferente, ou seja, você pode ler algumas origens de arquivos csv e outras de banco de dados. 
+
+#### Leitura direta do banco de dados<a id="db"></a>
 
 **Bancos de dados suportados atualmente**
  * MySql
@@ -108,33 +112,31 @@ Selecionadas as origens que deseja integrar, é importante saber que elas podem 
  * Postgres
  * Firebird
 
-Bancos de dados presentes na lista acima, podem ser acessados diretamente pelo script seguindo os seguintes passos:
-* Configuração da conexão com seu banco de dados no arquivo **config.ts**.
-* Criação de views em seu banco de dados para cada origem que deseja integrar.
-* Modificação dos arquivos de cada origem desejada em **/src/app/config/config-ORIGEM.ts**.
+Caso seu bancos de dados conste nessa lista (utilize a importação de arquivos csv caso contrário), seus cadastros podem ser acessados diretamente pelo script seguindo os seguintes passos:
+* Configuração da conexão com seu banco de dados no arquivo `PASTA_CONECSYNC/src/app/config/config.ts`.
+* Criação de views em seu banco de dados para cada origem que você deseja integrar.
+* Modificação dos arquivos de cada origem desejada em `PASTA_CONECSYNC/src/app/config/origens/config-ORIGEM.ts`.
 
-> Cada um desses passos será explicado em maiores detalhes mais adiante na documentação na parte prática.
+> Cada um desses passos será explicado em maiores detalhes mais adiante na documentação durante a parte prática.
 
 **Vantagens do uso de views**
 
 * Facilidade de se renomear suas colunas para os nomes padronizados requeridos pelo script.
 * Junção de tabelas para compor as informações necessárias para cada origem do script.
-* Possibilidade de configuração de um usuário exclusivo para integração com permissões específicas de leitura apenas das views criadas, garantindo assim que o script tenha acesso apenas às informações relevantes à integração.
+* Possibilidade de configuração de um usuário exclusivo para integração com permissões específicas de leitura apenas das views criadas. Dessa forma, você garante que o script tenha acesso apenas às informações relevantes à integração.
 
-> É importante observar que o ConecSync **NUNCA** escreve em suas tabelas, ele apenas lê as views indicadas nas configurações. E como é você quem configura tanto as views como as credenciais de conexão, elas podem ser específicas às necessidades de integração do script, garantindo o sigilo e segurança das demais informações de seus cadastros.
+> É importante observar que o ConecSync **NUNCA** escreve em suas tabelas, ele apenas lê as views indicadas nas configurações. E como é você quem configura qual view é acessada por cada origem bem como as credenciais de conexão (que podem indicar um usuário com acesso limitado), sabe exatamente o que está sendo lido (e que nunca nada é escrito) pelo script em seus cadastros.
 
 #### Importação de arquivos CSV<a id="proposito-csv"></a>
 
-Caso não queira o possa disponibilizar acesso a seus cadastros ao script para facilitar a integração, você mesmo pode ler e exportar as informações desejadas para arquivos CSV e configurar o script para fazer a integração a partir deles.
+Caso não queira/possa disponibilizar acesso a seus cadastros ao script para facilitar a integração, você mesmo pode ler e exportar as informações desejadas para arquivos CSV e configurar o script para fazer a integração a partir deles.
 
 
 # Configurando o ConecSync<a id="configurando_conecsync"></a>
 
-Agora que decidimos quais views desejamos integrar e sabemos que para cada uma delas podemos ler arquivos CSV ou o banco de dados diretamente, estamos prontos para ver como configurar o script.
+Um vez que você tenha decidido quais origens deseja integrar, e quais maneiras disponíveis para acessá-las quer usar para cada uma delas, estamos prontos para ver um exemplo prático de como modificar os arquivos de configuração dessas origens.
 
-> Toda configuração do script ocorre nos arquivos dentro da pasta `src/app/config` na raiz da pasta do script.
-
-#### Arquivos da pasta config
+#### Arquivos da pasta `PASTA_CONECSYNC/src/app/config`
 
 Arquivo|Pasta
 |:---|:---|
@@ -146,7 +148,7 @@ config-produtos.ts|/origens
 config-promocoes.ts|/origens
 config-mercadeiro.ts|/projetos
 
-> Basicamente a configuração do script consiste em se indicar uma ou mais conexões de banco de dados e/ou uma pasta contendo arquivos CSV, configurar as origens disponíveis que deseja utilizar e para quais projetos deseja transferir suas informações.
+> Toda configuração do ConecSync ocorre nos arquivos dentro dessa pasta, modificar algo em qualquer outro lugar pode causar problemas no script (principalmente modificações nos fontes do projeto). Na verdade mais adiante serão explicados alguns arquivos de log e de armazenagem de hashes que podem ser modificados/excluídos sem problemas. **<font color='Tomato'>FORA ISSO, NÃO MODIFIQUE MAIS NADA.</font>**
 
 #### Modificando o arquivo config.ts
 
@@ -195,13 +197,26 @@ export const CONFIG = {
   verbose: true
 }
 ```
-> É necessário preencher apenas as configurações correspondentes ao que se decidiu utilizar, nenhuma pasta CSV precisa ser indicada se não for utilizar esse modo de acesso e apenas as conexões do tipo de banco de dados que deseja utilizar precisam ser informadas. Posteriormente a configuração de cada origem indicará um desses tipos de acesso, e apenas aqueles que forem indicados gerarão erros caso não estejam preenchidos corretamente.
+**db**
+Credenciais de conexão com bancos de dados Mysql, MariaDb e Postgres.
 
-**Acesso negado**
+**fb** 
+Credenciais de conexão com bancos de dados Firebird.
 
-Posteriormente veremos que devemos indicar um token de loja para ter acesso de escrita em cada loja na plataforma (de um projeto específico), como esses tokens são diferentes entre o modo sandbox e produção, caso o valor da flag sandbox nesse arquivo seja diferente do tipo correspondente no token, todas tentativas de acesso à API retornarão um erro de **Acesso negado**.
+**csv**
+Pasta contendo arquivos csv a serem importados na plataforma.
 
-#### Modificando os arquivos de origens de dados
+**sandbox**
+|Valor|Descrição|
+|:--:|:--|
+|true|Acessa uma cópia da plataforma para fins de teste de integração (não disponibilizado para compras reais).|
+|false|Acessa a plataforma real em que os pedidos realizados são enviados de fato para as lojas.|
+
+Posteriormente veremos que para acessarmos tanto a api do modo sandbox, como a do modo produção, precisamos de um token (um tipo de chave que permite acessos de escrita) para cada loja com a qual desejamos integrar. Como o os tokens de cada um modos são diferentes, se o script estiver configurado com um tipo e você indicar um token do outro, todas tentativas de acesso à API retornarão um erro de **Acesso negado**.
+
+> Só é necessário indicar valores para os tipos de conexão que vão ser utilizados.
+
+#### Configurando arquivos de origens de dados
 
 Vamos ver na prática a integração de uma origem tanto pelo método de leitura de banco de dados como arquivos csv. Para isso, vamos utilizar uma origem simples, a **Formas de pagamento**, uma vez que a processo de configuração das demais é idêntico.
 
@@ -214,7 +229,7 @@ Campo|Tipo|Tamanho/Valor|
 fpg_pk|Chave primária|-
 fpg_c_forma|String|40
 fpg_e_tipo|Enum|'C','D','O'
-fpg_c_legenda|String|20
+fpg_c_legenda|String|30
 fpg_c_img|String|45
 fpg_c_id_conecdata|String|20
 
@@ -249,10 +264,14 @@ fpg_pk|fpg_c_forma|fpg_e_tipo|fpg_c_legenda|fpg_c_img|fpg_c_id_conecdata
 Para que o ConecSync possa ler dados dessa tabela, temos que gerar, no banco de dados, uma view para ela pelo seguinte comando:
 ![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fcreate_view_formas-pgto_conecdata.jpg?alt=media&token=2ba7fb51-ea84-486d-8c1d-50c05d55e382)
 
-Os valores destacados em verde, podem/devem ser substituídos por:
+Analise os detalhes de cada origem de dados mais adiante na documentação, para saber quais valores são opcionais e quais são obrigatórios, caso algum valor obrigatório não seja indicado, a execução do script é interrompida, para os valores opcionais omitidos, o valor default é utilizado.
+
+> Os comandos de criação de views variam de acordo com o banco de dados utilizado. Modelos para cada tipo compatível estarão comentados dentro de cada arquivo de configuração de origens.
+
+Os valores destacados em <font color='MediumSeaGreen'>verde</font>, podem/devem ser substituídos por:
 * Nomes de tabelas suas.
-* Nomes de campos em suas tabelas.
-* Um mesmo valor para substituir nomes de campos que não constem na tabela (e que tenham o mesmo tipo desse campo). Nesse caso, esse mesmo valor será utilizado em todas as linhas dessa coluna na tabela.
+* Nomes de campos seus.
+* Valores que substituam colunas/campos requeridos mas que não constem nas tabelas (devem ter os mesmos tipos deles). Nesse caso, esse valor será utilizado repetidamente em todas as linhas dessa coluna na tabela.
 
 Comparando os campos presentes na tabela e os nescessários na composição da view, vamos perceber o seguinte:
 
@@ -267,32 +286,73 @@ id_externo|fpg_c_id_conecdata|**Encontrado**|
 id_loja|-|**NÃO ENCONTRADO**|
 forma_ativa|-|**NÃO ENCONTRADO**|
 
-
 Situação|Tipo de ocorrência|Ação na view|
 |:--:|:--:|:--:|
 **Encontrado**|Campos da view encontrados no cadastro.|Indicar o **nome do campo** correspondente na tabela.|
 **NÃO ENCONTRADO**|Campos da view NÃO ENCONTRADOS no cadastro.|Indicar um **valor fixo** do **mesmo tipo** do campo da tabela.|
 Campo extra|Campos no cadastro que não são necessários na view (campos extras).|Nenhuma.|
 
+**arquivo `PASTA_CONECSYNC/src/app/config/config-formas-pgto.ts`**
+```
+export const CONFIG_FORMAS = {
+  tipo: 'db',
+  nomeView: 'view_conecdata_formas'
+}
+```
+
+Basta indicar o tipo de conexão (db para o nosso banco de dados MySql de modelo) e o nome da view que foi criada (que deve coincidir com o do comando de criação da view exibido anteriormente).
+
 
 **Configurando origem formas de pagamento método csv**
+Para integração via arquivos CSVs, o maior trabalho na verdade consiste em se gerar os arquivos que devem ser gravados na pasta indicada no arquivo `config.ts` explicado anteriormente. 
 
+**Arquivo `PASTA_CSVS/formas-pgto.csv`**
+```csv
+id_interno;nome_forma;id_externo;id_loja;forma_ativa
+1;Dinheiro;dinheiro;1;1
+2;Debito - Elo;debito_elo;1;1
+3;Debito - Maestro;debito_maestro;1;1
+4;Debito - Redeshop;debito_redeshop;1;1
+5;Debito - Visa Electron;debito_visa_electron;1;1
+6;Credito - American express;credito_amex;1;1
+7;Credito - Diners;credito_diners;1;1
+8;Credito - Elo;credito_elo;1;1
+9;Credito - Hipercard;credito_hipercard;1;1
+10;Credito - Mastercard;credito_mastercard;1;1
+11;Credito - Policard;credito_policard;1;1
+12;Credito - ValeCard;credito_valecard;1;1
+13;Credito - Visa;credito_visa;1;1
+14;Cheque;cheque;1;1
+15;Alelo - Alimentacao;alelo_alimentacao;1;1
+16;Alelo - Refeicao;alelo_refeicao;1;1
+17;Policard - Alimentacao;policard_alimentacao;1;1
+18;Policard - Refeicao;policard_refeicao;1;1
+19;Sodexo - Refeicao;sodexo_refeicao;1;1
+20;Ticket Rest. Eletronico;ticket_rest_eletronico;1;1
+21;ValeCard - Alimentacao;valecard_alimentacao;1;1
+22;ValeCard - Refeicao;valecard_refeicao;1;1
+23;Visa - Vale;visa_vale;1;1
+24;Voucher;voucher;1;1
+```
 
+> O ConecSync utiliza ';' (Ponto e vírgula) como delimitadores de colunas.
 
+Do ponto de vista de configuração, para cada origem desejada (Formas de pagamento em nosso exemplo), em seu arquivo de configuração, basta indicar o tipo **csv** e o **nome do aquivo** com a extensão csv.
 
-
-
-
-
-
-
-
-
-
-#### Modificando os arquivos de projetos
+**arquivo `PASTA_CONECSYNC/src/app/config/config-formas-pgto.ts`**
+```
+export const CONFIG_FORMAS = {
+  tipo: 'csv',
+  nomeView: 'conecdata_formas.csv'
+}
+```
+#### Configurando arquivos de projetos
 No ConecSync cada projeto indicado corresponderia a um destino para o qual se deseja enviar os dados lidos de suas origens.
 
 **Tokens de lojas**
+Obviamente é necessário evitar que qualquer um escreva em qualquer loja da plataforma, e essa maneira são os **tokens de lojas**, que podem ser considerados chaves de acesso encriptadas que devem ser indicadas a cada chamada das APIs.
+Em caso de suspeita de vazamento ou problemas com um token de loja, a integradora ou o lojista podem solicitar à Conecdata a **revogação** do token atual. Ao ser revogado, o token deixa de ser válido e todas suas referências atuais devem ser substituídas pelo novo token que será gerado para que voltem a funcionar. O novo token pode ser acessado pelo modo lojistas apenas por integradoras e parceiros da Conecdata.
+
 
 
 
