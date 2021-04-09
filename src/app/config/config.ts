@@ -12,7 +12,7 @@ export const CONFIG = {
     conexao: {
       host: '127.0.0.1',
       port: 3050,
-      database: 'D:\\TGA_varejao.FDB', // 'D:\\TGA_varejao.FDB' 'D:\\CONECSYNC.FDB'
+      database: 'D:\\arquivo_firebird.FDB',
       user: 'SYSDBA',
       password: 'masterkey',
       lowercase_keys: false,
@@ -30,7 +30,7 @@ export const CONFIG = {
   sandbox: true,
   /* 
     TRUE = Envia mensagens para terminal (se disponível)
-    FALSE = Não envia mensagens, apenas grava em arquivos de log
+    FALSE = Não envia mensagens, apenas grava no arquivo de log
   */
   verbose: true
 }

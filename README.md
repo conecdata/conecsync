@@ -1,99 +1,88 @@
 <img src="https://firebasestorage.googleapis.com/v0/b/mercadeiro-896b2.appspot.com/o/misc%2Flogo_mercadeiro_dark.svg?alt=media" alt="Logo Mercadeiro" style="width: 300px; "/>
 
-*Documentação da versão NodeJs do script de sincronização com projetos da Conecdata, ConecSync v 1.0. 
+> Documentação ConecSync v 1.0. 
 
-# Propósito
+### Índice
 
-*  [Origens de dados](#proposito-origens-dados)
-*  [Leitura direta do banco de dados](#proposito-db)
-*  [Importação de arquivos CSV](#modos-csv)
-*  [Prós e contras de cada modalidade de integração](#proposito-pros-contras)
+*  [O que é o ConecSync](#o_que_e_o_conecsync)
+*  [Acesso direto API x Utilização ConecSync](#api_x_conecsync)
+*  [Etapas para uso do ConecSync](#etapas-conecsync)
 
-# Detalhes origens
+# O que é o ConecSync<a id="o_que_e_o_conecsync"></a>
 
-*  [Produtos](#detalhes-origens-produtos)
-*  [Estoque](#detalhes-origens-estoque)
-*  [Formas pagamento](#detalhes-origens-formas-pgto)
-*  [Promoções](#detalhes-origens-promocoes)
-*  [Produtos promoções](#detalhes-origens-produtos-promocoes)
+A integração (replicação de dados específicos de cadastros de desenvolvedoras parceiras) com diversos projetos da Conecdata pode ser feita por acesso direto à suas APIs de integração ou acessando essas mesmas APIs indiretamente utilizando-se o script ConecSync (script em NodeJs/Typescript).
 
-# Modos de integração
+# Acesso direto API x Utilização ConecSync<a id="api_x_conecsync"></a>
 
-*  [Modo api](#modos-modo-api)
-*  [Modo script](#modos-modo-script)
-*  [Modo mixto](#modos-modo-mixto)
+Característica|Acesso direto API|Utilização ConecSync|
+|:--:|:--:|:--:|
+Facilidade|<font color='Tomato'>**MENOR** Requer modificações de arquivos fontes e testes de funcionamento.</font>|<font color='MediumSeaGreen'>**MAIOR** Requer apenas modificações mínimas nos cadastros e configuração do script.</font>
+Custo|<font color='Tomato'>**MAIOR** Devido à necessidade de ocupação de programadores.</font>|<font color='MediumSeaGreen'>**MENOR** Modificações/configurações necessárias são simples e de rápida implementação.</font>
+Velocidade implementação|<font color='Tomato'>**MENOR** Adaptações mais complexas que levam mais tempo.</font>|<font color='MediumSeaGreen'>**MAIOR** Ajustes rápidos e simples.</font>
+Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações em seus cadastros são replicadas instantaneamente.</font>|<font color='Tomato'>**MENOR** As modificações só são replicadas a cada execução do script.</font>
+Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamadas à API exigiriam mais código para serem tentados novamente.</font>|<font color='MediumSeaGreen'>**MAIOR** A execução periódica do Script resolve eventuais erros de tentativas prévias.</font>
 
-# Projetos compatíveis
+É comum realizar a integração inicial utilizando-se o **ConecSync** e posteriormente, com mais calma, fazer as modificações necessárias nos fontes de seus projetos acionando diretamente as APIs desejadas. Na verdade é comum transferir apenas algumas origens para as APIs e manter outras (normalmente a origem **Estoque**) integrada pelo ConecSync.
 
-*  [Mercadeiro](#projetos-mercadeiro)
+> Conhecendo os prós e contras, caso você opte por realizar a integração diretamente pelas APIs dos projetos, o restante dessa documentação é irrelevante (pois só diz respeito ao uso do ConecSync) e recomendamos que consulte a documentação específica de cada API desejada em seu lugar.
 
-# Origens
+# Etapas para uso do ConecSync<a id="etapas-conecsync"></a>
+1. Instalação do nodejs.
+1. Download do script atualizado no repositório do GitHub.
+1. Instalação das dependências do script.
+1. Configuração do script.
+1. Execução periódica do script.
 
-*  [Acesso direto ao banco de dados](#origens-origem-acesso-direto-db)
-*  [Leitura de arquivos CSV](#origens-origem-leitura-arquivos-csv)
+> Basicamente você vai acessar seus dados de alguma maneira (configurada no script) e acionar a o ConecSync periodicamente para acionar as APIs realizando/atualizando a replicação de seus dados para projetos específicos da ConecData (também configurados no script).
 
-# Instalação
+# Instalação do nodejs<a id="instalacao_nodejs"></a>
+A execução do script requer o nodejs instalado na máquina. Para tal basta seguir as recomendações específicas para seu sistema operacional em <https://nodejs.org>.
+Uma vez instalado o **nodejs** (necessário para executar o script) também será instalado automaticamente o **npm** um gerenciador de pacotes javascript que permitirá a instalação de algumas dependências do script depois que ele for baixado.
 
-*  [Instalação NodeJs](#instalacao-nodejs)
-*  [Copiando o script ConecSync](#instalacao-copiando-script-conecsync)
-*  [Estrutura da pasta do ConecSync](#instalacao-estrutura-pasta-conecsync)
-*  [Instalando dependências](#instalacao-instalando-dependencias)
+Após a instalação do nodejs, você pode confirmar seu sucesso executando o seguinte comando em um terminal:
+`node --version` 
+Caso ele esteja instalado, será exibida sua versão como a seguir:
+`v14.15.4`
 
-# Seguindo a integração de exemplo
+O mesmo pode ser feito para confirmar a instalação do npm:
+`npm --version` 
+O que gerará um resultado parecido com:
+`7.5.4`
 
-*  [Integração modelo DB](#integracao-exemplo-integracao-modelo-db)
-  +  [Criando o banco de dados](#integracao-exemplo-criando-db)
-  +  [Criando as tabelas modelo](#integracao-exemplo-criando-tabelas)
-    -  [Tabela grupos](#integracao-exemplo-criando-tabelas-grupos)
-    -  [Tabela subgrupos](#integracao-exemplo-criando-tabelas-subgrupos)
-    -  [Tabela produtos](#integracao-exemplo-criando-tabelas-produtos)
-    -  [Tabela formas pgto](#integracao-exemplo-criando-tabelas-formas-pgto)
-  +  [Criando as views](#integracao-exemplo-criando-views)
-    -  [view_conecdata_formas](#integracao-exemplo-criando-views-formas)
-    -  [view_conecdata_produtos](#integracao-exemplo-criando-views-produtos)
-    -  [view_conecdata_estoque](#integracao-exemplo-criando-views-estoque)
-  +  [Configurando modo DB](#integracao-exemplo-config-db)
-    -  [Configuração geral](#integracao-exemplo-config-db-geral)
-    -  [Configurando origens](#integracao-exemplo-config-db-origens)
-    -  [Configurando projetos](#integracao-exemplo-config-db-projetos)
-*  [Integração modelo CSV](#integracao-exemplo-integracao-modelo-csv)
+# Baixando o ConecSync<a id="baixando_conecsync"></a>
+A versão mais atualizada do script estará sempre disponível em seu repositório público no Github <https://github.com/conecdata/conecsync>.
 
-# Testando sua integração
+O script pode ser instalado de duas maneiras:
+* Clonando seu repositório Gibhub.
+* Baixando seu arquivo ZIP.
 
-*  [Linux](#executando-script-linux)
+#### Clonando o repositório do Github
+> Essa modalidade requer o CLI do git instalado. Sua instalação pode ser verificada pelo comando `git --version` em um terminal.
 
-# Executando o script
+Passos:
+* Abra um terminal.
+* Acesse a pasta dentro da qual deseja criar a pasta **conecsync** (parent).
+* E execute o comando `git clone https://github.com/conecdata/conecsync`.
 
-*  [Linux](#executando-script-linux)
-*  [Windows](#executando-script-windows)
+#### Baixando arquivo zip
+Passos:
+* Acesse o repositório no github por esse <https://github.com/conecdata/conecshare.git>.
+* Baixe o arquivo zip pelo link dentro do botão <kbd>Code</kbd>.
+![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fgit_conecsync_zip_download.jpg?alt=media) 
+* Descompacte o arquivo baixado dentro da pasta desejada.
 
-# Anexos
+# Instalando dependências do ConecSync<a id="instalando_dependencias_conecsync"></a>
 
-### Glossário
+> As dependências estão em um arquivo chamado `package.json` na raiz da pasta do projeto.
 
-*  [API](#glossario-api)
-*  [CLI](#glossario-cli)
-*  [Conecdata](#glossario-conecdata)
-*  [CSV](#glossario-csv)
-*  [ERP](#glossario-erp)
-*  [Integradores ou integradoras](#glossario-integradoras)
-*  [Tokens de loja](#glossario-tokens-loja)
-*  [Views](#glossario-views)
+Uma vez criada a pasta do ConecSync (copiando o repositório ou pelo arquivo ZIP), o próximo passo é a instalação de suas dependências, siga os seguintes passos para isso:
+* Abra o terminal.
+* Acesse a pasta do script.
+* Execute o comando `npm install` (Windows) ou `sudo npm install` (Linux ou Mac).
 
-# Propósito
 
-Para permitir a integração com seus produtos, a Conecdata disponibiliza uma API. Veja sua documentação AQUI.
-
-A desenvolvedora parceira (integradora) da Conecata, pode modificar os fontes de seus sistemas e acionar a API diretamente, um processo custoso e que levaria um tempo maior para se concluir a integração. Mais adiantes veremos os prós e contras de cada modalidade de integração.
-
-O ConecSync (script escrito em NodeJs/Typescript) é uma solução rápida e eficiente para reduzir custos e agilizar a integração, permitindo a utilização da API de forma indireta, o que pode ser feito de duas maneiras:
-
-* Leitura direta do banco de dados
-* Importação de arquivos CSV
-
-### Origens de dados<a id="proposito-origens-dados"></a>
-
-Antes de analisarmos os tipos de leitura dos dados disponíveis, é importante conhecer quais cadastros (aqui chamados de origens) permitem integração na plataforma. São eles:
+# Origens de dados<a id="origens-dados"></a>
+Antes de qualquer configuração, você deve escolher quais informações deseja integrar pelo script selecionando/configurando as origens de dados desejadas. As origens disponíveis no script são:
 
 Origem|Descrição|Requerimento|
 |:--:|:--|:--:|
@@ -103,21 +92,15 @@ Formas pagamento|Relacionamento de ids de suas formas com indicadas AQUI.|-
 Promoções|Promoções (sem indicação dos produtos).|Requer origem **Produtos promoções**.
 Produtos promoções|Produtos presentes em cada promoção.|Requer origem **Promoções**.
 
-> Maiores detalhes de cada origem serão apresentados em tópico próprio mais adiante na documentação.
+# Tipos de acesso a origens de dados<a id="tipos-acessos-origens"></a>
+Selecionadas as origens que deseja integrar, é importante saber que elas podem ser acessadas pelo script de duas maneiras:
 
-### Leitura direta do banco de dados<a id="proposito-db"></a>
+> Você pode indicar uma maneira diferente de acesso (inclusive de bancos de dados diferentes) para cada origem.
 
-O primeiro passo para dar acesso ao script a seus cadastros consiste em se criar views para cada origem de dados com as quais se deseja integrar. 
+* Leitura direta do banco de dados.
+* Importação de arquivos CSV.
 
-**Vantagens do uso de views**
-
-* Facilidade de se renomear suas colunas para os nomes padronizados requeridos pelo script.
-* Junção de tabelas para compor as informações necessárias nas origens requeridas pelo script.
-* Possibilidade de configuração de um usuário com permissões específicas apenas de leitura das próprias views, garantindo assim que o script tenha acesso apenas às informações relevantes à integração.
-
-> Exemplos de criação de cada view para cada banco de dados compatível estão disponíveis nos arquivos de configuração de cada origem na pasta do script, mais adiante na documentação serão apresentados exemplos práticos da montagem de views e de como consultar os exemplos disponíveis.
-
-> É importante observar que o ConecSync **NUNCA** escreve em suas tabelas, ele apenas lê as views indicadas nas configurações. E como é você quem configura tanto as views como as credenciais de conexão, elas podem ser específicas às necessidades de integração do script, garantindo o sigilo e segurança das demais informações de seus cadastros.
+#### Leitura direta do banco de dados<a id="proposito-db"></a>
 
 **Bancos de dados suportados atualmente**
  * MySql
@@ -125,23 +108,213 @@ O primeiro passo para dar acesso ao script a seus cadastros consiste em se criar
  * Postgres
  * Firebird
 
-Uma vez criadas as views, basta modificar alguns arquivos de configuração e rodar o script periodicamente para se iniciar/manter a integração.
+Bancos de dados presentes na lista acima, podem ser acessados diretamente pelo script seguindo os seguintes passos:
+* Configuração da conexão com seu banco de dados no arquivo **config.ts**.
+* Criação de views em seu banco de dados para cada origem que deseja integrar.
+* Modificação dos arquivos de cada origem desejada em **/src/app/config/config-ORIGEM.ts**.
 
-### Importação de arquivos CSV<a id="proposito-csv"></a>
+> Cada um desses passos será explicado em maiores detalhes mais adiante na documentação na parte prática.
+
+**Vantagens do uso de views**
+
+* Facilidade de se renomear suas colunas para os nomes padronizados requeridos pelo script.
+* Junção de tabelas para compor as informações necessárias para cada origem do script.
+* Possibilidade de configuração de um usuário exclusivo para integração com permissões específicas de leitura apenas das views criadas, garantindo assim que o script tenha acesso apenas às informações relevantes à integração.
+
+> É importante observar que o ConecSync **NUNCA** escreve em suas tabelas, ele apenas lê as views indicadas nas configurações. E como é você quem configura tanto as views como as credenciais de conexão, elas podem ser específicas às necessidades de integração do script, garantindo o sigilo e segurança das demais informações de seus cadastros.
+
+#### Importação de arquivos CSV<a id="proposito-csv"></a>
 
 Caso não queira o possa disponibilizar acesso a seus cadastros ao script para facilitar a integração, você mesmo pode ler e exportar as informações desejadas para arquivos CSV e configurar o script para fazer a integração a partir deles.
 
-### Prós e contras de cada modalidade de integração<a id="proposito-pros-contras"></a>
 
-Característica|Acesso direto API|Uso do ConecSync|
+# Configurando o ConecSync<a id="configurando_conecsync"></a>
+
+Agora que decidimos quais views desejamos integrar e sabemos que para cada uma delas podemos ler arquivos CSV ou o banco de dados diretamente, estamos prontos para ver como configurar o script.
+
+> Toda configuração do script ocorre nos arquivos dentro da pasta `src/app/config` na raiz da pasta do script.
+
+#### Arquivos da pasta config
+
+Arquivo|Pasta
+|:---|:---|
+config.ts|/
+config-estoque.ts|/origens
+config-formas-pgto.ts|/origens
+config-produtos-promocoes.ts|/origens
+config-produtos.ts|/origens
+config-promocoes.ts|/origens
+config-mercadeiro.ts|/projetos
+
+> Basicamente a configuração do script consiste em se indicar uma ou mais conexões de banco de dados e/ou uma pasta contendo arquivos CSV, configurar as origens disponíveis que deseja utilizar e para quais projetos deseja transferir suas informações.
+
+#### Modificando o arquivo config.ts
+
+Nesse arquivo podemos configurar o seguinte:
+* Credenciais de conexões com os bancos de dados.
+* Pasta origem para arquivos CSV.
+* Selecionar entre modo sandbox (testes de integração) ou produção (integração real).
+* Ligar/desligar modo verbose - Os passos da execução do script sempre são enviados para o arquivo de log **/ok.log**, opcionalmente esse modo permite que ele seja também enviado para o terminal.
+
+**config.ts**
+```json
+export const CONFIG = {
+  db: {
+    conexao: {
+      host: '127.0.0.1',
+      tabela: 'hypico',
+      usuario: 'conecdata_user',
+      senha: 'sua_senha_secreta',
+      tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' */
+    }
+  },
+  fb: { // Firebird
+    conexao: {
+      host: '127.0.0.1',
+      port: 3050,
+      database: 'C:\\arquivo_firebird.FDB',
+      user: 'SYSDBA',
+      password: 'masterkey',
+      lowercase_keys: false,
+      role: null,
+      pageSize: 4096
+    }
+  },
+  csv: {
+    path: 'C:\\conecdata_csvs'
+  },
+  /* 
+    TRUE = plataforma de testes
+    FALSE = plataforma definitiva ( CUIDADO )
+  */
+  sandbox: true,
+  /* 
+    TRUE = Envia mensagens para terminal (se disponível)
+    FALSE = Não envia mensagens, apenas grava no arquivo de log
+  */
+  verbose: true
+}
+```
+> É necessário preencher apenas as configurações correspondentes ao que se decidiu utilizar, nenhuma pasta CSV precisa ser indicada se não for utilizar esse modo de acesso e apenas as conexões do tipo de banco de dados que deseja utilizar precisam ser informadas. Posteriormente a configuração de cada origem indicará um desses tipos de acesso, e apenas aqueles que forem indicados gerarão erros caso não estejam preenchidos corretamente.
+
+**Acesso negado**
+
+Posteriormente veremos que devemos indicar um token de loja para ter acesso de escrita em cada loja na plataforma (de um projeto específico), como esses tokens são diferentes entre o modo sandbox e produção, caso o valor da flag sandbox nesse arquivo seja diferente do tipo correspondente no token, todas tentativas de acesso à API retornarão um erro de **Acesso negado**.
+
+#### Modificando os arquivos de origens de dados
+
+Vamos ver na prática a integração de uma origem tanto pelo método de leitura de banco de dados como arquivos csv. Para isso, vamos utilizar uma origem simples, a **Formas de pagamento**, uma vez que a processo de configuração das demais é idêntico.
+
+**Configurando origem formas de pagamento método db**
+Vamos utilizar uma tabela formas-pgto de um banco de dados MySql em nosso exemplo.
+
+**Estrutura da tabela formas-pgto**
+Campo|Tipo|Tamanho/Valor|
 |:--:|:--:|:--:|
-Facilidade|<font color='Tomato'>**MENOR** Requer modificações de arquivos fontes e testes de funcionamento.</font>|<font color='MediumSeaGreen'>**MAIOR** Requer apenas modificações mínimas nos cadastros e configuração do script.</font>
-Custo|<font color='Tomato'>**MAIOR** Devido à necessidade de utilização de programadores.</font>|<font color='MediumSeaGreen'>**MENOR** Modificações/configurações necessárias são simples e de rápida implementação.</font>
-Velocidade implementação|<font color='Tomato'>**MENOR** Adaptações mais complexas que levam mais tempo.</font>|<font color='MediumSeaGreen'>**MAIOR** Ajustes rápidos e simples.</font>
-Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações em seus cadastros são replicadas instantaneamente.</font>|<font color='Tomato'>**MENOR** As modificações só são replicadas a cada execução do script.</font>
-Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamadas à API exigiriam mais código para serem tentados novamente.</font>|<font color='MediumSeaGreen'>**MAIOR** A execução periódica do Script resolve eventuais erros de tentativas prévias.</font>
+fpg_pk|Chave primária|-
+fpg_c_forma|String|40
+fpg_e_tipo|Enum|'C','D','O'
+fpg_c_legenda|String|20
+fpg_c_img|String|45
+fpg_c_id_conecdata|String|20
 
-> A situação mais comum de integração com a plataforma é iniciar utilizando do **ConecSync**. Caso a necessidade de replicações imediatas se faça necessária, pode-se com mais calma fazer as modificações necessárias para se chamar diretamente a API. Outro caso comum consiste em se manter parte da integração (normalmente a origem **Estoque**) integrada pelo ConecSync e outras origens integradas por chamadas à API.
+**Conteúdo da tabela formas-pgto**
+fpg_pk|fpg_c_forma|fpg_e_tipo|fpg_c_legenda|fpg_c_img|fpg_c_id_conecdata
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+1|Dinheiro|O|Dinheiro|dinheiro.png|dinheiro
+2|Debito - Elo|D|Débito|elo.png|debito_elo
+3|Debito - Maestro|D|Débito|maestro.png|debito_maestro
+4|Debito - Redeshop|D|Débito|redeshop.png|debito_redeshop
+5|Debito - Visa Electron|D|Débito|visa-electron.png|debito_visa_electron
+6|Credito - American express|C|Crédito|amex.png|credito_amex
+7|Credito - Diners|C|Crédito|diners.png|credito_diners
+8|Credito - Elo|C|Crédito|elo.png|credito_elo
+9|Credito - Hipercard|C|Crédito|hipercard.png|credito_hipercard
+10|Credito - Mastercard|C|Crédito|mastercard.png|credito_mastercard
+11|Credito - Policard|C|Crédito|policard.png|credito_policard
+12|Credito - ValeCard|C|Crédito|valecard.png|credito_valecard
+13|Credito - Visa|C|Crédito|visa.png|credito_visa
+14|Cheque|O|Cheque|cheque.png|cheque
+15|Alelo - Alimentacao|O|Alimentação|alelo.png|alelo_alimentacao
+16|Alelo - Refeicao|O|Refeição|alelo.png|alelo_refeicao
+17|Policard - Alimentacao|O|Alimentação|policard.png|policard_alimentacao
+18|Policard - Refeicao|O|Refeição|policard.png|policard_refeicao
+19|Sodexo - Refeicao|O|Refeição|sodexo.png|sodexo_refeicao
+20|Ticket Rest. Eletronico|O|Ticket Rest.|ticket-restaurante.png|ticket_rest_eletronico
+21|ValeCard - Alimentacao|O|Alimentação|valecard.png|valecard_alimentacao
+22|ValeCard - Refeicao|O|Refeição|valecard.png|valecard_refeicao
+23|Visa - Vale|O|Visa Vale|visa-vale.png|visa_vale
+24|Voucher|O|Voucher|voucher.png|voucher
+
+Para que o ConecSync possa ler dados dessa tabela, temos que gerar, no banco de dados, uma view para ela pelo seguinte comando:
+![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fcreate_view_formas-pgto_conecdata.jpg?alt=media&token=2ba7fb51-ea84-486d-8c1d-50c05d55e382)
+
+Os valores destacados em verde, podem/devem ser substituídos por:
+* Nomes de tabelas suas.
+* Nomes de campos em suas tabelas.
+* Um mesmo valor para substituir nomes de campos que não constem na tabela (e que tenham o mesmo tipo desse campo). Nesse caso, esse mesmo valor será utilizado em todas as linhas dessa coluna na tabela.
+
+Comparando os campos presentes na tabela e os nescessários na composição da view, vamos perceber o seguinte:
+
+Campo View|Campo DB|Situação|
+|:--:|:--:|:--:|
+id_interno|fpg_pk|**Encontrado**|
+nome_forma|fpg_c_forma|**Encontrado**|
+-|fpg_e_tipo|Campo extra|
+-|fpg_c_legenda|Campo extra|
+-|fpg_c_img|Campo extra|
+id_externo|fpg_c_id_conecdata|**Encontrado**|
+id_loja|-|**NÃO ENCONTRADO**|
+forma_ativa|-|**NÃO ENCONTRADO**|
+
+
+Situação|Tipo de ocorrência|Ação na view|
+|:--:|:--:|:--:|
+**Encontrado**|Campos da view encontrados no cadastro.|Indicar o **nome do campo** correspondente na tabela.|
+**NÃO ENCONTRADO**|Campos da view NÃO ENCONTRADOS no cadastro.|Indicar um **valor fixo** do **mesmo tipo** do campo da tabela.|
+Campo extra|Campos no cadastro que não são necessários na view (campos extras).|Nenhuma.|
+
+
+**Configurando origem formas de pagamento método csv**
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Modificando os arquivos de projetos
+No ConecSync cada projeto indicado corresponderia a um destino para o qual se deseja enviar os dados lidos de suas origens.
+
+**Tokens de lojas**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Detalhes origens
 
@@ -338,22 +511,22 @@ qtde_pague_lp|Qtde do produtos contabilizada a cada múltiplo de **qtde_leve_lp*
 **tipo** = **LP**. Tipo de promoção em que cada vez que a quantidade **leve** é alcançada, é substituída pela **pague** (sempre menor). Alguns exemplos:
 Qtde produto|Preço|Leve|Pague|Total sem desconto|Total com desconto|Detalhes|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-3|10,00|3|3|3 * 10,00 = 30,00|-|Qtde pague inválida, igual a leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA</font>
-3|10,00|3|4|4 * 10,00 = 40,00|-|Qtde pague inválida, maior que leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA</font>
-3|10,00|3|2|3 * 10,00 = 30,00|2 * 10,00 = 20,00|3 - 1 desconto, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
-4|10,00|3|2|4 * 10,00 = 40,00|3 * 10,00 = 30,00|4 - 1 desconto, 1 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
-6|10,00|3|2|6 * 10,00 = 60,00|4 * 10,00 = 40,00|6 - 2 descontos, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
+3|10,00|3|3|3 * 10,00 = 30,00|-|Qtde pague inválida, igual a leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|4|4 * 10,00 = 40,00|-|Qtde pague inválida, maior que leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|2|3 * 10,00 = 30,00|2 * 10,00 = 20,00|3 - 1 desconto, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+4|10,00|3|2|4 * 10,00 = 40,00|3 * 10,00 = 30,00|4 - 1 desconto, 1 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+6|10,00|3|2|6 * 10,00 = 60,00|4 * 10,00 = 40,00|6 - 2 descontos, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
 
 **Promoção A partir de...**
 **tipo** = **APD**. Tipo de promoção em que a partir de uma quantidade específica, os produtos sofrem um desconto (com ou sem um limite).
 Qtde produto|Preço|Qtde APD|% desc. APD|Limite|Total sem desconto|Total com desconto|Detalhes|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-3|10,00|3|0|0|3 * 10,00 = 30,00|-|% desconto inválido, = 0%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA</font>
-3|10,00|3|105|0|3 * 10,00 = 30,00|-|% desconto inválido, = 105%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA</font>
-3|10,00|3|50|0|3 * 10,00 = 30,00|(2 * 10,00) + (1 * 5,00) = 25,00|2 preços cheios, 1 preço descontado. <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
-4|10,00|3|50|0|4 * 10,00 = 40,00|(2 * 10,00) + (2 * 5,00) = 30,00|2 preços cheios, 2 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
-4|10,00|3|50|1|4 * 10,00 = 40,00|(2 * 10,00) + (1 * 5,00) + (1 * 10,00) = 35,00|2 preços cheios, 1 preço descontado, 1 preço cheio (devido limite 1). <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
-10|10,00|3|50|0|10 * 10,00 = 100,00|(2 * 10,00) + (8 * 5,00) = 60,00|2 preços cheios, 8 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK</font>
+3|10,00|3|0|0|3 * 10,00 = 30,00|-|% desconto inválido, = 0%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|105|0|3 * 10,00 = 30,00|-|% desconto inválido, = 105%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|50|0|3 * 10,00 = 30,00|(2 * 10,00) + (1 * 5,00) = 25,00|2 preços cheios, 1 preço descontado. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+4|10,00|3|50|0|4 * 10,00 = 40,00|(2 * 10,00) + (2 * 5,00) = 30,00|2 preços cheios, 2 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+4|10,00|3|50|1|4 * 10,00 = 40,00|(2 * 10,00) + (1 * 5,00) + (1 * 10,00) = 35,00|2 preços cheios, 1 preço descontado, 1 preço cheio (devido limite 1). <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+10|10,00|3|50|0|10 * 10,00 = 100,00|(2 * 10,00) + (8 * 5,00) = 60,00|2 preços cheios, 8 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
 
 ### Produtos promoções<a id="detalhes-origens-produtos-promocoes"></a>
 
@@ -1431,3 +1604,83 @@ Esses tokens tem as seguintes características:
 Uma **view** é uma maneira alternativa de observação de dados de uma ou mais entidades (tabelas), que compõem uma base de dados. Pode ser considerada como uma tabela virtual ou uma consulta armazenada.
 
 > Optamos por utilizar views por diversos motivos, elas podem reunir dados de mais de uma tabela facilmente, por serem uma visão paralela dos dados, podem ter configurações específicas de segurança atribuídas especificamente à ela, entre outros.
+
+
+
+# Propósito
+
+*  [Origens de dados](#proposito-origens-dados)
+*  [Leitura direta do banco de dados](#proposito-db)
+*  [Importação de arquivos CSV](#modos-csv)
+*  [Acesso API x ConecSync](#proposito-api_x_conecsync)
+
+# Detalhes origens
+
+*  [Produtos](#detalhes-origens-produtos)
+*  [Estoque](#detalhes-origens-estoque)
+*  [Formas pagamento](#detalhes-origens-formas-pgto)
+*  [Promoções](#detalhes-origens-promocoes)
+*  [Produtos promoções](#detalhes-origens-produtos-promocoes)
+
+# Modos de integração
+
+*  [Modo api](#modos-modo-api)
+*  [Modo script](#modos-modo-script)
+*  [Modo mixto](#modos-modo-mixto)
+
+# Projetos compatíveis
+
+*  [Mercadeiro](#projetos-mercadeiro)
+
+# Origens
+
+*  [Acesso direto ao banco de dados](#origens-origem-acesso-direto-db)
+*  [Leitura de arquivos CSV](#origens-origem-leitura-arquivos-csv)
+
+# Instalação
+
+*  [Instalação NodeJs](#instalacao-nodejs)
+*  [Copiando o script ConecSync](#instalacao-copiando-script-conecsync)
+*  [Estrutura da pasta do ConecSync](#instalacao-estrutura-pasta-conecsync)
+*  [Instalando dependências](#instalacao-instalando-dependencias)
+
+# Seguindo a integração de exemplo
+
+*  [Integração modelo DB](#integracao-exemplo-integracao-modelo-db)
+  +  [Criando o banco de dados](#integracao-exemplo-criando-db)
+  +  [Criando as tabelas modelo](#integracao-exemplo-criando-tabelas)
+    -  [Tabela grupos](#integracao-exemplo-criando-tabelas-grupos)
+    -  [Tabela subgrupos](#integracao-exemplo-criando-tabelas-subgrupos)
+    -  [Tabela produtos](#integracao-exemplo-criando-tabelas-produtos)
+    -  [Tabela formas pgto](#integracao-exemplo-criando-tabelas-formas-pgto)
+  +  [Criando as views](#integracao-exemplo-criando-views)
+    -  [view_conecdata_formas](#integracao-exemplo-criando-views-formas)
+    -  [view_conecdata_produtos](#integracao-exemplo-criando-views-produtos)
+    -  [view_conecdata_estoque](#integracao-exemplo-criando-views-estoque)
+  +  [Configurando modo DB](#integracao-exemplo-config-db)
+    -  [Configuração geral](#integracao-exemplo-config-db-geral)
+    -  [Configurando origens](#integracao-exemplo-config-db-origens)
+    -  [Configurando projetos](#integracao-exemplo-config-db-projetos)
+*  [Integração modelo CSV](#integracao-exemplo-integracao-modelo-csv)
+
+# Testando sua integração
+
+*  [Linux](#executando-script-linux)
+
+# Executando o script
+
+*  [Linux](#executando-script-linux)
+*  [Windows](#executando-script-windows)
+
+# Anexos
+
+### Glossário
+
+*  [API](#glossario-api)
+*  [CLI](#glossario-cli)
+*  [Conecdata](#glossario-conecdata)
+*  [CSV](#glossario-csv)
+*  [ERP](#glossario-erp)
+*  [Integradores ou integradoras](#glossario-integradoras)
+*  [Tokens de loja](#glossario-tokens-loja)
+*  [Views](#glossario-views)
