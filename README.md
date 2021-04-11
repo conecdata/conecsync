@@ -2,109 +2,213 @@
 
 > Documentação ConecSync v 1.0. 
 
-### Índice
+# Índice
+1. [Informações gerais](#informacoes_gerais)
+    * [O que é o ConecSync](#o_que_e_o_conecsync)
+    * [Acesso direto API x Utilização ConecSync](#api_x_conecsync)
+    * [Passo a passo utilização script](#passo_passo_script)
 
-*  [O que é o ConecSync](#o_que_e_o_conecsync)
-*  [Acesso direto API x Utilização ConecSync](#api_x_conecsync)
-*  [Etapas para uso do ConecSync](#etapas-conecsync)
+2. [Instalação nodejs](#instalacao_nodejs)
+    * [Verificando instalação nodejs](#verificando_instalacao_nodejs)
+    * [Verificando instalação npm](#verificando_instalacao_npm)
+    * [LTS x current](#lts_x_current)
 
-# O que é o ConecSync<a id="o_que_e_o_conecsync"></a>
+3. [Baixando do repositório do GitHub](#download)
+    * [Clonando o repositório do Github](#clonando_repositorio_github)
+    * [Baixando arquivo zip](baixando_arquivo_zip)
 
-A integração (sincronização de dados específicos de cadastros de desenvolvedoras parceiras) com diversos projetos da Conecdata pode ser feita por acesso direto à suas APIs de integração ou acessando essas mesmas APIs indiretamente utilizando-se o script ConecSync (script em NodeJs/Typescript).
+4. [Instalação das dependências](#instalacao_dependencias)
+5. [Configuração](#configuracao)
+    * [O que são as origens de dados?](#o_que_sao_origens_dados)
+      * [Origens em arquivos CSV](#origens_csv)
+      * [Origens em views](#origens_views)
+      * [Origens disponíveis](#origens_disponiveis)
+    * [O que são projetos](#o_que_sao_projetos)
+    * [Pasta de configuração](#pasta_configuracao)
+      * [Arquivo PASTA_SCRIPT/src/app/config/config.ts](#config_ts)
 
-> Durante o restante da documentação utilizaremos com frequência o termo `script`, sem indicar especificamente outro projeto, como um sinônimo de `ConecSync`,
+6. [Execução periódica](#execucao_periodica)
 
-# Acesso direto API x Utilização ConecSync<a id="api_x_conecsync"></a>
+7. [Detalhes de origens de dados](#detalhes_origens_dados)
+    * [IDS](#ids)
+    * [Tipos de campos](#tipos_campos)
+    * [Origem Produtos](#origem_produtos)
+      * [Condições para exibição na plataforma](#condicoes_exibicao)
+      * [Condições para venda na plataforma](#condicoes_venda)
+      * [Atacado](#atacado)
+      * [Produtos industrializados](#produtos_industrializados)
+      * [Produtos em destaque](#produtos_destaque)
+      * [Produtos pesáveis](#produtos_pesaveis)
+      * [Limitando a quantidade no pedido](#limitando_qtde)
+    * [Origem Estoque](#origem_estoque)
+    * [Controlando a disponibilidade dos produtos pela API](#controlando_disponibilidade_api)## Origem * * * [Origem Formas pagamento](#origem_formas_pgto)
+    * [Origem Promoções](#origem_promocoes)
+      * [Promoção Leve... Pague...](#promocao_lp)
+      * [Promoção A partir de...](#promocao_apd)
+    * [Origem Produtos promoções](#origem_produtos_promocoes)
+
+8. [Exemplo prático](#exemplo_pratico)
+    * [Lendo de um cadastro](#lendo_cadastro)
+    * [Lendo de um arquivo CSV](#lendo_csv)
+    * [Configurando arquivos de projetos](#configurando_arquivos_projetos)
+      * [Tokens de lojas](#tokens_lojas)
+
+9. [Diversidades](#diversidades)
+    * [Arquivos de log](#arquivos_log)
+      * [PASTA_SCRIPT/ok.log](#ok_log)
+      * [PASTA_SCRIPT/errors.log](#errors_log)
+    * [Hashes](#hashes)
+    * [Resetando origens](#resetando_origens)
+      * [Tags para reset das origens](#tags_reset_origens)
+
+# 1 - Informações gerais<a id="informacoes_gerais"></a>
+
+## O que é o ConecSync<a id="o_que_e_o_conecsync"></a>
+
+Alguns sistemas desenvolvidos pela Conecdata podem ser integrados (recebendo informações) com sistemas de desenvolvedoras parceiras (aka parceiros) por meio de sua API.
+
+Essa integração permite sincronização de dados específicos de cadastros desses parceiros com alguns projetos da Conecdata, esse processo entretanto ocupa desenvolvedores (dos parceiros), leva algum tempo e requer testes para garantir seu correto funcionamento.
+
+Para facilitar integrações, a Conecdata desenvolveu o **ConecSync** (aka script), um script em NodeJs/Typescript que faz ele mesmo os acessos às suas APIs, e por já ter sido desenvolvido e testado, o tempo e o custo da integração são reduzidos drasticamente.
+
+## Acesso direto API x Utilização ConecSync<a id="api_x_conecsync"></a>
+
+Logo, existem duas maneiras de se integrar com os sistemas da Conecdata, Acessando **diretamente** as APIs (dentro de seu próprio código) e **indiretamente** utilizando-se o ConecSync (que requer modificações mínimas em seus cadastros e apenas algumas modificações em alguns de seus arquivos de configuração).
+
+Normalmente, os parceiros iniciam a integração utilizando o ConecSync, e posteriormente, modificam seus fontes para acessar diretamente nossas APIs.
+
+Na verdade, a situação mais comum é transferir apenas algumas origens para as APIs e manter outras (normalmente a origem **Estoque**) integradas pelo ConecSync (mais adiante será explicado o motivo disso).
 
 Característica|Acesso direto API|Utilização ConecSync|
 |:--:|:--:|:--:|
 Facilidade|<font color='Tomato'>**MENOR** Requer modificações de arquivos fontes e testes de funcionamento.</font>|<font color='MediumSeaGreen'>**MAIOR** Requer apenas modificações mínimas nos cadastros e configuração do script.</font>
-Custo|<font color='Tomato'>**MAIOR** Devido à necessidade de ocupação de programadores.</font>|<font color='MediumSeaGreen'>**MENOR** Modificações/configurações necessárias são simples e de rápida implementação.</font>
+Mão de obra/Custo|<font color='Tomato'>**MAIOR** Devido à necessidade de ocupação de programadores.</font>|<font color='MediumSeaGreen'>**MENOR** Modificações/configurações necessárias são simples e de rápida implementação.</font>
 Velocidade implementação|<font color='Tomato'>**MENOR** Adaptações mais complexas que levam mais tempo.</font>|<font color='MediumSeaGreen'>**MAIOR** Ajustes rápidos e simples.</font>
 Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações em seus cadastros são replicadas instantaneamente.</font>|<font color='Tomato'>**MENOR** As modificações só são replicadas a cada execução do script.</font>
 Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamadas à API exigiriam mais código para serem tentados novamente.</font>|<font color='MediumSeaGreen'>**MAIOR** A execução periódica do Script resolve eventuais erros de tentativas prévias.</font>
 
-É comum que parceiros realizem a integração inicial utilizando-se o **ConecSync** e posteriormente, com mais calma, façam as modificações necessárias nos fontes de seus projetos acionando diretamente as APIs desejadas. Na verdade é comum transferir apenas algumas origens para as APIs e manter outras (normalmente a origem **Estoque**) integradas pelo ConecSync.
+> Conhecendo os prós e contras, caso você opte por realizar a integração diretamente pelas APIs dos projetos, o restante dessa documentação é irrelevante (pois só diz respeito ao uso do ConecSync) e recomendamos que consulte a documentação de cada API em seu lugar.
 
-> Conhecendo os prós e contras, caso você opte por realizar a integração diretamente pelas APIs dos projetos, o restante dessa documentação é irrelevante (pois só diz respeito ao uso do ConecSync) e recomendamos que consulte a documentação específica de cada API desejada em seu lugar.
-
-# Etapas para uso do ConecSync<a id="etapas-conecsync"></a>
+## Passo a passo utilização script<a id="passo_passo_script"></a>
 1. Instalação do nodejs.
-1. Download do script atualizado no repositório do GitHub.
-1. Instalação das dependências do script.
-1. Configuração do script.
-1. Execução periódica do script.
+1. Baixando do repositório do GitHub.
+1. Instalação das dependências.
+1. Configuração.
+1. Execução periódica.
 
-> Basicamente você vai acessar seus dados de alguma maneira (configurada no script) e acionar a o ConecSync periodicamente para acionar as APIs realizando/atualizando a replicação de seus dados para projetos específicos da ConecData (também configurados no script).
+# 2 - Instalação do nodejs<a id="instalacao_nodejs"></a>
 
-# Instalação do nodejs<a id="instalacao_nodejs"></a>
-A execução do script requer o nodejs instalado na máquina. Siga as recomendações específicas para seu sistema operacional no site <https://nodejs.org>.
-Uma vez instalado o **nodejs** (necessário para executar o script) também será instalado automaticamente o **npm**, um gerenciador de pacotes javascript, que permitirá a instalação de algumas dependências do script depois que ele for baixado.
+Basicamente, o único programa necessário para a execução do script é o Node Js. Para instalá-lo, siga as recomendações específicas para seu sistema operacional no site <https://nodejs.org>.
 
-Após a instalação do nodejs, você pode confirmar seu funcionamento executando o seguinte comando em um terminal:
+Junto do **nodejs** (necessário para executar o script) será instalado automaticamente o **npm**, um gerenciador de pacotes javascript, que permitirá a instalação de algumas dependências internas do script.
+
+## Verificando instalação nodejs<a id="verificando_instalacao_nodejs"></a>
+Para confirmar o sucesso da instalação, basta executar o seguinte comando em um terminal:<br>
 `node --version` 
-Caso ele esteja instalado, será exibida sua versão como a seguir:
+
+Se instalado, será exibida a versão do nodejs:<br>
 `v14.15.4`
 
-O mesmo pode ser feito para confirmar a instalação do npm:
+## Verificando instalação npm<a id="verificando_instalacao_npm"></a>
+O mesmo teste pode ser feito para testar a instalação do npm, pelo comando:<br>
 `npm --version` 
-O que gerará um resultado parecido com:
+
+Que exibirá sua versão:<br>
 `7.5.4`
 
-# Baixando o ConecSync<a id="baixando_conecsync"></a>
+## LTS x current<a id="lts_x_current"></a>
+
+O nodejs disponibiliza dias versões para download, a **LTS** (Testada) e **Current** (com as últimas modificações). Opte sempre pela versão LTS igual ou superior às exibidas acima para evitar problemas.
+
+# 3 - Baixando do repositório do GitHub<a id="download"></a>
+
 A versão mais atualizada do script estará sempre disponível em seu repositório público no Github <https://github.com/conecdata/conecsync>.
 
 O script pode ser instalado de duas maneiras:
 * Clonando seu repositório Gibhub.
 * Baixando seu arquivo ZIP.
 
-#### Clonando o repositório do Github
+## Clonando o repositório do Github<a id="clonando_repositorio_github"></a>
 > Essa modalidade requer o CLI do git instalado. Sua instalação pode ser verificada pelo comando `git --version` em um terminal.
 
 Passos:
-* Abra um terminal.
-* Acesse a pasta dentro da qual deseja criar a pasta **conecsync** (parent).
-* E execute o comando `git clone https://github.com/conecdata/conecsync`.
+1. Abra um terminal.
+1. Acesse a pasta dentro da qual deseja criar a pasta **conecsync** (parent).
+1. E execute o comando `git clone https://github.com/conecdata/conecsync`.
 
-#### Baixando arquivo zip
+## Baixando arquivo zip<a id="baixando_arquivo_zip"></a>
 Passos:
-* Acesse o repositório no github em <https://github.com/conecdata/conecshare.git>.
-* Baixe o arquivo zip pelo link dentro do botão <kbd>Code</kbd>.
+1. Acesse o repositório no github em <https://github.com/conecdata/conecshare.git>.
+1. Baixe o arquivo zip pelo link dentro do botão <kbd>Code</kbd>.
 ![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fgit_conecsync_zip_download.jpg?alt=media) 
-* Descompacte o arquivo baixado dentro da pasta desejada.
+1. Descompacte o arquivo baixado dentro da pasta desejada.
 
 > No restante da documentação vamos nos referir à pasta onde o script está instalado como `PASTA_CONECSYNC`.
-# Instalando dependências do ConecSync<a id="instalando_dependencias_conecsync"></a>
 
-Após o download do script, alguns módulos necessários à sua execução devem ser baixados/instalados dentro de sua pasta. A lista das dependências do script estão no arquivo `PASTA_CONECSYNC/package.json`. 
+# 4 - Instalação das dependências<a id="instalacao_dependencias"></a>
+
+Apenas os arquivos do próprio script estão disponíveis no repositório, situação comum em arquivos que são projetos nodejs, uma lista completa das dependências que ele precisa baixar/instalar para funcionar corretamente estão relacionadas no arquivo `PASTA_CONECSYNC/package.json`. 
 
 Para instalar as dependências do projeto, siga os seguintes passos:
 
-* Abra um terminal.
-* Acesse a pasta do script (`PASTA_CONECSYNC`).
-* Execute o comando `npm install` (Windows) ou `sudo npm install` (Linux ou Mac).
-* Aguarde o download das dependências. Elas serão gravadas dentro da pasta `PASTA_CONECSYNC/node_modules`.
+1. Abra um terminal.
+1. Acesse a pasta do script (`PASTA_CONECSYNC`).
+1. Execute o comando `npm install` (Windows) ou `sudo npm install` (Linux ou Mac).
+1. Aguarde o download das dependências. Elas serão gravadas dentro da pasta `PASTA_CONECSYNC/node_modules`.
 
-# Origens de dados<a id="origens-dados"></a>
-Com o script baixado e suas dependências instaladas, você deve escolher quais informações deseja integrar pelo script selecionando/configurando as origens de dados correspondentes. As origens disponíveis para integração pelo script são:
+# 5 - Configuração<a id="configuracao"></a>
 
-Origem|Descrição|Requerimento|
-|:--:|:--|:--:|
-Produtos|Relação de produtos com departamentos (obrigatório) e subdepartamentos (opcional) incluídos.|-
-Estoque|Ativa/desativa venda online de produtos.|Origem **Produtos** não indicada.
-Formas pagamento|Relacionamento de ids de suas formas com indicadas AQUI.|-
-Promoções|Promoções (sem indicação dos produtos).|Requer origem **Produtos promoções**.
-Produtos promoções|Produtos presentes em cada promoção.|Requer origem **Promoções**.
+Basicamente a utilização do script consiste em ler uma ou mais origens de dados e transferir suas informações para lojas de um ou mais projetos da Conecdata. Vamos conhecer melhor essas partes envolvidas antes de ver detalhes de suas configurações.
+* Origens de dados
+* Projetos
 
-# Tipos de acesso a origens de dados<a id="tipos-acessos-origens"></a>
-Selecionadas as origens que deseja integrar, devemos decidir como cada uma delas será lida pelo script, são duas as opções:
+## O que são as origens de dados?<a id="o_que_sao_origens_dados"></a>
 
-* Leitura direta das tabelas (na verdade views) do banco de dados.
-* Importação de arquivos CSV.
+Origem de dados (aka origem), é um cadastro (ou de um grupo de cadastros) do parceiro em um formato contendo (pelo menos) os campos obrigatórios e com nomes específicos requeridos pelo script.
 
-> Cada origem pode ser configurada com um tipo de acesso diferente, ou seja, você pode ler algumas origens de arquivos csv e outras de banco de dados. 
+As origens de dados no script pode ser de dois tipos:
+* Arquivos CSV.
+* VIEWS no banco de dados.
 
-#### Leitura direta do banco de dados<a id="db"></a>
+#### Origens em arquivos CSV<a id="origens_csv"></a>
+
+Para cada origem de dados que deseja utilizar, o parceiro deve, ele mesmo, ler seus cadastros e gravar um arquivo em uma pasta específica (sua configuração será mostrada mais adiante) no formato CSV usando o ';' (Ponto e vírgula) como delimitador.
+
+**Exemplo `PASTA_CSVS/formas-pgto.csv`**
+```csv
+id_interno;nome_forma;id_externo;id_loja;forma_ativa
+1;Dinheiro;dinheiro;1;1
+2;Debito - Elo;debito_elo;1;1
+3;Debito - Maestro;debito_maestro;1;1
+4;Debito - Redeshop;debito_redeshop;1;1
+5;Debito - Visa Electron;debito_visa_electron;1;1
+6;Credito - American express;credito_amex;1;1
+...
+```
+
+> O ConecSync sempre utiliza ';' (Ponto e vírgula) como delimitador de colunas.
+#### Origens em views<a id="origens_views"></a>
+
+Para cada origem de dados que deseja utilizar, o parceiro deve gerar uma view em seu cadastro por meio de um comando similar ao seguinte:
+
+**Exemplo de criação de view formas-pgto para MySql**
+``` sql
+  DROP VIEW IF EXISTS view_conecdata_formas;
+
+  CREATE VIEW
+    view_conecdata_formas
+  AS SELECT
+    fpg_pk AS id_interno,
+    fpg_c_forma AS nome_forma,
+    fpg_c_id_externo AS id_externo,
+    1 AS id_loja,
+    1 AS forma_ativa
+  FROM
+    formas_pgto
+  WHERE
+    fpg_c_id_externo IS NOT NULL;
+```
+> Os comandos para criação de views variam de um tipo de banco de dados para outro. Existem exemplos de criação de views para cada banco de dados suportado pelo script, comentados dentro do arquivo de configuração de cada origem.
 
 **Bancos de dados suportados atualmente**
  * MySql
@@ -112,33 +216,43 @@ Selecionadas as origens que deseja integrar, devemos decidir como cada uma delas
  * Postgres
  * Firebird
 
-Caso seu bancos de dados conste nessa lista (utilize a importação de arquivos csv caso contrário), seus cadastros podem ser acessados diretamente pelo script seguindo os seguintes passos:
-* Configuração da conexão com seu banco de dados no arquivo `PASTA_CONECSYNC/src/app/config/config.ts`.
-* Criação de views em seu banco de dados para cada origem que você deseja integrar.
-* Modificação dos arquivos de cada origem desejada em `PASTA_CONECSYNC/src/app/config/origens/config-ORIGEM.ts`.
-
-> Cada um desses passos será explicado em maiores detalhes mais adiante na documentação durante a parte prática.
-
-**Vantagens do uso de views**
-
-* Facilidade de se renomear suas colunas para os nomes padronizados requeridos pelo script.
-* Junção de tabelas para compor as informações necessárias para cada origem do script.
-* Possibilidade de configuração de um usuário exclusivo para integração com permissões específicas de leitura apenas das views criadas. Dessa forma, você garante que o script tenha acesso apenas às informações relevantes à integração.
+**Vantagens da utilização das views para leitura do banco de dados:**
+* Facilidade de se renomear suas colunas.
+* Junção de tabelas para compor as informações necessárias.
+* Possibilidade de configuração de um usuário exclusivo para integração e com permissões específicas de leitura apenas das views criadas. Dessa forma, você garante que o script tenha acesso (read-only) apenas às informações relevantes à integração.
 
 > É importante observar que o ConecSync **NUNCA** escreve em suas tabelas, ele apenas lê as views indicadas nas configurações. E como é você quem configura qual view é acessada por cada origem bem como as credenciais de conexão (que podem indicar um usuário com acesso limitado), sabe exatamente o que está sendo lido (e que nunca nada é escrito) pelo script em seus cadastros.
 
-#### Importação de arquivos CSV<a id="proposito-csv"></a>
+#### Origens disponíveis<a id="origens_disponiveis"></a>
+Origem|Descrição|Requerimento|
+|:--:|:--|:--:|
+Produtos|Produtos com departamentos (obrigatório) e subdepartamentos (opcional) incluídos.|-
+Estoque|Ativa/desativa venda online de produtos.|Origem **Produtos** não indicada.
+Formas pagamento|Relacionamento de suas formas de pagamento com nossas, relação completa AQUI.|-
+Promoções|Promoções (sem indicação dos produtos).|Origem **Produtos promoções**.
+Produtos promoções|Produtos presentes em cada promoção.|Origem **Promoções**.
 
-Caso não queira/possa disponibilizar acesso a seus cadastros ao script para facilitar a integração, você mesmo pode ler e exportar as informações desejadas para arquivos CSV e configurar o script para fazer a integração a partir deles.
+> Para que a integração seja executada, pelo menos uma das origens deve estar configurada corretamente.
 
+> Leia o capítulo [Detalhes de origens de dados](#detalhes_origens_dados) para maiores detalhes de cada origem.
 
-# Configurando o ConecSync<a id="configurando_conecsync"></a>
+## O que são projetos<a id="o_que_sao_projetos"></a>
+Agora que sabemos que as origens de dados são as informações que queremos ler, podendo assim considerá-las uma **origem**, essa leitura serã feita com intenção de gravá-las em um ou mais lugares, ou seja algum **destino**.
 
-Um vez que você tenha decidido quais origens deseja integrar, e quais maneiras disponíveis para acessá-las quer usar para cada uma delas, estamos prontos para ver um exemplo prático de como modificar os arquivos de configuração dessas origens.
+Esse destino ou destinos, são exatamente os projetos da Conecdata com apis de integração compatíveis com o ConecSync. Mais especificamente gravaremos essas origens dentro de lojas de um ou mais desses projetos.
 
-#### Arquivos da pasta `PASTA_CONECSYNC/src/app/config`
+Projetos atualmente disponíveis:
+* Mercadeiro - Marketplace de mercados
 
-Arquivo|Pasta
+## Pasta de configuração<a id="pasta_configuracao"></a>
+
+Conhecendo origens e projetos e sabendo que as origens podem ser lidas de cadastros e/ou de arquivos CSV, estamos aptos a ver como isso é configurado no ConecSync.
+
+> Nesse capítulo, só vamos explicar as configurações gerais do script, para um exemplo completo de como configurar as origens e destinos, leia o capítulo [Exemplo prático](exemplo_pratico).
+
+Todas modificações de configuração do script devem ser feitas nos arquivos dentro da pasta `PASTA_SCRIPT/src/app/config/` ou de suas subpastas.
+
+Arquivo|`PASTA_SCRIPT/src/app/config`
 |:---|:---|
 config.ts|/
 config-estoque.ts|/origens
@@ -148,17 +262,21 @@ config-produtos.ts|/origens
 config-promocoes.ts|/origens
 config-mercadeiro.ts|/projetos
 
-> Toda configuração do ConecSync ocorre nos arquivos dentro dessa pasta, modificar algo em qualquer outro lugar pode causar problemas no script (principalmente modificações nos fontes do projeto). Na verdade mais adiante serão explicados alguns arquivos de log e de armazenagem de hashes que podem ser modificados/excluídos sem problemas. **<font color='Tomato'>FORA ISSO, NÃO MODIFIQUE MAIS NADA.</font>**
+> Mais adiante serão explicados alguns **arquivos de log** e a **pasta de armazenagem de hashes** que podem ser modificados/excluídos sem problemas. **<font color='Tomato'>TIRANDO ELES E A PASTA DE CONFIGURAÇÃO, NÃO MODIFIQUE MAIS NADA NO SCRIPT.</font>**
 
-#### Modificando o arquivo config.ts
+#### Arquivo `PASTA_SCRIPT/src/app/config/config.ts`<a id="config_ts"></a>
 
 Nesse arquivo podemos configurar o seguinte:
 * Credenciais de conexões com os bancos de dados.
 * Pasta origem para arquivos CSV.
 * Selecionar entre modo sandbox (testes de integração) ou produção (integração real).
-* Ligar/desligar modo verbose - Os passos da execução do script sempre são enviados para o arquivo de log **/ok.log**, opcionalmente esse modo permite que ele seja também enviado para o terminal.
+* Ligar/desligar modo verbose.
 
-**config.ts**
+**Configurando conexão MySql, Maria DB e Postgres.**
+
+Caso tenha alguma view criada em algum desses bancos de dados, é necessário indicar suas credenciais de conexão nessa parte da configuração:
+
+**PASTA_SCRIPT/src/app/config/config.ts** (visão parcial)
 ```json
 export const CONFIG = {
   db: {
@@ -170,6 +288,21 @@ export const CONFIG = {
       tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' */
     }
   },
+  .
+  .
+  .
+}
+```
+**Configurando conexão Firebird.**
+
+Caso tenha alguma view criada em um banco de dados Firebird, é necessário indicar suas credenciais de conexão nessa parte da configuração:
+
+**PASTA_SCRIPT/src/app/config/config.ts** (visão parcial)
+```json
+export const CONFIG = {
+  .
+  .
+  .
   fb: { // Firebird
     conexao: {
       host: '127.0.0.1',
@@ -182,14 +315,67 @@ export const CONFIG = {
       pageSize: 4096
     }
   },
+  .
+  .
+  .
+}
+```
+**Configurando pasta origem de arquivos csv.**
+
+Caso tenha exportado algum arquivo csv, é necessário indicar a pasta dele(s) nessa parte da configuração:
+
+**PASTA_SCRIPT/src/app/config/config.ts** (visão parcial)
+```json
+export const CONFIG = {
+  .
+  .
+  .
   csv: {
     path: 'C:\\conecdata_csvs'
   },
+  .
+  .
+  .
+}
+```
+**sandbox**
+
+Sandbox é um ambiente de testes de integração que grava em um projeto indisponível para compras reais.
+
+|Valor|Descrição|
+|:--:|:--|
+|true|Acessa uma cópia da plataforma para fins de teste de integração (não disponibilizado para compras reais).|
+|false|Acessa a plataforma real em que os pedidos realizados são enviados de fato para as lojas.|
+
+Posteriormente veremos que, para acessarmos tanto a api do modo sandbox, como a do modo produção, precisamos de um token (um tipo de chave que permite acessos de escrita) para cada loja. Como o os tokens de cada um dos modos são diferentes, se o script estiver configurado aqui com um tipo e você indicar um token do outro, todas tentativas de acesso à API retornarão um erro de **Acesso negado**.
+
+**PASTA_SCRIPT/src/app/config/config.ts** (visão parcial)
+```json
+export const CONFIG = {
+  .
+  .
+  .
   /* 
     TRUE = plataforma de testes
     FALSE = plataforma definitiva ( CUIDADO )
   */
   sandbox: true,
+  .
+  .
+  .
+
+}
+```
+#### verbose<a id="verbose"></a>
+
+Os passos da execução do script sempre são enviados para o arquivo de log `PASTA_SCRIPT/ok.log`, opcionalmente, **{ verbose: true }** permite que ele seja também enviado para o terminal.
+
+**PASTA_SCRIPT/src/app/config/config.ts** (visão parcial)
+```json
+export const CONFIG = {
+  .
+  .
+  .
   /* 
     TRUE = Envia mensagens para terminal (se disponível)
     FALSE = Não envia mensagens, apenas grava no arquivo de log
@@ -197,33 +383,261 @@ export const CONFIG = {
   verbose: true
 }
 ```
-**db**
-Credenciais de conexão com bancos de dados Mysql, MariaDb e Postgres.
 
-**fb** 
-Credenciais de conexão com bancos de dados Firebird.
+# 6 - Execução periódica<a id="execucao_periodica"></a>
 
-**csv**
-Pasta contendo arquivos csv a serem importados na plataforma.
+Cada vez que o script é executado, baseado em suas configurações, ele lê as origens de dados e transfere (apenas as informações que mudaram desde a execução anterior) para as lojas dos projetos.
 
-**sandbox**
-|Valor|Descrição|
-|:--:|:--|
-|true|Acessa uma cópia da plataforma para fins de teste de integração (não disponibilizado para compras reais).|
-|false|Acessa a plataforma real em que os pedidos realizados são enviados de fato para as lojas.|
+Para executar o ConecSync, basta executar o comando:<br>
+```PASTA_SCRIPT/npm start```
 
-Posteriormente veremos que para acessarmos tanto a api do modo sandbox, como a do modo produção, precisamos de um token (um tipo de chave que permite acessos de escrita) para cada loja com a qual desejamos integrar. Como o os tokens de cada um modos são diferentes, se o script estiver configurado com um tipo e você indicar um token do outro, todas tentativas de acesso à API retornarão um erro de **Acesso negado**.
+> O ideal é que você inclua a execução do script em algum tipo de agendamento períodico em seu sistema operacional para automatizar o processo de integração.
 
-> Só é necessário indicar valores para os tipos de conexão que vão ser utilizados.
+# 7 - Origens de dados<a id="origens_dados"></a>
 
-#### Configurando arquivos de origens de dados
+## IDS<a id="ids"></a>
+Os valores indicados como **IDS** devem ser utilizados tanto **nas views** (renomeando seus campos) como nos **cabeçalhos nos arquivos CSV** (identificando suas colunas).
 
-Vamos ver na prática a integração de uma origem tanto pelo método de leitura de banco de dados como arquivos csv. Para isso, vamos utilizar uma origem simples, a **Formas de pagamento**, uma vez que a processo de configuração das demais é idêntico.
+## Tipos de campos<a id="tipos_campos"></a>
+Tipo|Valores|
+|:--:|:--:|
+Boolean|<font color='MediumSeaGreen'>true</font> (**'S'** ou **'T'** ou **'1'** ou **nro > 0**).<br><font color='Tomato'>false</font> Demais valores.
+Inteiro|Números **sem** casas decimais.
+Número|Números **com/sem** casas decimais.
+String|Valores alfanuméricos.
 
-**Configurando origem formas de pagamento método db**
-Vamos utilizar uma tabela formas-pgto de um banco de dados MySql em nosso exemplo.
+## Origem Produtos<a id="origem_produtos"></a>
+ID|Detalhes|Tipo|Obrigatório|Condições/Default|
+|:--:|:--:|:--:|:--:|:--:|
+atacado_qtde|Qtde mínima habilitação preço atacado.|Número|Se **atacado_status** true.|Deve ser > 0 se indicado.<br><font color='MediumSeaGreen'>Default 0.</font>
+atacado_status|Status promoção atacado do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
+atacado_preco|Novo valor produto se **atacado_qtde** atingido.|Número|se **atacado_status** true.| > 0 e < **preco_venda** se indicado.<br><font color='MediumSeaGreen'>Default 0.</font>
+ativo_departamento|Status do departamento do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+ativo_produto|Status do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+ativo_subdepartamento|Status do subdepartamento do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+barcode_produto|Código de barras do produto.|String|Não|Se indicado, produto é **industrializado**.<br><font color='MediumSeaGreen'>Default **''**.</font>
+descricao_produto|Informações adicionais do produto.|String|Não|<font color='MediumSeaGreen'>Default **''**.</font>
+destaque|Status exibição privilegiada do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
+estoque_controlado|Status indicativo de verificação de estoque.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
+id_departamento|Sua chave primária do departamento do produto.|Inteiro/String|**SIM**|-
+id_produto|Sua chave primária do produto.|Inteiro/String|**SIM**|-
+id_subdepartamento|Sua chave primária do subdepartamento do produto.|Inteiro/String|Não|<font color='MediumSeaGreen'>Default **''**.</font>
+nome_departamento|Nome do departamento.|String|**SIM**|-
+nome_produto|Nome do produto.|String|Se **barcode** = ''.|<font color='MediumSeaGreen'>Default ''.</font>
+nome_subdepartamento|Nome do subdepartamento.|String|Se **id_subdepartamento** indicado.|<font color='MediumSeaGreen'>Default **''**.</font>
+online_departamento|Status disponibilidade do departamento online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+online_produto|Status de disponibilidade do produto online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+pesavel_status|Status condição pesável do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
+percentual_limite_venda|% máximo do estoque disponível permitido para compra.|Número|Não|>= 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0** (desativado).</font>
+pesavel_fracao|Qtde adicionada/removida do produto por vez.|Número|Se **pesavel_status** true.| > 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
+pesavel_tipo|Unidade de pesagem do produto.|String|Se **pesavel_status** true.|'K', 'KG', 'G', 'GR', 'L', 'LT', 'ML', 'M' ou 'CM'.<br><font color='MediumSeaGreen'>Default **''**.</font>
+preco_venda|Preço normal do produto.|Número|**SIM**| > 0.
+qtde_estoque_atual|Qtde atual no estoque.|Número|Se **estoque_controlado** true.|-
+qtde_estoque_minimo|Disponibilidade mínima do produto para status regular de estoque.|Número|Se **estoque_controlado** true.|>= 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
+qtde_limite_venda|Qtde máxima do produto por pedido.|Número|Não|<font color='MediumSeaGreen'>Default **0** (ilimitada).</font>
+id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
 
-**Estrutura da tabela formas-pgto**
+#### Condições para exibição na plataforma<a id="condicoes_exibicao"></a>
+Para que o produto seja exibido na plataforma, TODOS valores abaixo devem ser TRUE.
+
+* **ativo_departamento**
+* **ativo_produto**
+* **ativo_subdepartamento** (se **id_subdepartamento** indicado)
+* **online_departamento**
+* **online_produto**
+
+#### Condições para venda na plataforma<a id="condicoes_venda"></a>
+Produtos exibidos na plataforma podem estar indisponíveis para compra caso estejam com seu estoque em quantidade crítica, o que é calculado com base na seguinte lógica:
+
+```
+  SE (estoque_controlado) {
+    ESTOQUE_CRITICO = qtde_estoque_atual < qtde_estoque_minimo
+  } ELSE {
+    ESTOQUE_CRITICO = false
+  }
+```
+
+#### Atacado<a id="atacado"></a>
+Atacado é um grupo que permite a criação de uma promoção embutida no próprio produto, baseado nas seguintes propriedades.
+Propriedade|Descrição
+|:--|:--|
+atacado_status|Liga/desliga modo atacado.
+atacado_qtde|Quantidade do produto necessária para utilizar **atacado_preco** no lugar do preço.
+atacado_preco|Novo preço do produto se **atacado_status** = true e qtde do produto >= **atacado_qtde**.
+
+> Quando habilitado o grupo atacado, uma nova promoção surgirá na lista de promoções do produto.
+
+#### Produtos industrializados<a id="produtos_industrializados"></a>
+São produtos que tem a propriedade **barcode_produto** indicada. Produtos industrializados tem algumas propriedades buscadas automaticamente de uma base de produtos da plataforma.
+
+* **nome_produto**
+
+> Além dessas propriedades, imagem(ns) do produto também são buscadas na base de produtos e não podem ser indicadas diretamente, nem pelo script, nem pela API. Depois de cadastrado o produto, novas imagens podem ser adicionadas/modificadas pelo módulo **lojistas** da plataforma.
+
+#### Produtos em destaque<a id="produtos_destaque"></a>
+Produtos marcados como destaque possuem uma exibição privilegiada na plataforma, eles são apresentados na tela principal do site/app e nos resumos dos subdepartamentos, quando um departamento (que não possua produtos próprios) é selecionado.
+
+#### Produtos pesáveis<a id="produtos_pesaveis"></a>
+Produtos pesáveis são os que permitem venda a granel, tendo uma unidade e fração indicadas. Esse grupo é composto pelas seguintes propriedades.
+
+* **pesavel_status**
+* **pesavel_tipo**
+* **pesavel_fracao**
+
+> Apesar da utilização do termo pesável, algumas unidades correspondem a medidas e não de peso.
+
+Suponhamos que um produto com o nome "Banana Kg" foi cadastrado com pesável (**pesavel_status** true).
+Para produtos com o status pesável ativo, temos que indicar tanto um valor para **pesavel_tipo** como um para **pesavel_fracao**. Para cada tipo pesável, existem sempre dois valores com correspondência entre si, nesse caso seriam 'KG' (ou 'K') e 'GR' (ou 'G'). Suponhamos que queremos vender esse produto (banana) de 300 em 300 gramas, as duas indicações seguintes surtiriam o mesmo efeito.
+Tipo|Fração|Resultado
+|:--:|:--:|:--|
+KG ou K|0, 3|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
+GR ou G|300|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
+
+> A exibição na plataforma das unidades pesáveis se fará sempre pela de maior unidade (no caso Kg), sendo realizada automaticamente a conversão quando for necessário.
+
+#### Limitando a quantidade no pedido<a id="limitando_qtde"></a>
+Existem duas maneiras de se limitar a quantidade de cada produto no carrinho, uma direta (pela propriedade **qtde_limite_venda**) e outra que depende do status e da situação do estoque do produto. A lógica utilizada para se chegar ao valor limite é algo como:
+
+```
+  SE (estoque_controlado) {
+    qtdeLimiteVendaEstoque = percentual_limite_venda / 100 * qtde_estoque_atual;
+    IF (qtdeLimiteVendaEstoque > qtde_limite_venda) {
+      QTDE_LIMITE_VENDA = qtde_limite_venda;
+    } ELSE {
+      QTDE_LIMITE_VENDA = qtdeLimiteVendaEstoque;
+    }
+  } ELSE {
+    QTDE_LIMITE_VENDA = qtde_limite_venda;
+  }
+```
+
+> Ou seja, se apenas uma das propriedades for indicada (**percentual_limite_venda** ou **qtde_limite_venda**), ela será o valor máximo permitido por pedido para esse produto, caso ambas sejam indicadas, será utilizada a que tiver o menor valor.
+
+## Origem Estoque<a id="origem_estoque"></a>
+
+ID|Detalhes|Tipo|Obrigatório|Condições/Default|
+|:--:|:--:|:--:|:--:|:--:|
+barcode_produto|Código de barras do produto.|String|Não|<font color='MediumSeaGreen'>Default **''**.</font>
+estoque_controlado|Liga/desliga verificação de estoque desse produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
+id_produto|Sua chave primária do produto.|Inteiro/String|**SIM**|-
+nome_produto|Nome do produto.|String|Se **barcode** = ''.|<font color='MediumSeaGreen'>Default ''.</font>
+qtde_estoque_atual|Qtde atual no estoque.|Número|Se **estoque_controlado** true.|-
+qtde_estoque_minimo|Disponibilidade mínima do produto para status regular de estoque.|Número|Se **estoque_controlado** true.|>= 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
+
+> Quando a origem **Produtos** está habilitada, o cálculo do estoque já é realizado nela (se configurada para isso), e caso a origem **Estoque** também seja indicada, ela simplesmente será ignorada. Essa origem foi criada para o caso da integração de produtos ser feita com o ERP chamando diretamente a API da plataforma e o cálculo da disponibilidade ou não dos produtos (origem **Estoque**) ser feita pelo ConecSync.
+
+#### Controlando a disponibilidade dos produtos pela API<a id="controlando_disponibilidade_api"></a>
+Quando uma integradora ajusta seus fontes para acionar a API da plataforma, ela não pode enviar uma modificação do produto a cada venda e/ou entrada de estoques no ERP, sob pena de ter sua integração bloqueada. 
+É desnecessário comunicar todas modificações no estoque (vendas ou entradas) acionando-se a API da plataforma (isso geraria custos exorbitantes para ela uma vez que a tecnologia utilizada para seu desenvolvimento cobra por cada leitura/escrita nos cadastros), e a API só deve ser acionada quando o produto entrar ou sair de um estado de estoque crítico diferente do atual, o que deve ser verificado antes de se chamar a API. Seguindo uma lógica similar à seguinte:
+
+``` 
+  // Busca status atual no cadastro
+  statusEstoqueAtual = db.read(status_critico);
+  // Calcula novo status
+  statusEstoqueCritico = qtde_estoque_atual < qtde_estoque_minimo
+  // Verifica se foi modificado para acionar API
+  IF (statusEstoqueAtual != statusEstoqueCritico) {
+    chamaAPI(
+      {
+        ESTOQUE_CRITICO: statusEstoqueCritico
+      }
+    )
+    db.write(statusEstoqueCritico)
+  } ELSE {
+    // Não é necessário acionar API
+  }
+```
+
+A utilização do script simplifica esse processo uma vez que ele só aciona a API quando alguma coisa mudou da versão anterior do cadastro para atual, incluindo os valores que são calculados a partir das leituras.
+
+## Origem Formas pagamento<a id="origem_formas_pgto"></a>
+
+ID|Detalhes|Tipo|Obrigatório|Condições/Default|
+|:--:|:--:|:--:|:--:|:--:|
+forma_ativa|Habilita/desabilita forma de pgto na plataforma.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+id_externo|Nosso ID da forma de pgto.|String|**SIM**|-
+id_interno|Sua chave primária da forma de pgto.|Inteiro/String|**SIM**|-
+id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
+nome_forma|Nome da forma.|String|**SIM**|-
+
+> As formas habilitadas que forem integradas estarão disponíveis no módulo **lojistas** da plataforma para distribuição nas categorias **Retirada**, **Entrega** e **Online**.
+
+## Origem Promoções<a id="origem_promocoes"></a>
+
+ID|Detalhes|Tipo|Obrigatório|Condições/Default|
+|:--:|:--:|:--:|:--:|:--:|
+descricao|Descrição da promoção.|String|**SIM**|-
+id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
+id_promocao|Sua chave primária da promoção.|Inteiro/String|**SIM**|-
+tipo|Tipo da promoção.|String|**SIM**|**'LP'** (Leve... Pague...) ou **'APD'** (A Partir De...)
+lim_desc_apd|Qtde máxima de produtos para aplicação do desconto.|Número|Ignorada se tipo != 'APD'.|<font color='MediumSeaGreen'>Default **0** (ilimitado).</font>
+perc_desc_apd|Percentual de desconto da promoção.|Número|Se tipo = 'APD'.|> 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
+promocao_ativa|Liga/desliga promoção.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
+qtde_apd|Qtde mínima para habilitação da promoção.|Número|Se tipo = 'APD'.| > 0 se indicada. <br><font color='MediumSeaGreen'>Default **0**.</font>
+qtde_leve_lp|Qtde mínima a ser atingida para habilitação da promoção.|Número|Se tipo = 'LP'.| > 0 se indicada. <br><font color='MediumSeaGreen'>Default **0**.</font>
+qtde_pague_lp|Qtde do produtos contabilizada a cada múltiplo de **qtde_leve_lp**.|Número|Se tipo = 'LP'.| > 0 e < **qtde_leve_lp** se indicada. <br><font color='MediumSeaGreen'>Default **0**.</font>
+
+> Para que sejam cadastradas corretamente cada promoção deve ter algum produto relacionado a ela na origem 
+**ProdutosPromocoes**.
+
+#### Promoção Leve... Pague...<a id="promocao_lp"></a>
+**tipo** = **LP**. Tipo de promoção em que cada vez que a quantidade **leve** é alcançada, é substituída pela **pague** (sempre menor). Alguns exemplos:
+Qtde produto|Preço|Leve|Pague|Total sem desconto|Total com desconto|Detalhes|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+3|10,00|3|3|3 * 10,00 = 30,00|-|Qtde pague inválida, igual a leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|4|4 * 10,00 = 40,00|-|Qtde pague inválida, maior que leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|2|3 * 10,00 = 30,00|2 * 10,00 = 20,00|3 - 1 desconto, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+4|10,00|3|2|4 * 10,00 = 40,00|3 * 10,00 = 30,00|4 - 1 desconto, 1 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+6|10,00|3|2|6 * 10,00 = 60,00|4 * 10,00 = 40,00|6 - 2 descontos, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+
+#### Promoção A partir de...<a id="promocao_apd"></a>
+**tipo** = **APD**. Tipo de promoção em que a partir de uma quantidade específica, os produtos sofrem um desconto (com ou sem um limite).
+Qtde produto|Preço|Qtde APD|% desc. APD|Limite|Total sem desconto|Total com desconto|Detalhes|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+3|10,00|3|0|0|3 * 10,00 = 30,00|-|% desconto inválido, = 0%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|105|0|3 * 10,00 = 30,00|-|% desconto inválido, = 105%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
+3|10,00|3|50|0|3 * 10,00 = 30,00|(2 * 10,00) + (1 * 5,00) = 25,00|2 preços cheios, 1 preço descontado. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+4|10,00|3|50|0|4 * 10,00 = 40,00|(2 * 10,00) + (2 * 5,00) = 30,00|2 preços cheios, 2 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+4|10,00|3|50|1|4 * 10,00 = 40,00|(2 * 10,00) + (1 * 5,00) + (1 * 10,00) = 35,00|2 preços cheios, 1 preço descontado, 1 preço cheio (devido limite 1). <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+10|10,00|3|50|0|10 * 10,00 = 100,00|(2 * 10,00) + (8 * 5,00) = 60,00|2 preços cheios, 8 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
+
+## Origem Produtos promoções<a id="origem_produtos_promocoes"></a>
+
+ID|Detalhes|Tipo|Obrigatório|Condições/Default|
+|:--:|:--:|:--:|:--:|:--:|
+id_produto_promocao|Sua chave primária da integração produtos_promocoes.|Inteiro/String|**SIM**|-
+id_produto_promocao_promocao|Id promoção.|String|**SIM**|-
+id_produto_promocao_produto|Id produto.|String|**SIM**|-
+id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
+
+# 8 - Exemplo prático<a id="exemplo_pratico"></a>
+
+Vamos ver na prática a integração de uma origem buscando seus dados tanto de um arquivo CSV como a partir views (que vamos gerar aqui) em um cadastro MySql.
+
+Como o processo de configuração das de todas origens é idêntico, vamos utilizar uma origem pequena, a **Formas de pagamento** em nosso exemplo.
+
+## Lendo de um cadastro<a id="lendo_cadastro"></a>
+
+Uma vez que optamos por utilizar um banco de dados MySql, temos que indicar os dados de sua conexão na seguinte parte do arquivo `PASTA_SCRIPT/src/app/config.ts`:
+```json
+export const CONFIG = {
+  db: {
+    conexao: {
+      host: '127.0.0.1',
+      tabela: 'hypico',
+      usuario: 'conecdata_user',
+      senha: 'sua_senha_secreta',
+      tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' */
+    }
+  },
+  .
+  .
+  .
+}
+```
+Agora podemos gerar quantas views quisermos nesse cadastro, e lê-las a partir dessa conexão. Vamos fazer isso para a tabela em nosso exemplo.
+
+**Estrutura da tabela formas-pgto** (MySql)
 Campo|Tipo|Tamanho/Valor|
 |:--:|:--:|:--:|
 fpg_pk|Chave primária|-
@@ -261,12 +675,9 @@ fpg_pk|fpg_c_forma|fpg_e_tipo|fpg_c_legenda|fpg_c_img|fpg_c_id_conecdata
 23|Visa - Vale|O|Visa Vale|visa-vale.png|visa_vale
 24|Voucher|O|Voucher|voucher.png|voucher
 
-Para que o ConecSync possa ler dados dessa tabela, temos que gerar, no banco de dados, uma view para ela pelo seguinte comando:
+Para transformarmos esse cadastro em uma origem de dados, vimos que temos que gerar uma view a partir dele dentro do banco de dados. Podemos fazer isso pelo seguinte comando:
+
 ![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fcreate_view_formas-pgto_conecdata.jpg?alt=media&token=2ba7fb51-ea84-486d-8c1d-50c05d55e382)
-
-Analise os detalhes de cada origem de dados mais adiante na documentação, para saber quais valores são opcionais e quais são obrigatórios, caso algum valor obrigatório não seja indicado, a execução do script é interrompida, para os valores opcionais omitidos, o valor default é utilizado.
-
-> Os comandos de criação de views variam de acordo com o banco de dados utilizado. Modelos para cada tipo compatível estarão comentados dentro de cada arquivo de configuração de origens.
 
 Os valores destacados em <font color='MediumSeaGreen'>verde</font>, podem/devem ser substituídos por:
 * Nomes de tabelas suas.
@@ -286,27 +697,28 @@ id_externo|fpg_c_id_conecdata|**Encontrado**|
 id_loja|-|**NÃO ENCONTRADO**|
 forma_ativa|-|**NÃO ENCONTRADO**|
 
+Analisando a tabela e a view, veremos que encontramos campos na tabela que correspondem a um ID da view, campos que não correspondem a nenhum ID da view e finalmente campos da view que não tem correspondente na tabela. Veja como proceder em cada um desses casos para gerar a view corretamente:
+
 Situação|Tipo de ocorrência|Ação na view|
 |:--:|:--:|:--:|
-**Encontrado**|Campos da view encontrados no cadastro.|Indicar o **nome do campo** correspondente na tabela.|
-**NÃO ENCONTRADO**|Campos da view NÃO ENCONTRADOS no cadastro.|Indicar um **valor fixo** do **mesmo tipo** do campo da tabela.|
+**Encontrado**|IDS da view ENCONTRADOS no cadastro.|Indicar o **nome do campo** correspondente na tabela.|
+**NÃO ENCONTRADO**|IDS da view NÃO ENCONTRADOS no cadastro.|Se o campo for obrigatório, indicar um **valor fixo** do **mesmo tipo** do campo inexistente, se for opcional, não o inclua na view e seu valor default será utilizado automaticamente.|
 Campo extra|Campos no cadastro que não são necessários na view (campos extras).|Nenhuma.|
 
-**arquivo `PASTA_CONECSYNC/src/app/config/config-formas-pgto.ts`**
-```
+> A documentação específica de cada origem, indica quais campos estão disponíveis nela, quais deles são opcionais e quais são obrigatórios. Campos obrigatórios, caso não indicados fazem a execução do script falhar, os opcionais que não forem indicados terão seus valores padrão (também indicado em sua documentação) utilizados.
+
+Uma vez que gerada a view, temos que indicar seu tipo de conexão (**db** pois nossa conexão é MySql) e seu nome (**view_conecdata_formas**) na seguinte parte do arquivo `PASTA_SCRIPT/src/app/config/origens/config-formas-pgto.ts`:
+```json
 export const CONFIG_FORMAS = {
   tipo: 'db',
   nomeView: 'view_conecdata_formas'
 }
 ```
 
-Basta indicar o tipo de conexão (db para o nosso banco de dados MySql de modelo) e o nome da view que foi criada (que deve coincidir com o do comando de criação da view exibido anteriormente).
+## Lendo de um arquivo CSV<a id="lendo_csv"></a>
+Vamos assumir que você já tenha gravado o arquivo seguinte arquivo CSV na pasta `c:/conecdata_csvs`.
 
-
-**Configurando origem formas de pagamento método csv**
-Para integração via arquivos CSVs, o maior trabalho na verdade consiste em se gerar os arquivos que devem ser gravados na pasta indicada no arquivo `config.ts` explicado anteriormente. 
-
-**Arquivo `PASTA_CSVS/formas-pgto.csv`**
+**Arquivo exemplo `c:/conecdata_csvs/formas-pgto.csv`**
 ```csv
 id_interno;nome_forma;id_externo;id_loja;forma_ativa
 1;Dinheiro;dinheiro;1;1
@@ -334,10 +746,7 @@ id_interno;nome_forma;id_externo;id_loja;forma_ativa
 23;Visa - Vale;visa_vale;1;1
 24;Voucher;voucher;1;1
 ```
-
-> O ConecSync utiliza ';' (Ponto e vírgula) como delimitadores de colunas.
-
-Do ponto de vista de configuração, para cada origem desejada (Formas de pagamento em nosso exemplo), em seu arquivo de configuração, basta indicar o tipo **csv** e o **nome do aquivo** com a extensão csv.
+Basta então configurar a seguinte parte do arquivo `PASTA_SCRIPT/src/app/config/origens/config-formas-pgto.ts`:
 
 **arquivo `PASTA_CONECSYNC/src/app/config/config-formas-pgto.ts`**
 ```
@@ -346,1401 +755,135 @@ export const CONFIG_FORMAS = {
   nomeView: 'conecdata_formas.csv'
 }
 ```
-#### Configurando arquivos de projetos
-No ConecSync cada projeto indicado corresponderia a um destino para o qual se deseja enviar os dados lidos de suas origens.
+> Os arquivos indicados com o tipo csv, serão buscados na pasta origem de arquivos csvs configurada no arquivo **config.ts**.
 
-**Tokens de lojas**
-Obviamente é necessário evitar que qualquer um escreva em qualquer loja da plataforma, e essa maneira são os **tokens de lojas**, que podem ser considerados chaves de acesso encriptadas que devem ser indicadas a cada chamada das APIs.
-Em caso de suspeita de vazamento ou problemas com um token de loja, a integradora ou o lojista podem solicitar à Conecdata a **revogação** do token atual. Ao ser revogado, o token deixa de ser válido e todas suas referências atuais devem ser substituídas pelo novo token que será gerado para que voltem a funcionar. O novo token pode ser acessado pelo modo lojistas apenas por integradoras e parceiros da Conecdata.
+## Configurando arquivos de projetos<a id="configurando_arquivos_projetos"></a>
+Projetos são containers para uma lista de lojas para as quais se deseja enviar os dados lidos das origens de dados.
 
+#### Tokens de lojas<a id="tokens_lojas"></a>
+Obviamente é necessário evitar que qualquer um escreva livremente em qualquer loja da plataforma, é ai  entram os **tokens de lojas**, que podem ser considerados chaves de acesso encriptadas que devem ser indicadas a cada chamada das APIs.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Detalhes origens
-
-**IDS**
-Os mesmos valores indicados como **IDS** devem ser utilizados tanto para **renomear as colunas de seus cadastros** (nas views) como nos **cabeçalhos nos arquivos CSV** que você exportar.
-
-**Tipos de campos**
-Tipo|Valores|
-|:--:|:--:|
-Boolean|<font color='MediumSeaGreen'>true</font> (**'S'** ou **'T'** ou **'1'** ou **nro > 0**).<br><font color='Tomato'>false</font> Demais valores.
-Inteiro|Números **sem** casas decimais.
-Número|Números **com/sem** casas decimais.
-String|Valores alfanuméricos.
-
-### Produtos<a id="detalhes-origens-produtos"></a>
-
-ID|Detalhes|Tipo|Obrigatório|Condições/Default|
-|:--:|:--:|:--:|:--:|:--:|
-atacado_qtde|Qtde mínima habilitação preço atacado.|Número|Se **atacado_status** true.|Deve ser > 0 se indicado.<br><font color='MediumSeaGreen'>Default 0.</font>
-atacado_status|Status promoção atacado do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
-atacado_preco|Novo valor produto se **atacado_qtde** atingido.|Número|se **atacado_status** true.| > 0 e < **preco_venda** se indicado.<br><font color='MediumSeaGreen'>Default 0.</font>
-ativo_departamento|Status do departamento do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-ativo_produto|Status do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-ativo_subdepartamento|Status do subdepartamento do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-barcode_produto|Código de barras do produto.|String|Não|Se indicado, produto é **industrializado**.<br><font color='MediumSeaGreen'>Default **''**.</font>
-descricao_produto|Informações adicionais do produto.|String|Não|<font color='MediumSeaGreen'>Default **''**.</font>
-destaque|Status exibição privilegiada do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
-estoque_controlado|Status indicativo de verificação de estoque.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
-id_departamento|Sua chave primária do departamento do produto.|Inteiro/String|**SIM**|-
-id_produto|Sua chave primária do produto.|Inteiro/String|**SIM**|-
-id_subdepartamento|Sua chave primária do subdepartamento do produto.|Inteiro/String|Não|<font color='MediumSeaGreen'>Default **''**.</font>
-nome_departamento|Nome do departamento.|String|**SIM**|-
-nome_produto|Nome do produto.|String|Se **barcode** = ''.|<font color='MediumSeaGreen'>Default ''.</font>
-nome_subdepartamento|Nome do subdepartamento.|String|Se **id_subdepartamento** indicado.|<font color='MediumSeaGreen'>Default **''**.</font>
-online_departamento|Status disponibilidade do departamento online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-online_produto|Status de disponibilidade do produto online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-pesavel_status|Status condição pesável do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
-percentual_limite_venda|% máximo do estoque disponível permitido para compra.|Número|Não|>= 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0** (desativado).</font>
-pesavel_fracao|Qtde adicionada/removida do produto por vez.|Número|Se **pesavel_status** true.| > 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
-pesavel_tipo|Unidade de pesagem do produto.|String|Se **pesavel_status** true.|'K', 'KG', 'G', 'GR', 'L', 'LT', 'ML', 'M' ou 'CM'.<br><font color='MediumSeaGreen'>Default **''**.</font>
-preco_venda|Preço normal do produto.|Número|**SIM**| > 0.
-qtde_estoque_atual|Qtde atual no estoque.|Número|Se **estoque_controlado** true.|-
-qtde_estoque_minimo|Disponibilidade mínima do produto para status regular de estoque.|Número|Se **estoque_controlado** true.|>= 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
-qtde_limite_venda|Qtde máxima do produto por pedido.|Número|Não|<font color='MediumSeaGreen'>Default **0** (ilimitada).</font>
-id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
-
-**Condições para exibição na plataforma**
-Para que o produto seja exibido na plataforma, TODOS valores abaixo devem ser TRUE.
-
-* **ativo_departamento**
-* **ativo_produto**
-* **ativo_subdepartamento** (se **id_subdepartamento** indicado)
-* **online_departamento**
-* **online_produto**
-
-**Condições para venda na plataforma**
-Produtos exibidos na plataforma podem estar indisponíveis para compra caso estejam com seu estoque em quantidade crítica, o que é calculado com base na seguinte lógica:
-
-``` 
-
-  SE (estoque_controlado) {
-    ESTOQUE_CRITICO = qtde_estoque_atual < qtde_estoque_minimo
-  } ELSE {
-    ESTOQUE_CRITICO = false
-  }
+**`PASTA_SCRIPT/src/app/config/projetos/mercadeiro.ts`**
 ```
-
-**Atacado**
-Atacado é um grupo que permite a criação de uma promoção embutida no próprio produto, baseado nas seguintes propriedades.
-Propriedade|Descrição
-|:--|:--|
-atacado_status|Liga/desliga modo atacado.
-atacado_qtde|Quantidade do produto necessária para utilizar **atacado_preco** no lugar do preço.
-atacado_preco|Novo preço do produto se **atacado_status** = true e qtde do produto >= **atacado_qtde**.
-
-> Quando habilitado o grupo atacado, uma nova promoção surgirá na lista de promoções do produto.
-
-**Produto industrializado**
-São produtos que tem a propriedade **barcode_produto** indicada. Produtos industrializados tem algumas propriedades buscadas automaticamente de uma base de produtos da plataforma.
-
-* **nome_produto**
-
-> Além dessas propriedades, imagem(ns) do produto também são buscadas na base de produtos e não podem ser indicadas diretamente, nem pelo script, nem pela API. Depois de cadastrado o produto, novas imagens podem ser adicionadas/modificadas pelo módulo **lojistas** da plataforma.
-
-**Produtos em destaque**
-Produtos marcados como destaque possuem uma exibição privilegiada na plataforma, eles são apresentados na tela principal do site/app e nos resumos dos subdepartamentos, quando um departamento (que não possua produtos próprios) é selecionado.
-
-**Produtos pesáveis**
-Produtos pesáveis são os que permitem venda a granel, tendo uma unidade e fração indicadas. Esse grupo é composto pelas seguintes propriedades.
-
-* **pesavel_status**
-* **pesavel_tipo**
-* **pesavel_fracao**
-
-> Apesar da utilização do termo pesável, algumas unidades correspondem a medidas e não de peso.
-
-Suponhamos que um produto com o nome "Banana Kg" foi cadastrado com pesável (**pesavel_status** true).
-Para produtos com o status pesável ativo, temos que indicar tanto um valor para **pesavel_tipo** como um para **pesavel_fracao**. Para cada tipo pesável, existem sempre dois valores com correspondência entre si, nesse caso seriam 'KG' (ou 'K') e 'GR' (ou 'G'). Suponhamos que queremos vender esse produto (banana) de 300 em 300 gramas, as duas indicações seguintes surtiriam o mesmo efeito.
-Tipo|Fração|Resultado
-|:--:|:--:|:--|
-KG ou K|0, 3|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
-GR ou G|300|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
-
-> A exibição na plataforma das unidades pesáveis se fará sempre pela de maior unidade (no caso Kg), sendo realizada automaticamente a conversão quando for necessário.
-
-**Limitando a quantidade no pedido**
-Existem duas maneiras de se limitar a quantidade de cada produto no carrinho, uma direta (pela propriedade **qtde_limite_venda**) e outra que depende do status e da situação do estoque do produto. A lógica utilizada para se chegar ao valor limite é algo como:
-
-``` 
-
-  SE (estoque_controlado) {
-    qtdeLimiteVendaEstoque = percentual_limite_venda / 100 * qtde_estoque_atual;
-    IF (qtdeLimiteVendaEstoque > qtde_limite_venda) {
-      QTDE_LIMITE_VENDA = qtde_limite_venda;
-    } ELSE {
-      QTDE_LIMITE_VENDA = qtdeLimiteVendaEstoque;
-    }
-  } ELSE {
-    QTDE_LIMITE_VENDA = qtde_limite_venda;
-  }
-```
-
-> Ou seja, se apenas uma das propriedades for indicada (**percentual_limite_venda** ou **qtde_limite_venda**), ela será o valor máximo permitido por pedido para esse produto, caso ambas sejam indicadas, será utilizada a que tiver o menor valor.
-
-### Estoque<a id="detalhes-origens-estoque"></a>
-
-ID|Detalhes|Tipo|Obrigatório|Condições/Default|
-|:--:|:--:|:--:|:--:|:--:|
-barcode_produto|Código de barras do produto.|String|Não|<font color='MediumSeaGreen'>Default **''**.</font>
-estoque_controlado|Liga/desliga verificação de estoque desse produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
-id_produto|Sua chave primária do produto.|Inteiro/String|**SIM**|-
-nome_produto|Nome do produto.|String|Se **barcode** = ''.|<font color='MediumSeaGreen'>Default ''.</font>
-qtde_estoque_atual|Qtde atual no estoque.|Número|Se **estoque_controlado** true.|-
-qtde_estoque_minimo|Disponibilidade mínima do produto para status regular de estoque.|Número|Se **estoque_controlado** true.|>= 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
-
-> Quando a origem **Produtos** está habilitada, o cálculo do estoque já é realizado nela (se configurada para isso), e caso a origem **Estoque** também seja indicada, ela simplesmente será ignorada. Essa origem foi criada para o caso da integração de produtos ser feita com o ERP chamando diretamente a API da plataforma e o cálculo da disponibilidade ou não dos produtos (origem **Estoque**) ser feita pelo ConecSync.
-
-**Controlando a disponibilidade dos produtos pela API**
-Quando uma integradora ajusta seus fontes para acionar a API da plataforma, ela não pode enviar uma modificação do produto a cada venda e/ou entrada de estoques no ERP, sob pena de ter sua integração bloqueada. 
-É desnecessário comunicar todas modificações no estoque (vendas ou entradas) acionando-se a API da plataforma (isso geraria custos exorbitantes para ela uma vez que a tecnologia utilizada para seu desenvolvimento cobra por cada leitura/escrita nos cadastros), e a API só deve ser acionada quando o produto entrar ou sair de um estado de estoque crítico diferente do atual, o que deve ser verificado antes de se chamar a API. Seguindo uma lógica similar à seguinte:
-
-``` 
-
-  // Busca status atual no cadastro
-  statusEstoqueAtual = db.read(status_critico);
-  // Calcula novo status
-  statusEstoqueCritico = qtde_estoque_atual < qtde_estoque_minimo
-  // Verifica se foi modificado para acionar API
-  IF (statusEstoqueAtual != statusEstoqueCritico) {
-    chamaAPI(
-      {
-        ESTOQUE_CRITICO: statusEstoqueCritico
-      }
-    )
-    db.write(statusEstoqueCritico)
-  } ELSE {
-    // Não é necessário acionar API
-  }
-
-```
-
-A utilização do script simplifica esse processo uma vez que ele só aciona a API quando alguma coisa mudou da versão anterior do cadastro para atual, incluindo os valores que são calculados a partir das leituras.
-
-### Formas pagamento<a id="detalhes-origens-formas-pgto"></a>
-
-ID|Detalhes|Tipo|Obrigatório|Condições/Default|
-|:--:|:--:|:--:|:--:|:--:|
-forma_ativa|Habilita/desabilita forma de pgto na plataforma.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-id_externo|Nosso ID da forma de pgto.|String|**SIM**|-
-id_interno|Sua chave primária da forma de pgto.|Inteiro/String|**SIM**|-
-id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
-nome_forma|Nome da forma.|String|**SIM**|-
-
-> As formas habilitadas que forem integradas estarão disponíveis no módulo **lojistas** da plataforma para distribuição nas categorias **Retirada**, **Entrega** e **Online**.
-
-### Promoções<a id="detalhes-origens-promocoes"></a>
-
-ID|Detalhes|Tipo|Obrigatório|Condições/Default|
-|:--:|:--:|:--:|:--:|:--:|
-descricao|Descrição da promoção.|String|**SIM**|-
-id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
-id_promocao|Sua chave primária da promoção.|Inteiro/String|**SIM**|-
-tipo|Tipo da promoção.|String|**SIM**|**'LP'** (Leve... Pague...) ou **'APD'** (A Partir De...)
-lim_desc_apd|Qtde máxima de produtos para aplicação do desconto.|Número|Ignorada se tipo != 'APD'.|<font color='MediumSeaGreen'>Default **0** (ilimitado).</font>
-perc_desc_apd|Percentual de desconto da promoção.|Número|Se tipo = 'APD'.|> 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
-promocao_ativa|Liga/desliga promoção.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-qtde_apd|Qtde mínima para habilitação da promoção.|Número|Se tipo = 'APD'.| > 0 se indicada. <br><font color='MediumSeaGreen'>Default **0**.</font>
-qtde_leve_lp|Qtde mínima a ser atingida para habilitação da promoção.|Número|Se tipo = 'LP'.| > 0 se indicada. <br><font color='MediumSeaGreen'>Default **0**.</font>
-qtde_pague_lp|Qtde do produtos contabilizada a cada múltiplo de **qtde_leve_lp**.|Número|Se tipo = 'LP'.| > 0 e < **qtde_leve_lp** se indicada. <br><font color='MediumSeaGreen'>Default **0**.</font>
-
-> Para que sejam cadastradas corretamente cada promoção deve ter algum produto relacionado a ela na origem **ProdutosPromocoes**.
-
-**Promoção Leve... Pague...**
-**tipo** = **LP**. Tipo de promoção em que cada vez que a quantidade **leve** é alcançada, é substituída pela **pague** (sempre menor). Alguns exemplos:
-Qtde produto|Preço|Leve|Pague|Total sem desconto|Total com desconto|Detalhes|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-3|10,00|3|3|3 * 10,00 = 30,00|-|Qtde pague inválida, igual a leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
-3|10,00|3|4|4 * 10,00 = 40,00|-|Qtde pague inválida, maior que leve. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
-3|10,00|3|2|3 * 10,00 = 30,00|2 * 10,00 = 20,00|3 - 1 desconto, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-4|10,00|3|2|4 * 10,00 = 40,00|3 * 10,00 = 30,00|4 - 1 desconto, 1 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-6|10,00|3|2|6 * 10,00 = 60,00|4 * 10,00 = 40,00|6 - 2 descontos, 0 sobras <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-
-**Promoção A partir de...**
-**tipo** = **APD**. Tipo de promoção em que a partir de uma quantidade específica, os produtos sofrem um desconto (com ou sem um limite).
-Qtde produto|Preço|Qtde APD|% desc. APD|Limite|Total sem desconto|Total com desconto|Detalhes|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-3|10,00|3|0|0|3 * 10,00 = 30,00|-|% desconto inválido, = 0%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
-3|10,00|3|105|0|3 * 10,00 = 30,00|-|% desconto inválido, = 105%. <br><font color='Tomato'>PROMOÇÃO INVÁLIDA.</font>
-3|10,00|3|50|0|3 * 10,00 = 30,00|(2 * 10,00) + (1 * 5,00) = 25,00|2 preços cheios, 1 preço descontado. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-4|10,00|3|50|0|4 * 10,00 = 40,00|(2 * 10,00) + (2 * 5,00) = 30,00|2 preços cheios, 2 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-4|10,00|3|50|1|4 * 10,00 = 40,00|(2 * 10,00) + (1 * 5,00) + (1 * 10,00) = 35,00|2 preços cheios, 1 preço descontado, 1 preço cheio (devido limite 1). <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-10|10,00|3|50|0|10 * 10,00 = 100,00|(2 * 10,00) + (8 * 5,00) = 60,00|2 preços cheios, 8 preços descontados. <br><font color='MediumSeaGreen'>PROMOÇÃO OK.</font>
-
-### Produtos promoções<a id="detalhes-origens-produtos-promocoes"></a>
-
-ID|Detalhes|Tipo|Obrigatório|Condições/Default|
-|:--:|:--:|:--:|:--:|:--:|
-id_produto_promocao|Sua chave primária da integração produtos_promocoes.|Inteiro/String|**SIM**|-
-id_produto_promocao_promocao|Id promoção.|String|**SIM**|-
-id_produto_promocao_produto|Id produto.|String|**SIM**|-
-id_loja|Sua chave primária da loja do produto.|Número/String|**SIM**|-
-
-
-
-
-
-
-
-
-
-
-# Projetos compatíveis
-
-No caso de integração via [api](#glossario-api), uma vez gerado um objeto das informações modificadas em seus cadastros que devam ser enviadas para sincronização, esse mesmo objeto, pode ser enviado para [apis](#glossario-api) de mais de um projeto compatível, permitindo assim múltiplas sincronizações de suas modificações, com um mínimo de ajuste no seu código.
-No caso de integração via script **ConecSync**, cada integração pode ser configurada para ser utilizada ou não, facilitando que se sincronize apenas com os projetos desejados.
-Como você pode chamar as [apis](#glossario-api) que quiser de seu código e configurar as que deseja ou não sincronizar pelo **ConecSync**, torna-se muito fácil utilizar ambos modos (api e script), paralelamente.
-Apenas alguns projetos da Conecdata são compatíveis com a sincronização descrita por essa documentação, são eles:
-
-## Mercadeiro<a id="projetos-mercadeiro"></a>
-
-O Marketplace de mercados da Conecdata.
-
-> Ok, por enquanto existe apenas um projeto disponível para integração via **ConecSync** (ou por apis), mas aguardem, ele é o primeiro, e já existem alguns outros planejados que serão desenvolvidos em breve e constarão em versões futuras dessa documentação.
-
-# Origens
-
-É considerada uma origem, cada fonte de informações disponível para consulta, requerida para sincronização via **ConecSync**.
-
-* Produtos (contendo departamentos e subdepartamentos)
-* Estoque
-* Formas de pagamento
-* Promoções (em desenvolvimento)
-
-> Nas integrações via api, não há indicações de origens, uma vez que você mesmo já lê seus dados pelo código (na maioria das vezes as mesmas tabelas e campos) e simplesmente aciona uma chamada de api para sincronizá-los. 
-
-São três, os **tipos** possíveis para cada origem disponível, na integração via script: 
-Tipo|Descrição|
-|:--|:--|
-''|Não sincronizar (ignorar) essa origem 
-db|Sincronizar essa origem por leitura direta ao banco de dados
-csv|Sincronizar essa origem por leitura de arquivo csv
-
-## Acesso direto ao banco de dados<a id="origens-origem-acesso-direto-db"></a>
-
-Nesse tipo de origem, os dados são lidos de [views](#glossario-views) geradas a partir de seus cadastros. Apenas alguns gerenciadores SQL são compatíveis com o **ConecSync**:
-
-* mysql
-* mariadb
-* postgres
-* mssql
-
-> Para utilização de gerenciadores não compatíveis ou bancos de dados NoSql, a sincronização pode ser feita pela leitura de arquivos CSV exportados de seus cadastros, antes da execução do script.
-
-<font color='tomato'>O QUUEEEEE deixar um script estranho acessar meus dados, NEM PENSAR.</font>
-É legítimo que você se preocupe em confiar em um script estranho acessando seus cadastros. Para eliminar seus medos e dúvidas, deve observar o seguinte:
-
-* Todo acesso é feito de maneira indireta em [views](#glossario-views) de suas tabelas (mais adiante a documentação orienta suas criações) que você mesmo vai criar e podem ser atribuidas a um usuário, com acesso apenas leitura e a apenas essas views. Dessa forma você pode ficar seguro que limitou o acesso apenas às informações relevantes à sincronização e sem possibilidade de modificação tanto delas quanto outras em seus cadastros. 
-* Todas credenciais de acesso são alimentadas por você mesmo, garantindo que o script não consiga acessar nenhuma informação fora das atribuições desse usuário ou que alguém desconhecido tenha tido acesso à sua senha ou qualquer outra informação confidencial.
-* Todo código fonte está disponível para que você com uma consulta rápida (mesmo que não programe em javascript, na verdade typescript, ou conheça o Node Js) verifique facilmente que ele apenas detecta mudanças nas origens e aciona as [apis](#glossario-api) configuradas quando necessário. Aliás, o código fonte do **ConecSync** é muito pequeno e de fácil análise (mais adiante cada arquivo disponível no script é explicado detalhadamente) .
-
-## Leitura de arquivos CSV<a id="origens-origem-leitura-arquivos-csv"></a>
-
-Caso (apesar dos esclarecimentos do tópico anterior) você não queira ou por qualquer outro motivo, não possa, utilizar o script (gerenciadores db incompatíveis, nosql...), você pode escrever você mesmo um código que exporte as informações necessárias para arquivos [CSVs](#glossario-csv) (mais adiante a documentação orientará como isso deve ser feito em maiores detalhes) e indicá-los como origem para sincronização.
-
-# Instalação
-
-Bom, se você chegou até aqui vamos presumir que já está familizarizado com os termos gerais, os tipos disponíveis de sincronização (e optou por alguma que use o **ConecSync**), já sabe que pode optar por tipos de origens **DB** ou **CSV** e que pode escolher quais plataformas (integrações) compatíveis com o script deseja sincronizar. Apesar de que tudo isso será explicado mais detalhadamente e demonstrado no restante da documentação, nada vai acontecer de fato, antes que realizemos a instalação das dependências necessárias.
-
-## Instalação NodeJs<a id="instalacao-nodejs"></a>
-
-O Node Js permite a execução de scripts javascript fora do browser. Ele deverá estar instalado em uma máquina que tenha acesso às origens de dados desejadas para que o script **ConecSync** seja executado, baixe o Node Js [aqui](https://nodejs.org/en/) e siga as instruções para instalação em sua plataforma.
-
-## Copiando o script ConecSync<a id="instalacao-copiando-script-conecsync"></a>
-
-Uma vez instalado o Node Js, agora temos que copiar a pasta do **ConecSync** de seu repositório no github para sua máquina.
-Existem duas maneiras para fazer isso:
-
- **Clonando repósitório git**
-Acesse a pasta dentro da qual quer criar a pasta do **ConecSync** (parent), e execute o comando abaixo, para clonar o repositório público (requer o [CLI](#glossario-cli) do git instalado) do projeto. 
- `git clone https://github.com/conecdata/conecsync`
-
-> A pasta **conecsync** será criada automaticamente dentro da pasta em que o comando foi executado.
-> Caso não tenha, saiba ou queira utilizar o cli **git**, utilize o método abaixo.
-
-**Baixando arquivo zip**
-Acesse o repositório no github por esse [link](https://github.com/conecdata/conecshare.git), baixe o arquivo zip pelo link dentro do botão <kbd>Code</kbd> e descompacte o arquivo baixado na pasta em que desejada utilizar o **ConecSync**.
-
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fgit_conecsync_zip_download.jpg?alt=media) 
-
-## Estrutura da pasta do ConecSync<a id="instalacao-estrutura-pasta-conecsync"></a>
-
-As alterações que você deverá fazer no **ConecSync**, estarão todas dentro da pasta **config**, apesar disso, explicaremos o papel de cada arquivo do projeto.
-
-> Você não deve modificar nenhum arquivo fora da pasta **config** sob pena de comprometer o correto funcionamento do script e ter que baixá-lo novamente do repositório para corrigi-lo.
-
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Ffolder_structure.jpg?alt=media)
-Pasta/arquivo|Descrição
-|:--|:--|
-integracao_modelo|Pasta contendo scripts sql e arquivos csv dos exemplos
-src|Pasta contendo códigos fontes e arquivos complementares
-src/app|Pasta contendo códigos fonte
-**src/app/config**|Pasta contendo os arquivos de configuração **que você DEVE modificar**
-src/app/inc|Pasta contendo bibliotecas
-src/app/consts.ts|Arquivo com valores gerais diversos
-src/app/index.ts|Arquivo fonte principal do script
-.gitignore|Arquivo de exceções do github (oculto)
-package.json|Arquivo de configuração e dependências do projeto
-README.md|Arquivo contendo esse mesmo documento que você está lendo (formato markdown) 
-README.pdf|Arquivo contendo esse mesmo documento que você está lendo (formato PDF) 
-tsconfig.json|Arquivo de configuração do typescript
-tslint.json|Arquivo de configuração do typescript
-
-> Diversas outras pastas serão criadas posteriormente, o restante da documentação o notificará cada vez que isso acontecer.
-
-## Instalando dependências<a id="instalacao-instalando-dependencias"></a>
-
-Uma vez que a pasta do **ConecSync** já tenha sido descompactada ou clonada, entre nela e execute o comando abaixo para instalar suas dependências (pode levar alguns minutos dependendo da velocidade de conexão da sua internet):
-`npm i` ou `npm install`
-
-> Para integração apenas com arquivos csv, as dependências já instaladas pelo comando anterior são suficientes. Entretanto, caso tenha optado por realizar a conexão com um dos gerenciadores de banco de dados compatíveis com o script, é necessário a instalação de uma dependência para esse gerenciador também.
-
- 
-Banco de dados|tipo|comando|
-|:--|:--|:--|
-MySql|mysql|npm install --save mysql2|
-Maria DB|mariadb|npm install --save mariadb|
-Postgres|postgres|npm install --save pg pg-hstore|
-Microsoft SQL Server|mssql|npm install --save tedious|
-
-> Mais adiante criaremos um exemplo em MySql para demonstrar a configuração e o funcionamento do script, caso queira acompanhar esse exemplo, execute também o comando correspondente a esse gerenciador na tabela acima.
-
-**Pasta das dependências**
-Após o final da instalação das dependências, uma pasta **node_modules** terá sido criada dentro da pasta **conecsync**.
-Pasta/arquivo|Descrição
-|:--|:--|
-node_modules|Pasta contendo dependências baixadas do projeto
-
-# Seguindo a integração de exemplo
-
-Como já vimos, é possível realizar a integração via **ConecSync** por *leitura do banco de dados* ou *arquivos [csv](#glossario-csv)*. Devido a isso, seguiremos um integração exemplo completa para cada uma dessas modalidades.
-
-> Os arquivos de exemplo com a estrutura e conteúdo das tabelas utilizados estão disponíveis na pasta **integracao_modelo/db/mysql** e os arquivos csv prontos para importação estarão na pasta **integracao_modelo/csv**.
-
-A documentação foi formulada de maneira que você possa acompanhar os exemplos ou utilizá-la como material de consulta.
-Mesmo que você não queira executar os exemplos passa a passo, é importante analisar a estrutura das tabelas apresentadas, para entender os campos utilizados e como eles são indicados na criação das views, para que sirvam de modelo para criação de suas próprias views (substituindo os campos de exemplo pelos correspondentes em sua base de dados já existente).
-Os passos necessários para acompanhar o exemplo, sempre estarão destacados como abaixo:
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB/CSV**</font>
->> Passo a ser executado no exemplo.
-
-## Integração modelo DB<a id="integracao-exemplo-integracao-modelo-db"></a>
-
-Utilizaremos um banco de dados MySql para nossa integração de modelo. Presumimos que você já tenha um servidor compatível com ele na máquina em que a pasta do **ConecSync** esteja copiada.  
-
-> Mesmo que não esteja usando o MySql, os passos descritos serão praticamente os mesmos para os demais gerenciadores compatíveis. Nos comentários dos arquivos de configuração constarão algumas variações dos diferentes gerenciadores.
-
-### Criando o banco de dados<a id="integracao-exemplo-criando-db"></a>
-
-Utilizaremos a **gui** (interface gráfica) **phpmyadmin** para os exemplos, mas você pode criar as tabelas e preenchê-las da maneira que preferir.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Com o servidor e o gerenciador Mysql funcionando, basta acionar o **phpmyadmin** em seu browser pelo seguinte comando.
->> `localhost/phpmyadmin`
-
-Para que a interface gráfica funcione corretamente, você pode ter que logar com um usuário e senha válidos do mysql ou estar com essas credenciais gravadas em arquivos de configuração do phpmyadmin. De qualquer maneira essas informações de acesso serão também necessárias para configuração de conexão do script com seu gerenciador de banco de dados e dependem de detalhes da instalação do MySql no seu sistema.
-
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fphpmyadmin.jpg?alt=media)
-
-> Se for utilizar o phpmyadmin para executar os comandos ou scripts (múltiplos comandos separados por ponto e vírgula), basta selecionar a guia SQL para acionar a textarea para digitação de scripts.
-
- 
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
->> Primeiro, vamos criar um novo database chamado **modelo_conecdata** pelo comando abaixo na guia SQL.
-
- `CREATE DATABASE modelo_conecdata`
-
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fphpmyadmin_create_database.jpg?alt=media)
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
->> Depois execute o comando abaixo para selecionar o database gerado como default, para as próximas operações:
-> > `USE modelo_conecdata`
-
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fphpmyadmin_use_database.jpg?alt=media)
-
-> Os scripts de criação das tabelas que serão executados a seguir, preventivamente, já selecionam esse database para uso, mas não custa prevenir fazendo isso aqui também, isso permitirá que você execute outros comandos para fazer testes, fora da execução dos scripts. Normalmente, em uma *gui* (ambiente gráfico) do gerenciador, basta clicar ou clicar duas vezes sobre o nome do database para selecioná-lo para uso.
-
-### Criando as tabelas modelo<a id="integracao-exemplo-criando-tabelas"></a>
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Certifique-se que o database **modelo_conecdata** esteja criado e execute os scripts listados abaixo (em qualquer ordem), presentes na pasta **integracao_modelo/db/mysql** do projeto **ConecSync**. Copie o conteúdo de cada arquivo e cole-o na textarea da guia **SQL** do **phpmyadmin** conforme já explicado anteriormente.
-> > * grupos.sql
-> > * subgrupos.sql
-> > * produtos.sql
-> > * formas_pgto.sql
-
-Note que, em cada script, o database foi selecionado (por garantia), as tabelas foram criadas, seus campos de chave primária e autoincremento definidos e alguns valores lançados. Normalmente, criaríamos também chaves estrangeiras para interligar as tabelas, entretanto, esse passo foi intencionalmente ignorado aqui para tornar o exemplo mais simples, uma vez que os relacionamentos não comprometem em nada o que pretendemos demonstrar. 
-
-> Caso as chaves estrangeiras fossem definidas nas tabelas, o ideal seria criar todas estruturas primeiro e posteriormente executar os comandos de entradas de dados, uma vez que indicar uma chave correspondente a uma tabela ou linha inexistente, resultaria em um erro. 
-
-#### Tabela grupos<a id="integracao-exemplo-criando-tabelas-grupos"></a>
-
-Campo|Tipo|Tamanho|Descrição
-|:--|:--|:--:|:--|
-gru_pk|chave primária|-|-
-gru_b_ativo|boolean|-|Indica se grupo está ativo ou não
-gru_c_grupo|string|40|Nome do grupo
-
-> Note que os campos indicados como boolean no MySql, são de fato, números inteiros, cujo valor 0 significa FALSE, e qualquer outro valor significa TRUE.
-
-#### Tabela subgrupos<a id="integracao-exemplo-criando-tabelas-subgrupos"></a>
-
-Campo|Tipo|Tamanho|Descrição
-|:--|:--|:--:|:--|
-sub_pk|chave primária|-|-
-sub_b_ativo|boolean|-|Indica se subgrupo está ativo ou não
-sub_c_subgrupo|string|40|Nome do subgrupo
-
-#### Tabela produtos<a id="integracao-exemplo-criando-tabelas-produtos"></a>
-
-Campo|Tipo|Tamanho|Descrição
-|:--|:--|:--:|:--|
-pro_pk|chave primária|-|-
-pro_fk_grupo|chave estrangeira|-|Chave de relação com gru_pk na tabela grupos
-pro_fk_subgrupo|chave estrangeira|-|Chave de relação com sub_pk na tabela subgrupos
-pro_b_ativo|boolean|-|Indica se produto está ativo ou não
-pro_b_balanca|boolean|-|Indica se produto gera etiqueta para balança ou não (NÃO UTILIZADO)
-pro_b_destaque|boolean|-|Indica se produto está com exibição privilegiada ou não
-pro_b_estoque|boolean|-|Indica se produto tem estoque controlado ou não
-pro_b_favorito|boolean|-|Indica se produto é favorito ou não (NÃO UTILIZADO)
-pro_b_fracionado|boolean|-|Indica se produto pode ser vendido a granel ou não
-pro_b_industrializado|boolean|-|Indica se produto é de fabricação industrial ou própria
-pro_c_barcode|string|20|Código de barras do produto
-pro_c_descricao|string|60|Descrição do produto
-pro_c_img|string|60|Nome do arquivo de imagem do produto (NÃO UTILIZADO)
-pro_c_pesavel_tipo|string|5|Tipo de gramatura do produto pesável
-pro_c_produto|string|60|Nome do produto
-pro_f_perc_limite_venda |decimal|10, 2|Percentual do estoque atual base para cálculo de limite de venda online
-pro_f_pesavel_fracao |decimal|10, 2|Fração de aumento/redução de produtos pesáveis
-pro_f_preco|decimal|10, 2|Preço de venda do produto
-pro_f_qtde_atacado |decimal|10, 2|Qtde mínima do produto para ativar preço atacado
-pro_f_qtde_estoque_loja|decimal|10, 2|Quantidade atualmente em estoque do produto
-pro_f_qtde_estoque_min|decimal|10, 2|Quantidade mínima de estoque regular na loja
-pro_f_qtde_limite_venda |decimal|10, 2|Qtde máxima para venda do produto online
-pro_f_valor_atacado |decimal|10, 2|Preço de venda do produto por atacado
-pro_i_cod|integer|10|Código do produto (NÃO UTILIZADO)
-
-> Note que apesar das colunas correspondentes às chaves estrangeiras estarem presentes, elas não estão interligadas com as outras tabelas, conforme explicado anteriormente.
-
-Alguns campos indicados como NÃO UTILIZADOS, foram mantidos intencionalmente para demonstrar que nem todos campos presentes na tabela necessitam estar presentes na view. O caso inverso, como lidar com campos que não estejam presentes nas tabelas origem mas são requeridos na view, também será explicado em breve.
-
-#### Tabela grupos<a id="integracao-exemplo-criando-tabelas-formas-pgto"></a>
-
-**tabela formas_pgto**
-Campo|Tipo|Tamanho|Descrição
-|:--|:--|:--:|:--|
-fpg_pk|chave primária|-|-
-fpg_c_forma|string|40|Nome completo da forma de pagamento
-fpg_c_legenda|string|40|Nome reduzido da forma de pagamento para acompanhar sua imagem (NÃO UTILIZADO)
-fpg_c_id_externo|string|40|Identificador dessa forma de pagamento na lista da Conecdata
-
-> Nessa tabela, a coluna de id externo, relaciona suas formas de pagamento com seus correspondentes [nessa lista](https://firebasestorage.googleapis.com/v0/b/formas-pgto.appspot.com/o/formas-pgto-integracao.json?alt=media). Apenas formas constantes nessa lista podem ser sincronizadas, caso necessite de novas formas, entre em contato com a Conecdata para que elas sejam implementadas e você tenha novos identificadores para lançar em seu cadastro.
-
-Optamos por utilizar campos com uma nomenclatura estranha (gru_pk, pro_fk_grupo, fpg_c_forma, ...), intencionalmente, para deixar mais claro nos exemplos que virão de criação das [views](#glossaro-views), quais campos pertencem às tabelas origem (e portanto serão substituídos por nomes de campos dos seus próprios cadastros) e quais são os apelidos com nomes específicos (e que devem ser mantidos exatamente com exibidos na view).
-
-> Todos nomes de tabelas e também os nomes de campos seguindo essa nomenclatura exótica, utilizados em nossos exemplos, devem ser substuidos pelos correspondentes em sua base de dados quando for fazer sua integração real.
-
-### Criando as views<a id="integracao-exemplo-criando-views"></a>
-
-Além dos motivos já citados anteriormente para a utilização de [views](#glossario-views), um que é essencial, é a possibilidade de se agrupar diversas tabelas em uma só (JOINS) facilitando sua consulta pelo **ConecSync**, as seguintes views podem ser criadas para servir de origem de dados para sincronização:
-
-> As origens de dados geradas pelas views não dependem umas das outras, e mais tarde veremos como podemos indicar quais origens desejamos integrar especificamente. Obviamente, apenas as views das origens de dados que você deseja integrar necessitam ser criadas. Algumas integrações podem ser feitas por aquivos CSV ou até mesmo diretamente por seu código chamando diretamente a api em vez de executar o ConecSync.
-
-View|Origem
-|:--|:--|
-view_conecdata_produtos|Tabela de produtos integrada com a de grupos e subgrupos
-view_conecdata_estoque|Parte da tabela de produtos correspondente às informações de estoque do produto
-view_conecdata_formas|Tabela de formas de pagamento
-
-> Note que apesar de estarmos utilizando os termos grupos e subgrupos, os termos correspondentes utilizados nas plataformas que vão receber as modificações são departamentos e subdepartamentos. Os nomes das tabelas foram mantidos divergentes intencionalmente, exatamente para demonstrar que eles podem ser facilmente convertidos para os nomes requeridos pelo **ConecSync**.
-
-A parte mais complexa da integração pelo **ConecSync** provavelmente será a geração das views. Não muito complexa na verdade, uma vez que consistem basicamente em trocar alguns valores nos scripts SQL apresentados como exemplo por outros de sua base de dados, mas explicaremos esse tópico mais detalhadamente para que você saiba como substituir esses valores (tabelas, campos e constantes) corretamente. 
-
-#### view_conecdata_formas<a id="integracao-exemplo-criando-views-formas"></a>
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para criar a view de baseada em nossa tabela **formas_pgto** exemplo, execute o script abaixo:
-
-``` sql
-  DROP VIEW IF EXISTS view_conecdata_formas;
-
-  CREATE VIEW
-    view_conecdata_formas
-  AS SELECT
-    fpg_pk AS id_interno,
-    fpg_c_forma AS nome_forma,
-    fpg_c_id_externo AS id_externo,
-    1 AS id_loja,
-    1 AS forma_ativa
-  FROM
-    formas_pgto
-  WHERE
-    fpg_c_id_externo IS NOT NULL;
-```
-
-> Esses mesmos scripts de criação das views modelos, constarão como comentários nos arquivos de configuração de origens de dados.
-
-Vamos analisar cada comando da view para entendê-la melhor:
-
-<font color='Orange'>DROP VIEW</font>
-Esse comando apaga a versão antiga da view (caso exista), para que possamos criar uma nova versão, sem problemas.
-
-> Como veremos no próximo comando, você pode utilizar o nome que quiser para suas views, e obviamente, o nome da view sendo excluída aqui, deve corresponder ao que vai ser criada pelo comando seguinte.
-
-<font color='Orange'>CREATE VIEW</font>
-Esse comando indica o nome que a view terá para essa origem de dados, **view_conecdata_formas** em nosso exemplo, você pode substituir esse nome por um de sua preferência, mais tarde veremos onde indicar o nome dessa view na configuração.
-
-<font color='Orange'>AS SELECT</font>
-É aqui que a mágica acontece, e para entendê-la, precisamos entender o papel de valores à esquerda (antes) de cada comando **AS** e os valores à direita (depois) deles.
-
-* ESQUERDA/ANTES: Devem ser campos correspondentes em suas tabelas de origem de dados (que variam de linha para linha no cadastro) ou valores constantes (que valem para todas linhas). <font color='green'>Você sempre DEVE modificar esses nomes por correspondentes na sua base de dados ou por valores constantes</font>.
-* DIREITA/DEPOIS: São apelidos de valores requeridos pela plataforma. <font color='tomato'>Você NÃO DEVE modificar ou omitir qualquer um desses nomes. </font>
-
-> Deixar de indicar algum dos apelidos requeridos na geração da view, causa um erro que interrompe o script de integração.
-
-Três situações possíveis, ocorrerão na composição de suas views: 
-
-* Campos na tabela de origem de dados que POSSUEM um valor correspondente a um apelido.
-* Campos na tabela de dados que NÃO POSSUEM um valor correspondente a um apelido.
-* Apelidos que NÃO POSSUEM campos correspondentes na tabela de origem de dados.
-
-Vamos verificar todos campos de nossa tabela de origem exemplo e todos apelidos listados na view para ver a correspondência entre eles.
-Campo|Apelido|Situação
-|:--|:--|:--|
-fpg_pk|id_interno|<font color='green'>ENCONTRADO</font>
-fpg_c_forma|nome_forma|<font color='green'>ENCONTRADO</font>
-fpg_c_id_externo|id_externo|<font color='green'>ENCONTRADO</font>
-fpg_c_legenda|-|**NÃO UTILIZADO**
--|forma_ativa|<font color='tomato'> NÃO ENCONTRADO</font>
--|id_loja|<font color='tomato'> NÃO ENCONTRADO</font>
-
-**Situação <font color='green'>ENCONTRADO</font>**: Campos na tabela origem que tem um apelido correspondente.
-
-``` 
-
-  fpg_pk
-  fpg_c_forma
-  fpg_c_id_externo
-```
-
-Basta indicar o nome do campo antes do comando AS que o renomeia para o apelido correspondente.
-
-> Campos indicados que correspondam a identificadores (chaves primárias ou estrangeiras em SQL e uids em NoSqls) podem ser tanto do tipo número como string.
-
-    
-
-**Situação NÃO UTILIZADO**: Campos na tabela origem que NÃO correspondem a apelidos.
-
-``` 
-
-  fpg_c_legenda
-```
-
-Basta ignorar esses campos na composição da view, note que não existe referência a **fpg_c_legenda** no comando de geração da view **view_conecdata_formas** que apresentamos.
-
-**Situação <font color='tomato'> NÃO ENCONTRADO</font>**: Apelidos na view que NÃO tem campos correspondentes na tabela de origem.
-
-``` 
-
-  formaAtiva
-  idLoja
-```
-
-Nesses casos devemos indicar um valor constante no lugar do nome de nosso campo de origem. 
-Em nosso exemplo, o valor constante **1** (number) foi atribuído ao apelido **formaAtiva** (boolean), indicando que TODAS formas de pagamento estão ativas. 
-
-> Lembre-se que para o MySql (gerenciador DB utilizado no exemplo), booleanos são números.
-
-Da mesma forma uma constante 1 (number) foi atribuída ao apelido **idLoja** indicando que TODAS essas formas pertencem à loja 1.
-
-> Todas lojas que geram origens de dados para integração, devem ter seus tokens de loja indicados (como veremos mais adiante na documentação) em configurações dos projetos utilizados.
-
-Normalmente, as chaves primárias (identificadores) em bancos de dados relacionais, são valores numéricos gerados automaticamente por autoincremento. Por esse motivo, presumiremos que origens de dados db passarão indicadores como valores numéricos e valores lidos de arquivos csv podem passar tanto números como strings.
-
-***E SE*** eu tivesse uma coluna ***fpg_fk_loja*** para cada linha da tabela?
-Bastaria indicar essa coluna no lugar da constante na geração da view e repetir seu comando (lembre-se que ele apaga a view existente com seu primeiro comando). Dessa maneira, cada forma de pagamento poderia corresponder a uma loja específica e não todas à mesma loja como acontece se utilizarmos um valor constatante.
-`1 AS idLoja` vira `fpg_fk_loja AS idLoja`
-
-***E SE*** eu tivesse uma coluna ***fpg_b_ativo*** para cada linha da tabela?
-Da mesma forma, bastaria indicar essa coluna no lugar da constante na view (lembre-se de precisa recriar a view após fazer isso). Dessa maneira, cada forma de pagamento poderia estar ou não ativa, e não todas ativas como acontece se utilizarmos uma valor constante.
-`1 AS idLoja` vira `fpg_fk_loja AS idLoja`
-
-> É claro que os nomes dos campos indicados devem existir nas tabelas, não é o caso do *idLoja*, uma vez que ele não existe na tabela modelo que criamos.
-
-<font color='Orange'>FROM</font>
-Esse comando simplesmente indica o nome da tabela de origem de dados sendo lida (e obviamente deve ser trocado pelo nome de tabela correspondente em seu cadastro).
-
-<font color='Orange'>WHERE</font>
-Nesse exemplo específico, esse comando descarta linhas que não tenham um valor correspondente para um identificador em nossa plataforma, uma vez que se fossem passados como parâmetros para a [api](#glossario-api), gerariam erros (obviamente, o nome do campo **fpg_c_id_externo** também deveria ser substituido pelo correspondente em próprio seu cadastro).
-
-#### view_conecdata_produtos<a id="integracao-exemplo-criando-views-produtos"></a>
-
-A [view](#glossario-views) produtos é com certeza a mais complexa, os cadastros de produtos de diferentes empresas podem variar bastante entre si, na quantidade e tipo dos campos, e ainda depender ou não, de outros cadastros.
-Decidimos então, criar essa [view](#glossario-views) de maneira progressiva, ou seja, vamos começar com uma versão bastante simples (utilizando constantes no lugar da maioria dos campos presentes em nossas tabelas de exemplo). Posteriormente, vamos implementar mudanças pontuais na view básica, para explicar ações comuns, que envolvem campos que têm relação entre si, e devem ser modificados conjuntamente.
-
-***View básica*** Aproveitando poucos valores da origem de dados, e ignorando os demais (por enquanto).
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para criar a view de baseada em nossa tabela **produtos** exemplo, execute o script abaixo:
-
-``` sql
-  DROP VIEW IF EXISTS view_conecdata_produtos;
-
-  CREATE VIEW
-    view_conecdata_produtos
-  AS SELECT
-    pro_pk AS id_produto,
-    pro_c_barcode AS barcode_produto,
-    pro_f_preco AS preco_venda,
-    
-    pro_fk_grupo AS id_departamento,
-    gru_c_grupo AS nome_departamento,
-    gru_b_ativo AS ativo_departamento,
-    
-    0 AS id_subdepartamento,
-    '' AS nome_subdepartamento,
-    0 AS ativo_subdepartamento,
-    
-    1 AS industrializado,
-    '' AS nome_produto,
-        
-    0 AS estoque_controlado,
-    0 AS qtde_estoque_minimo,
-    0 AS qtde_estoque_atual,
-    
-    0 AS atacado_qtde,
-    0 AS atacado_valor,
-    
-    0 AS percentual_limite_venda,
-    0 AS qtde_limite_venda,
-  
-    0 AS pesavel_status,
-    0 AS pesavel_fracao,
-    '' AS pesavel_tipo,
-    
-    1 AS produto_ativo,
-   
-    '' AS descricao_produto,
-
-    0 AS destaque,
-    
-    1 AS id_loja
-  FROM
-    produtos
-  LEFT JOIN
-    grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk;
-```
-
-Nessa versão, praticamente passamos apenas as informações necessárias para uma sincronização básica, com poucos campos do cadastro e muitas constantes. Não indicamos nenhum subdepartamento para os produtos, indicamos todos para uma mesma loja, todos ativos, todos industrializados, todos SEM NOME, todos sem controle de estoque, todos sem promoção atacado, todos sem serem pesáveis, todos sem limite venda, todos sem descrição, etc...
-
-> Observe que nem mesmo os nomes dos produtos presentes no cadastro foram indicados (uma string vazia foi indicada em seu lugar), nesse exemplo isso funcionará, devido a todos produtos terem sido  indicados como industrializados. Produtos industrializados nas plataformas compatíveis, têm seu barcode usado como referência para acessar uma base de dados da Conecdata e buscar os nomes e as imagens desses produtos.
-
-Já fomos apresentados aos comandos que compõem a [view](#glossario-views) no exemplo anterior, mas dessa vez existe um novo comando o LEFT JOIN, que, nesse exemplo, liga a tabela produtos com a de grupos (inclusive, renomeando-a para departamentos, o que na verdade nem é necessário) e permitindo dessa forma que campos de ambas componham o SELECT, gerando um resultado combinado das duas. No caso, os campos **gru_c_grupo** e **gru_b_ativo** não existem na tabela produtos, mas por sua chave de interligação com grupos **pro_fk_grupo** (veja que ele consta no comando JOIN junto da chave primária da tabela grupos **gru_pk**) foi possível utilizá-los como parte do SELECT final que queremos.
-
-A partir de agora, vamos implementar algumas modificações conjuntas na geração da [view](#glossario-views), cada uma com uma finalidade específica.
-
-<font color='Orange'>Incluindo subdepartamentos</font>
-Em nossa versão simplificada da view produtos, todos produtos indicam apenas seus departamentos (aqui chamados de grupos) e todos subdepartamentos (ou subgrupos, temos até uma tabela para eles) foram ignorados, pois no lugar de seus campos, foram fornecidas strings vazias, indicando dessa forma, que esses produtos devem ser atribuídos diretamente a um departamento e não a um subdepartamento dentro deles.
-Agora vamos implementar as mudanças necessárias para que os produtos possam, cada um deles, indicar também um subdepartamento.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Substitua as constantes do seguinte trecho:
-
-``` sql
-	...
-    0 AS idSubdepartamento,
-    '' AS nomeSubdepartamento,
-    0 AS ativoSubdepartamento,
-    ...
-```
-
-> Por seus nomes de campos presentes nas tabelas:
-
-``` sql
-	...
-    pro_fk_subgrupo AS idSubdepartamento,
-    sub_c_subgrupo AS nomeSubdepartamento,
-	sub_b_ativo AS ativoSubdepartamento,
-    ...
-```
-
-> E execute o novo comando, para substituir a view.
-
-Ao executar o comando, provavelmente ocorrerá um erro, o problema é que, além de campos da tabela produtos (que está indicada na composição da view), estamos também indicando campos da tabela **subgrupos** e nada, até então, faz referência a ela em nossa nova view. Para resolvermos isso temos que incluir um segundo comando JOIN unindo a tabela produtos também com a de subgrupos, o que permitirá que possamos referenciar seus campos no select da view.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para corrigir o problema, logo abaixo do trecho da view atual:
-
-``` sql
-  FROM
-    produtos
-  LEFT JOIN
-    grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk
-```
-
-> Inclua um segundo comando JOIN:
-
-``` sql
-  LEFT JOIN
-    subgrupos ON produtos.pro_fk_grupo = subgrupos.gru_pk
-```
-
-> E execute o novo comando de substituir a view. Dessa vez o comando deve ser executado com sucesso.
-
-Note que dessa vez, não fizemos como no JOIN anterior, renomeando a tabela subgrupos para subdepartamentos, já haviamos citado anteriormente que esse não era um passo necessário, dessa forma, o comando abaixo surtiria o mesmo efeito do acima.
-
-<font color='tomato'> **NÃO É NECESSÁRIO EXECUTAR ESSE COMANDO**</font>
-
-``` sql
-  LEFT JOIN
-    subgrupos AS subdepartamentos ON produtos.pro_fk_grupo = subdepartamentos.gru_pk
-```
-
-> Com essas mudanças, os valores constantes no campo **pro_fk_subgrupo** de cada produto, são utilizados para indicar a qual linha da tabela **subgrupos** eles correspondem. Agora, com as tabelas devidamente interligadas, valores de ambas podem ser utilizados para composição da view, no caso **sub_c_subgrupo** e **sub_b_ativo** vieram da tabela subgrupos e não da de produtos.
-
-<font color='Orange'>Indicando produtos não industrializados</font>
-Já foi citado anteriormente que produtos indicados como industrializados, têm seu nome e imagens buscados pela plataforma de uma base dela, dessa forma, pudemos omitir o nome do produto na versão inicial da view, uma vez que ele seria ignorado de qualquer forma. 
-Agora, caso indiquemos em cada produto, se ele é ou não industrializado, os que indicarem esse valor como FALSE (tornando-los digamos "manufaturados"), devem passar também seus nomes para plataforma, pois produtos não industrializados passados sem nome para as apis, resultam em erros.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para que possamos indicar para cada produto quais são industrializados e quais não, basta modificar o trecho abaixo da [view](#glossario-views).
-
-``` sql
-    1 AS industrializado,
-    '' AS nomeProduto,
-```
-
-> Por este:
-
-``` sql
-    pro_b_industrializado AS industrializado,
-    pro_c_produto AS nomeProduto,
-```
-
-> E execute o novo comando, para substituir a view.
-
-Como todos campos de tabelas indicados já estão presentes na tabela produtos, que é a tabela base da view, nenhum outro comando JOIN é necessário.
-
-<font color='Orange'>Controlando o estoque dos produtos</font>
-Se você analisar a documentação das apis dos projetos compatíveis com o **ConecSync**, perceberá que ele não possui um valor para indicação de quantidade de estoque atual do produto (para ser atualizada a cada venda de um produto), pois essas apis pretendem ser comunicadas apenas sobre modificações eventuais dos produtos, como modificações de preço, departamentos, status ativo, etc... 
-Entretanto, existe uma flag **estoqueMinimo** relacionada ao controle de estoque nas apis dos projetos, quando esse valor é passado como TRUE, isso quer dizer que o produto se encontra com quantidade crítica de estoque e nesse caso, sua venda online deve ser suspensa, o inverso ocorre caso seu valor seja indicado como FALSE, ou seja, a venda online volta a ser liberada, pois o produto já não se encontra mais com estoque crítico.
-É claro que você poderia controlar isso via api em seu próprio código, entretanto para que a integração seja aprovada, tem que controlar acionamentos às [APIs](#glossario-api) apenas quando esses valores sofrerem modificações (ou seja, não deve acionar a api a cada venda que reduza a quantidade do produto e cuja situação de estoque crítico já tenha sido comunicada em chamadas anteriores, nem quando uma nova entrada de estoque de um produto com estoque regular não tenha entrado no estado crítico nesse cálculo) sob pena da integração ser recusada. Caso queira controlar a flag estoqueMinimo em seu código, deve solicitar maiores informações à [Conecdata](#glossario-conecdata) da forma correta de fazê-lo, felizmente é muito mais fácil e seguro você controlar o status da venda online dos produtos, usando o **ConecSync** como demostraremos a seguir.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Seguindo os exemplos anteriores, basta substituir o trecho da view:
-
-``` sql
-    0 AS estoqueControlado,
-    0 AS qtdeEstoqueMinimo,
-    0 AS qtdeEstoqueAtual
-```
-
-> Por este:
-
-``` sql
-    pro_b_estoque AS estoqueControlado,
-    pro_f_qtde_estoque_min AS qtdeEstoqueMinimo,
-    pro_f_qtde_estoque_loja AS qtdeEstoqueAtual
-```
-
-> E executar o novo comando, para substituir a view.
-
-Nenhum desses valores é de fato, repassado para as chamadas das apis para sincronização, eles são apenas utilizados para calcular o status da flag **estoqueMinimo** de acordo com as seguintes regras:
-estoqueControlado|estoqueMinimo resultante|Explicação
-|:--:|:--:|:--|
-FALSE|FALSE|Se o estoque desse produto não é controlado, sua venda online nunca será suspensa devido à situação do estoque (já que ela não é controlada).
-TRUE|**qtdeEstoqueAtual** < **qtdeEstoqueMinimo**|A venda online será suspensa caso a qtde atual do estoque esteja abaixo do valor mínimo indicado e reativada em caso contrário.
-
-A comunicação para as apis só acontecem, caso algum valor relevante do cadastro de produtos (incluindo estoqueMinimo) esteja diferente do que foi emitido anteriormente.
-
-> Existe uma origem de dados "estoque" para ser utilizada no lugar da origem "produtos", caso você não use o **ConecSync** para sincronizar os produtos (fazendo-o por exemplo por chamadas às apis de seu código), mas queira continuar utilizando o script para monitorar o estoque dos produtos. Caso já sincronize a origem produtos, mesmo que a origem estoque seja indicada, ela será ignorada, uma vez que o estoque já foi controlado pela integração dos produtos.
-
-<font color='Orange'>Produtos com venda por atacado</font>
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para que você possa indicar uma quantidade para cada produto, que reduza seu preço quando essa quantidade for atingida, basta substituir o trecho da view:
-
-``` 
-
-    0 AS atacadoQtde,
-    0 AS atacadoValor,
-```
-
-> Por esse:
-
-``` 
-
-    pro_f_qtde_atacado AS atacadoQtde,
-    pro_f_valor_atacado AS atacadoValor,
-```
-
-> E executar o novo comando, para substituir a view.
-
-<font color='Orange'>Produtos com limite de quantidade de venda</font>
-Dois campos podem controlar a quantidade máxima permitida para venda online de um produto (por pedido):
-
-* **pro_f_perc_limite_venda** Só é utilizada caso o estoque desse produto seja controlado (campo **pro_b_estoque** em  nosso exemplo). O valor percentual aqui indicado, é calculado sobre o valor do campo **pro_f_qtde_estoque_loja**, gerando o valor limite para venda online desse produto. Vejamos alguns exemplos:
-
-pro_b_estoque|pro_f_perc_limite_venda|pro_f_qtde_estoque_loja|Resultado|Motivo
-|:--:|--:|--:|:--:|:--|
-FALSE|10|200|0 (sem limite)|Se estoque não é controlado, não há limite para venda online
-TRUE|10|200|20 no máx|200 * 10% = 20
-
-* **pro_f_qtde_limite_venda** Indicação direta de valor mínimo para venda online. Caso  **pro_f_perc_limite_venda** resulte em algum valor (> 0), ele é comparado com **pro_f_qtde_limite_venda** e o MENOR deles é repassado para as apis para ser utilizado na limitação da quantidade máxima de venda online desse produto.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para definir um limite para venda online de cada produto baseado no estoque atual, basta substituir o trecho da view:
-
-``` sql
-  0 AS percentualLimiteVenda
-```
-
-> Por esse:
-
-``` sql
-  pro_f_perc_limite_venda AS percentualLimiteVenda
-```
-
-> E executar o novo comando, para substituir a view. Lembre-se que esse valor só tem efeito caso esse produto tenha a flag de estoque controlado habilidada.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para definir um limite de quantidade de venda fixo para cada produto, basta substituir o trecho da view:
-
-``` 
-
-  0 AS qtdeLimiteVenda,    
-```
-
-> Por esse:
-
-``` 
-
-  pro_f_qtde_limite_venda AS qtdeLimiteVenda,
-```
-
-> E executar o novo comando, para substituir a view.  
-
-O menor desses dois valores (o baseado no percentual e o fixo) será passado para API como sendo o limite de venda desse produto por pedido.
-
-<font color='Orange'>Produtos pesáveis</font>
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Caso indique um produto como pesável (venda a granel), tem também que indicar dois outros valores, o tipo de sua medida e a fração para seu acréscimo/decréscimo. Basta substituir o trecho da view:
-
-``` sql
-  0 AS pesavelStatus,
-  0 AS pesavelFracao,
-  '' AS pesavelTipo, 
-```
-
-> Por esse:
-
-``` sql
-  pro_b_fracionado AS pesavelStatus,
-  pro_f_pesavel_fracao AS pesavelFracao,
-  pro_c_pesavel_tipo AS pesavelTipo,
-```
-
-> E executar o novo comando, para substituir a view.
-> Tipos de unidade de medida válidas: (K)ilograma, (G)rama, (L)itro, (ML) mililitro, (M)etro ou (CM) centímetro.
-
-***View completa*** Os demais valores não possuem outros relacionados e seus os demais campos que podem substituir suas constantes podem ser observados na versão completa da view produtos abaixo.
-
-``` sql
-  DROP VIEW view_conecdata_produtos;
-
-  CREATE VIEW
-    view_conecdata_produtos
-  AS SELECT
-    pro_pk AS id_produto,
-    pro_c_barcode AS barcode_produto,
-    pro_f_preco AS preco_venda,
-    
-    pro_fk_grupo AS id_departamento,
-    gru_c_grupo AS nome_departamento,
-    gru_b_ativo AS ativo_departamento,
-    
-    pro_fk_subgrupo AS id_subdepartamento,
-    sub_c_subgrupo AS nome_subdepartamento,
-    sub_b_ativo AS ativo_subdepartamento,
-    
-    pro_b_industrializado AS industrializado,
-    pro_c_produto AS nome_produto,
-        
-    pro_b_estoque AS estoque_controlado,
-    pro_f_qtde_estoque_min AS qtde_estoque_minimo,
-    pro_f_qtde_estoque_loja AS qtde_estoque_atual,
-    
-    pro_f_qtde_atacado AS atacado_qtde,
-    pro_f_valor_atacado AS atacado_valor,
-    
-    pro_f_perc_limite_venda AS percentual_limite_venda,
-    pro_f_qtde_limite_venda AS qtde_limite_venda,
-  
-    pro_b_fracionado AS pesavel_status,
-    pro_f_pesavel_fracao AS pesavel_fracao,
-    pro_c_pesavel_tipo AS pesavel_tipo,
-    
-    pro_b_ativo AS produto_ativo,
-   
-    pro_c_descricao AS descricao_produto,
-
-    pro_b_destaque AS destaque,
-    
-    1 AS id_loja
-  FROM
-    produtos
-  LEFT JOIN
-    grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk
-  LEFT JOIN
-    subgrupos AS subdepartamentos ON produtos.pro_fk_subgrupo = subdepartamentos.sub_pk;
-```
-
-> Como nosso exemplo, a taela produtos não possui uma coluna (pro_fk_loja ou similar) indicando a qual loja pertence cada produto, mantivemos a constante (representando uma eventual loja 1), uma vez que todos apelidos devem ser indicados.
-
-<font color='Orange'>Campos sem prefixos da tabela</font>
-Caso sua nomemclatura de campos não referencie a qual tabela pertencem (tipo com os prefixos pro_, gru_, sub_ e fpg_ em nossos exemplos), algumas modificações na composição das view serão necessárias quando ela precisar agrupar (via join) duas (ou mais) tabelas. Vamos supor duas tabelas simples nessa situação e como ficaria a view gerada corretamente a partir delas:
-
-***Tabela Grupos***
-Campo|Tipo|Tamanho|Descrição
-|:--|:--|:--:|:--|
-id|chave primária|-|-
-ativo|boolean|-|Indica se grupo está ativo ou não
-nome|string|40|Nome do grupo
-
-***Tabela Produtos***
-Campo|Tipo|Tamanho|Descrição
-|:--|:--|:--:|:--|
-id|chave primária|-|-
-idGrupo|chave estrangeira|-|Campo de ligação com a tabela grupos
-ativo|boolean|-|Indica se produto está ativo ou não
-nome|string|40|Nome do produto
-
-<font color='tomato'> **NÃO É NECESSÁRIO EXECUTAR O RESTANTE DE COMANDOS DESSE TÓPICO**</font>
-
-Uma visão reduzida da view dessas tabelas também reduzidas ficaria mais ou menos da seguinte maneira <font color='tomato'>VERSÃO COM PROBLEMAS</font>:
-
-``` sql
-  DROP VIEW IF EXISTS view_conecdata_produtos;
-
-  CREATE VIEW
-    view_conecdata_produtos
-  AS SELECT
-    id AS id_produto,
-    produto AS nome_produto,
-    ativo AS produto_ativo,
-        
-    id AS id_departamento,
-    nome AS nome_departamento,
-    ativo AS ativo_departamento,
-    
-    1 AS id_loja
-  FROM
-    produtos
-  LEFT JOIN
-    grupos ON idGrupo = id;
-```
-
-Esse comando é claramente confuso, uma vez que a maioria dos campos das duas tabelas tem exatamente os mesmos nomes (coisa que os prefixos evitariam), a criação dessa view deveria ser corrigida para o seguinte <font color='green'>VERSÃO SEM PROBLEMAS</font>:
-
-``` 
-
-  DROP VIEW IF EXISTS view_conecdata_produtos;
-
-  CREATE VIEW
-    view_conecdata_produtos
-  AS SELECT
-    produtos.id AS id_produto,
-    produtos.produto AS nome_produto,
-    produtos.ativo AS produto_ativo,
-        
-    grupos.id AS id_departamento,
-    grupos.nome AS nome_departamento,
-    grupos.ativo AS ativo_departamento,
-    
-    1 AS id_loja
-  FROM
-    produtos
-  LEFT JOIN
-    grupos ON idGrupo = produtos.id;
-```
-
-Note que todas as vezes que os nomes dos campos conflitaram entre alguma das tabelas utilizadas na view, foram prefixados pelo nome da tabela para eliminar qualquer confusão.
-
-#### view_conecdata_estoque<a id="integracao-exemplo-criando-views-estoque"></a>
-
-A [view](#glossario-view) de estoque é uma versão extremamente simplificada da produtos e só deve ser utilizada em sua ausência na integração via **ConecSync** (uma vez que a view produtos além de sincronizar os produtos, já sincroniza seu estoque também). Caso tanto a integração de produtos quanto a de estoque seja configurada, a de produtos será executada e a de estoque ignorada.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Para criar a view de estoque, execute o seguinte comando:
-
-``` sql
-  DROP VIEW IF EXISTS view_conecdata_estoque;
-
-  CREATE VIEW
-    view_conecdata_estoque
-  AS SELECT
-    pro_pk AS id_produto,
-    pro_b_estoque AS estoque_controlado,
-    pro_c_barcode AS barcode_produto,
-    pro_c_produto AS nome_produto,
-    '1' AS idLoja,
-    pro_f_qtde_estoque_min AS qtde_estoque_minimo,
-    pro_f_qtde_estoque_loja AS qtde_estoque_atual
-  FROM
-    produtos
-  WHERE
-    pro_b_estoque > 0;
-```
-
-> Na verdade, os campos pro_c_barcode e pro_c_produto não seriam necessários na composição da view (uma vez que a api não os utiliza) e apenas foram incluídos para facilitar a identificação de cada produto na view resultante.
-
-### Configurando modo DB<a id="integracao-exemplo-config-db"></a>
-
-Tendo seguido ou não os exemplos apresentados, você agora deve estar apto a criar as views para as tabelas que serão integradas, agora bastam algumas configurações e todo processo estará completo e pronto para rodar.
-
-#### Configuração geral<a id="integracao-exemplo-config-db-geral"></a>
-
-Como vimos, criamos um database (repositório de banco de dados) e diversas tabelas e views dentro dele. Agora temos que indicar esse database, bem como, diversas outras informações de conexão para o **ConecSync**.
-
-<font color='Orange'>config/config.ts</font>
-
-``` json
-export const CONFIG = {
-  db: {
-    conexao: {
-      host: 'localhost',
-      tabela: 'modelo_conecdata',
-      usuario: 'root',
-      senha: 'senhasecreta',
-      tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
-      /*
-      $ npm install --save pg pg-hstore # Postgres
-      $ npm install --save mysql2
-      $ npm install --save mariadb
-      $ npm install --save sqlite3
-      $ npm install --save tedious # Microsoft SQL Server
-      */
-    },
-  },
-  csv: {
-    path: 'C:\\csvs'
-  },
-  /* 
-    TRUE = plataforma de testes
-    FALSE = plataforma definitiva ( CUIDADO )
-  */
-  sandbox: true,
-  /* 
-    TRUE = Envia mensagens para terminal (se disponível)
-    FALSE = Não envia mensagens, apenas grava em arquivos de log
-  */
-  verbose: true
-}
-```
-
-> Observe que os arquivos de configuração estão repletos de comentários explicando suas propriedades.
-
-Propriedade|Descrição|Requerido
-|:--|:--|:--|
-db.conexao|Credenciais de acesso a seu database de origem|Apenas se houver alguma origem de dados tipo **db**
-csv|Pasta contendo arquivos csv de origem|Apenas se houver alguma origem de dados do tipo **csv**
-sandbox|Flag alternando entre modo desenvolvimento/produção|Sim
-verbose|Habilita exibição de comandos no terminal (se disponível)|Sim
-
-> Quando você se habilita para integração, receberá um token de loja sandbox (modo teste), posteriormente, com sua integração aprovada, você passará a receber tokens de lojas do modo produção (que realmente modificam os valores de lojas reais em funcionamento na plataforma utilizando seu ERP). Essa flag, deve refletir o tipo de token que você vai indicar na configuração específica que será vista mais adiante na documentação, uma vez que os de um modo não funcionam para outro.
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Modifique os seguintes valores em **config.ts**:
->> * Em *db.conexao*, defina a propriedade *db.conexao.tabela* para **modelo_conecdata** (que nós criamos em nosso exemplo) e *db.conexao.tipo* para **mysql**, os demais valores da conexão dependerão de detalhes da instalação de seu gerenciador MySql (ou outro).
->> * Deixe a propriedade *csv* vazia, para desativar a integração via arquivos csv (um exemplo desse modo será explicado mais adiante).
->> * Defina a propriedade *sandbox* para TRUE, indicando estarmos utilizando uma plataforma de testes (depende do tipo de token que você tem para indicar mais adiante).
->> * Defina a propriedade *verbose* para TRUE, enviando os resultados e erros também para tela do terminal (mensagens e erros sempre serão gravados em arquivos para esse fim como veremos em breve).
-
-#### Configurando origens<a id="integracao-exemplo-config-db-origens"></a>
-
-Dentro da pasta **config/origens**, cada arquivo representa uma origem de dados disponível que pode ser configurada individualmente. 
-
-* config/origens/config-produtos.ts
-* config/origens/config-estoque.ts
-* config/origens/config-formas-pgto.ts
-
-Todos arquivos dessa pasta  possuem um formato similar a esse: 
-
-``` json
-// Origens de dados podem ser "views no DB" ou "paths de arquivos CSV"
-export const CONFIG_[NOME_ORIGEM] = {
-  /* Tipo de origem */
-  // Se '' ignora essa origem de dados (não sincroniza).
-  tipo: '', // 'db' | 'csv' | ''
-
-  // Nome da view do cadastro de produtos
-  nomeView: '', // db
-}
-// Aqui vem um exemplo de criação da view dessa [ORIGEM DE DADOS]
-```
-
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Como já vimos anteriormente, quando a integração de *produtos* é configurada, a de *estoque* se torna redundante e desnecessária, logo:
->> * No arquivo *config-produtos.ts*, defina a propriedade *tipo* para **db** e o *nomeView* para **view_conecdata_produtos**.
->> * No arquivo *config-formas-pgto.ts*, defina a propriedade *tipo* para **db** e o *nomeView* para **view_conecdata_formas**.
->> * No arquivo *config-produtos.ts*, defina as propriedade *tipo* e *nomeView* para **strings vazias** (mesmo que as propriedades fossem indicadas, elas seriam ignoradas uma vez que a origem produtos tem prioridade mais alta, se presente.
-
-#### Configurando projetos<a id="integracao-exemplo-config-db-projetos"></a>
-
-Agora que já indicamos as configurações gerais de conexão com o cadastro, já indicamos para cada origem possível, qual view deve ser utilizada (e por omissão, quais não queremos integrar), falta indicar em quais projetos e em quais lojas dentro deles, as modificações detectadas devem ser aplicadas, e como sabemos que isso vai ser feito chamando-se a api de cada projeto, vamos precisar indicar os tokens dessas lojas, pois como vimos, são eles que nos permitem esse tipo de acesso a elas.
-
-Dentro da pasta **config/projetos**, cada arquivo representa um projeto compatível com a integração via **ConecSync** e pode ser configurado individualmente. 
-
-* config/projetos/config-mercadeiro.ts
-
-> Como já foi dito anteriormente, o Mercadeiro é o primeiro projeto da Conecdata compatível com o ConecSync, e à medida que surgirem outros, seus arquivos de configuração serão incluídos na lista acima.
-
- 
-Todos arquivos dessa pasta possuem um formato similar a esse: 
-
-``` json
-export const CONFIG_[NOME_PROJETO] = {
+export const CONFIG_MERCADEIRO = {
   lojas: [
-    /*
-    Você deve indicar quantas lojas quiser sincronizar conforme o exemplo abaixo:
     {
       id: ID_LOJA_NO_SEU_CADASTRO,
-      token: TOKEN_PROJETO_LOJA_CORRESPONDENTE
+      token: TOKEN_MERCADEIRO_LOJA_CORRESPONDENTE
+    },
+    {
+      id: ID_OUTRA_LOJA_NO_SEU_CADASTRO,
+      token: TOKEN_MERCADEIRO_LOJA_CORRESPONDENTE
     },
     ...
-    OBS: Uma array vazia ignora sincronização com esse projeto.
-    */
-    {
-      id: '1',
-      token: 'ZXlKaGJHY2lPaUpJVXpJMU5pSXNJUN0Ylo2WDltQ3NzVUNhYUM1Yk9ZbngxMW5v...'
-    }
   ]
 }
 ```
 
-> Conforme explicado pelos comentários, para ignorar um projeto, basta deixar sua array de lojas vazia.
+> Em caso de suspeita de utilização indevida de um token de loja, a integradora ou o lojista podem solicitar à Conecdata a **revogação** do token atual. Ao ser revogado, o token deixa de ser válido e todas suas referências deixam de funcionar e devem ser substituídas pelo novo token. O novo token pode ser acessado pelo modo lojistas apenas por integradoras e agentes locais da Conecdata.
 
-> <font color='SteelBlue'> **Acompanhando o exemplo DB**</font>
-> Ao iniciar o processo de integração com a conecdata você terá recebido um token de loja para testes.
->> Indique na array *lojas* o id da loja em seu cadastro junto desse token para relacionar as origens que serão lidas dela, com a loja na plataforma que ele representa.
->
-> Posteriormente, após todos os testes realizados, quando receber tokens de lojas de produção, basta relacioná-los aqui, juntamente com os ids de suas respectivas lojas e mudar a flag *sandbox* em *config.ts* para FALSE.
+> Quando uma API é chamada sem um token de loja ou com um token inválido, é retornado um erro de **Acesso negado**. Já foi citado anteriormente que tokens de lojas são diferentes entre o modo produção e sandbox, e a configuração do modo do script com um tipo (no arquivo config.ts) e a indicação de outro nessa lista gerará erros quando o script usá-los para chamar as apis.
 
- 
-Bom, é isso, nosso exemplo de banco de dados foi criado, geramos suas tabelas, views, configuramos o **ConecSync** corretamente, e agora repetiremos todo processo de exemplo, só que dessa vez para arquivos .csv. Antes de aprendermos como eles funcionam, é recomendável testarmos o que foi feito até agora, para isso, salte para o tópico Testando sua integração, e depois volte e continue no tópico abaixo caso se interesse em aprender a lidar com a sincronização via arquivos, que permitirão que você utilize gerenciadores SQL não compatíveis com o **ConecSync** bem como, bancos de dados NoSql, cujos cadastros ele não lê diretamente (pelo menos por enquanto).
+# 9 - Diversidades<a id="diversidades"></a>
 
-## Integração modelo CSV<a id="configuracao-integracao-modelo-csv"></a>
+## Arquivos de log<a id="arquivos_log"></a>
 
-# Testando sua integração
+> A cada execução do script, novas linhas são adicionadas no final dos arquivos de log. Eles podem ser apagados sem risco de causar problemas ao funcionamento do script.
 
-Ao iniciar o processo de integração de seu [ERP](#glossario-erp) com a [Conecdata](#glossario-conecdata), você terá acesso a uma loja exclusiva na versão sandbox de cada plataforma de testes que queira integrar. Até aqui, aprendemos a configurar as origens de dados e as plataformas que desejamos, agora falta ver isso na prática, vamos lá.
+#### PASTA_SCRIPT/ok.log<a id="ok_log"></a>
 
-> Vamos utilizar a loja *Modelo* do projeto *Mercadeiro* como exemplo, você deve utilizar a loja e a plataforma a que tem acesso e que tenha colocado nas configurações.
+**Arquivo `PASTA_SCRIPT/ok.log`**
+```
+2021-04-10 16:14:18 INTEGRAÇÃO DE PRODUTOS ENCONTRADA. IGNORANDO INTEGRAÇÃO DE ESTOQUE: config/origens/config-estoque.ts: tipo
+2021-04-10 16:14:18 Verificando integração ESTOQUE.
+2021-04-10 16:14:18 Verificando integração PRODUTOS_PROMOCOES.
+2021-04-10 16:14:18 Encontrado: view_conecdata_produtos_promocoes
+2021-04-10 16:14:18 Buscando produtos do DB.
+2021-04-10 16:14:18 {"estoque":{"total":0,"sincronizados":0}}
+2021-04-10 16:14:18 Verificando promoções.
+2021-04-10 16:14:18 Encontrado: view_conecdata_promocoes
+2021-04-10 16:14:18 Buscando promoções do DB.
+2021-04-10 16:14:18 3 promoções encontrada(s).
+2021-04-10 16:14:18 Sincronizando promoções.
+2021-04-10 16:14:18 {"estoque":{"total":0,"sincronizados":0}}
+2021-04-10 16:14:18 Verificando integração FORMAS PGTO.
+2021-04-10 16:14:18 Encontrado: view_conecdata_formas
+2021-04-10 16:14:18 Buscando formas pgto do DB.
+2021-04-10 16:14:18 24 formas(s) pgto encontrada(s).
+2021-04-10 16:14:18 Sincronizando formas pgto.
+2021-04-10 16:14:37 {"formas":{"total":24,"sincronizados":24}}
+2021-04-10 16:14:37 {"produtos":{"total":71,"sincronizados":0},"departamentos":{"total":12,"sincronizados":0},"subdepartamentos":{"total":2,"sincronizados":0},"formas":{"total":24,"sincronizados":24},"produtosPromocoes":{"total":0,"sincronizados":0},"promocoes":{"total":3,"sincronizados":0},"estoque":{"total":0,"sincronizados":0}}
+```
 
-Acesse [a versão sandbox do site Mercadeiro](https://sandbox.mercadeiro.com.br/) e vá até a loja que esteja usando como teste de integração.
+> Dependendo da configuração da propriedade { verbose: BOOLEAN } no arquivo `config.ts` essas informações podem também ser exibidas ou não no terminal durante a execução do script.
 
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fmarketplace_departamentos_empty.jpg?alt=media)
+#### PASTA_SCRIPT/errors.log<a id="errors_log"></a>
 
-> Como você pode ver, inicialmente, não temos nenhum departamento (e consequente nenhum subdepartamento ou produto) na loja.
+**Arquivo `PASTA_SCRIPT/errors.log`**
+```
+2021-04-10 16:14:15 Produto 21389: 500 - {"error":"geral","errors":{"geral":"Produto não consta no banco de produtos."}}
+2021-04-10 16:14:16 Produto 21390: 500 - {"error":"geral","errors":{"geral":"Produto não consta no banco de produtos."}}
+2021-04-10 16:14:17 Produto 21702: 500 - {"error":"geral","errors":{"geral":"Produto não consta no banco de produtos."}}
+2021-04-10 16:14:17 Produto 21703: 500 - {"error":"geral","errors":{"geral":"Produto não consta no banco de produtos."}}
+2021-04-10 16:14:18 Produto 21954: 500 - {"error":"geral","errors":{"geral":"Produto não consta no banco de produtos."}}
+2021-04-10 16:14:18 Produto 21955: 500 - {"error":"geral","errors":{"geral":"Produto não consta no banco de produtos."}}
+```
 
-No ambiente de testes (modo sandbox), de posse do token de loja, você pode resetar qualquer origem de dados (eliminar todos dados relativos à essa origem) em sua loja de testes para praticar a integração. Para ver como fazer isso, procure o endpoint *reset* na documentação da api da plataforma que esteja integrando (Mercadeiro no nosso exemplo).
+## Hashes<a id="hashes"></a>
+Para evitar chamadas desnecessárias às apis, cada vez que o script consegue acioná-la com sucesso, um **hash** do objeto enviado é gravado. Toda vez que uma informação é lida de uma origem, um hash do novo objeto gerado a partir de seus dados é comparado com seu hash anterior, um novo chamado à api só é acionado caso eles sejam diferentes. Excluindo esse registro (hash) de um registro, você força uma nova chamada incondicional à api.
 
-Para executar o **ConecSync**, basta entrar na pasta do projeto e executar o seguinte comando:
- `npm start`
+Esses hashes, são armazenados dentro da pasta `PASTA_SCRIPT/lojas/`, separados em pastas com o **id de cada loja**, em arquivos (com a extensão.NeDB) com o nome de cada **origem de dados**.
 
-Quando está rodando no terminal e com a flag *verbose* TRUE no arquivo *config.ts*, os resultados dos comandos (sucessos ou erros) serão exibidos no terminal.
+**exemplo `PASTA_SCRIPT/lojas/1/formas-pgto.NeDB`**
+```json
+{"id":1,"hash":"a775bd17b121bfec174aa449ff4b8cf625a091a6","_id":"2rMzVsKS8QwEsAAk"}
+{"id":2,"hash":"f974a2c10dff627fb5d23d934410d9b0a5a3784a","_id":"ggQ9dl2wkBE0DVzl"}
+{"id":3,"hash":"9436614fb8db85c8dbc54a4100c5006ecb8db33e","_id":"79KOyl8sSxiy4OOx"}
+{"id":4,"hash":"d583c1ec1ca5970ee2d973a69a788a429b52cfe0","_id":"qp3Jo0rIlQJl0Fxr"}
+{"id":5,"hash":"d2cdc34e8b5e2d2afc7db8c57c98407b2c87365b","_id":"Smm6SNoStZsdKai5"}
+{"id":6,"hash":"417e446511f94336c648145279be382f2a13be4f","_id":"7WdLQZ587DKJvF4o"}
+{"id":7,"hash":"39cc59c3811d968ec655100ff4bb173965b33318","_id":"bGuFwokQNsYAIX0R"}
+{"id":8,"hash":"bf90c116195b5c038c2e31a98804ff66eaeb95cc","_id":"7yU4PYRjiK3KzVlk"}
+{"id":9,"hash":"062843239ca8fda12714854f55176d97a7adf74e","_id":"7q0Iqi4G71yNpUz9"}
+{"id":10,"hash":"646eeb6f51ba35374b1c961f1bbb5e8116a634df","_id":"tdV0XQzgGe2EqHK8"}
+{"id":11,"hash":"3b696a80423bceea6cf1f03fac66563352ab1c83","_id":"VhRdHXWzkKXFWNGp"}
+{"id":12,"hash":"8aa4d5b1bd7f0a4274583b64852495bf8e38d732","_id":"mE9J77Va9VlaK2XX"}
+{"id":13,"hash":"f2facc8ea416804405ac479c871f6124e9d9f53b","_id":"r0rVm4CLvaHi2ulZ"}
+{"id":14,"hash":"658d8891e605db9144dec236c6658384b58cd1c7","_id":"rkaU5ljK9JWx5k66"}
+{"id":15,"hash":"ecf2c1fb0a6594033d977f435d5bea70a07dfccf","_id":"bYm7h5fLoCJzUDCI"}
+{"id":16,"hash":"390d47c9a9416cce46751220e5fdb0281a452dcd","_id":"xM0DjTvxnyiGSrXr"}
+{"id":17,"hash":"32b941bb258707635af634c09a48f0c5c1c64137","_id":"sWz06s8ytlP1Dsdt"}
+{"id":18,"hash":"aa4c5fb011cf612f65b5f6bee28edcb3359ae90b","_id":"m05Dmx4jfotiyQn8"}
+{"id":19,"hash":"0bd0ea387e494977cc3796543d0b4f69fedcf9a0","_id":"f9PCLvaOg1JqpOul"}
+{"id":20,"hash":"3c032cb4c87b9be104c97fd1e13703609fc78de9","_id":"ocGX6Ekqe8zG2dFv"}
+{"id":21,"hash":"8967eb3a26dfeb2299631d91dd1558bd75d9ff51","_id":"0AtmzbDgvw31y3f9"}
+{"id":22,"hash":"5da63e8dfadaa4246df9093c9309140167b6e80b","_id":"vHrPTwE7PlbqSCv0"}
+{"id":23,"hash":"9c9aa3a48bb80710777faaaf495732b0b63fd4e0","_id":"oXE6Aj79uiVmHL6u"}
+{"id":24,"hash":"dbc099fbecadca5ab475dafac2c73a979e6d1add","_id":"vIXZFwLzxiv8vuz2"}
+```
+> Para forçar novas chamadas à api independente de seu conteúdo atual, você pode apagar hashes em diversos níveis:
 
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fnpm_start_verbose.jpg?alt=media)
-
-A exibição dos comandos no terminal é opcional, entretando todo resultado do processamento de uma execução do script SEMPRE é gravado nos seguintes arquivos.
-
-Arquivo|Descrição
+Excluindo|Apis que serão acionadas incondicionalmente na próxima execução do script|
 |:--|:--|
-ok.log|Arquivo contendo resultados da execução do script.
-errors.log|Arquivo contendo erros ocorridos durante execução do script.
+Linhas dentro de um arquivo de hash|De registros correspondentes a essas linhas.|
+Um arquivo de hash|De registros correspondentes a essa origem.|
+Uma pasta de arquivos de hash|De registros de todas origens dessa loja.|
+A pasta lojas|De registros de todas origens de todas lojas.|
 
-<font color='Orange'>ok.log</font>
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fok_log.jpg?alt=media)
+> Excluir linhas/arquivos/pastas dentro da (ou a própria) pasta **lojas** não geram erros de execução do script, apenas forçam o envio das informações correspondentes aos itens excluídos.
 
-<font color='Orange'>errors.log</font>
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Ferrors_log.jpg?alt=media)
+## Resetando origens<a id="resetando_origens"></a>
+O resultado da execução do script pode ser acompanhado no próprio site do projeto, ou em sua loja dentro de módulo lojistas, entretanto nenhum desses locais permite que você elimine as informações recebidas via integração.
 
-> Esses erros não são dessa execução do script e só foram exibidos como exemplo para seu formato.
+As informações correspondentes à uma origem podem ser excluídas acionando o endpoint **reset** de cada api (consulte as documentações específicas para maiores detalhes).
 
-Após uma execução bem sucedida do script, as informações lidas de suas origens (sejam db ou csv) estarão implementadas no site. 
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fmarketplace_departamentos_full.jpg?alt=media)
+#### Tags para reset das origens<a id="tags_reset_origens"></a>
+Origem|Tag origem|Resultado|
+|:--|:--|:--|
+Estoque|estoque|Todos produtos da loja tem seu estoque regularizado.|
+Formas pagamento|formas-pgto|Formas de pagamento da loja são excluídas.|
+Produtos|produtos|Departamentos, subdepartamentos e produtos da loja são excluídos.|
+Promoções|promocoes|Promoções da loja são excluídas.|
 
-> Os departamentos foram sincronizados com os grupos na origem produtos. Note que não atribuimos nenhum subgrupo aos produtos e consequentemente nenhum subdepartamento foi gerado.
+> Apenas origens do modo sandbox podem ser resetadas, em hipótese nenhuma dados em lote do modo produção podem ser excluídos por meio de chamadas à api (diretas ou indiretas via o ConecSync).
 
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fdepartamento_bebidas.jpg?alt=media)
-
-> Os produtos foram distribuídos dentro dos departamentos correspondentes em seus cadastros.
-
-![](https://firebasestorage.googleapis.com/v0/b/midia-dbd27.appspot.com/o/conecsync%2Fformas_pgto_empty.jpg?alt=media)
-
-> As formas de pagamento também foram importadas, entretando elas devem ser atribuídas a tipos específicos de recebimento (retirada, entrega e/ou online) para serem exibidas no site.
-
-Após a primeira execução do script, algumas novas pastas serão criadas, são elas:
-
-Pasta|Descrição
-|:--|:--|
-/dist|Pasta contendo versão "compilada" do **ConecSync**.
-/lojas|Pasta contendo hashes para monitoramento de modificações nos cadastros.
-
-Os códigos fontes (na pasta /src) em linguagem typescript utilizada para criação do script, são transpilados (algo como interpretados), o que quer dizer que são convertidos para outros códigos fontes (dessa vez em javascript) para que estejam prontos para execução. O resultado desse processo é gravado na pasta /dist.
-
-A pasta /lojas contém os hashes de todos registros de todas lojas da última execução do script, e serão utilizados na próxima vez que ele rodar, para determinar quais registros foram modificados e só executar chamadas às apis dos projetos dos que precisam ser sincronizados, dessa forma as execuções do **ConecSync** se tornam extremamente rápidas uma vez que só comunicam as modificações ocorridas, o que reduz o tempo e ocupação da rede sem prejuízo ao processo. Se você apagar essa pasta (ou algo dentro dela), os hashes que não forem encontrados serão criados e suas chamadas de api correspondentes executadas.
-
-# Glossário
-
-Antes de mais nada, vamos esclarecer alguns termos, necessários, que surgirão constantemente no decorrer dessa documentação:
-
-## API<a id="glossario-api"></a>
-
-É um mecanismo de comunicação entre dois programas distintos.
-
-## CLI<a id="glossario-cli"></a>
-
-É uma interface que pode ser acionada por meio de um comando em um terminal de seu sistema operacional.
-
-## Conecdata<a id="glossario-conecdata"></a>
-
-É a softhouse desenvolvedora do **ConecSync** e dos projetos compatíveis com ele, alguns deles, que permitem sincronização (integração) com [ERPs](#glossario-erp) desenvolvidos por softhouses parceiras (aka [integradoras](#glossario-integradoras)).
-
-## CSV<a id="glossario-csv"></a>
-
-São arquivos texto puro utilizados para compartilhamento de informações, em que os valores em cada linha são separados por um delimitador (normalmente uma vírgula, mas no nosso caso um ponto e vírgula).
-
-## ERP<a id="glossario-erp"></a>
-
-É o programa que o lojista já usa para administrar sua empresa, desenvolvido por uma softhouse (aka [integradora](#glossario-integradoras)) parceira da [Conecdata](#glossario-conecdata).
-
-> A integração do ERP com algum de nossos projetos evita o retrabalho de realizar modificações de dados em ambas plataformas, uma vez que o ERP comunica automaticamente suas modificações para nossos projetos.
-
-## Integradores ou integradoras<a id="glossario-integradoras"></a>
-
-Integradores/integradoras são empresas desenvolvedoras de softwares [ERPs](#glossario-erp) de mercados ou supermercados, que se comunicam com alguma de nossas plataformas, por qualquer um dos modos descritos nessa documentação, permitindo a integração de seus dados. 
-
-> Para que um lojista possa utilizar alguma de nossas plataformas compatíveis com o **ConecSync**, é essencial que a desenvolvedora de seu sistema (integradora) realize a integração de seu ERP conosco.
-
-## Tokens de loja<a id="glossario-tokens-loja"></a>
-
-Podemos entender os tokens de loja, como sendo chaves de acesso às [apis](#glossario-api) de projetos da [Conecdata](#glossario-conecdata) compatíveis com o **ConecSync**. 
-Esses tokens tem as seguintes características:
-
-* São exclusivos para um [integrador](#glossario-integrador), ou seja, tokens para [ERPs](#glossrio-erp) do **integrador A** não servem para outros do **integrador B**.
-* São exclusivos para uma loja, ou seja, tokens da **loja A** não servem para a **loja B**.
-* São exclusivos para um projeto, ou seja, tokens do **projeto A** não servem para o **projeto B**. 
-* São exclusivos do modo de distribuição, ou seja, tokens de **modo sandbox** não funcionam para **modo produção**.
-* São revogáveis, ou seja, o **integrador** pode invalidar os tokens vigentes e gerar outros que os substituam, sempre que quiser.
-
-> Para integração via api, o próprio lojista indicará seu token de loja para cada projeto em seu ERP. Em caso de integração via script, o integrador indicará os mesmos tokens, em áreas específicas de configuração do **ConecSync**.
-
-## Views<a id="glossario-views"></a>
-
-Uma **view** é uma maneira alternativa de observação de dados de uma ou mais entidades (tabelas), que compõem uma base de dados. Pode ser considerada como uma tabela virtual ou uma consulta armazenada.
-
-> Optamos por utilizar views por diversos motivos, elas podem reunir dados de mais de uma tabela facilmente, por serem uma visão paralela dos dados, podem ter configurações específicas de segurança atribuídas especificamente à ela, entre outros.
-
-
-
-# Propósito
-
-*  [Origens de dados](#proposito-origens-dados)
-*  [Leitura direta do banco de dados](#proposito-db)
-*  [Importação de arquivos CSV](#modos-csv)
-*  [Acesso API x ConecSync](#proposito-api_x_conecsync)
-
-# Detalhes origens
-
-*  [Produtos](#detalhes-origens-produtos)
-*  [Estoque](#detalhes-origens-estoque)
-*  [Formas pagamento](#detalhes-origens-formas-pgto)
-*  [Promoções](#detalhes-origens-promocoes)
-*  [Produtos promoções](#detalhes-origens-produtos-promocoes)
-
-# Modos de integração
-
-*  [Modo api](#modos-modo-api)
-*  [Modo script](#modos-modo-script)
-*  [Modo mixto](#modos-modo-mixto)
-
-# Projetos compatíveis
-
-*  [Mercadeiro](#projetos-mercadeiro)
-
-# Origens
-
-*  [Acesso direto ao banco de dados](#origens-origem-acesso-direto-db)
-*  [Leitura de arquivos CSV](#origens-origem-leitura-arquivos-csv)
-
-# Instalação
-
-*  [Instalação NodeJs](#instalacao-nodejs)
-*  [Copiando o script ConecSync](#instalacao-copiando-script-conecsync)
-*  [Estrutura da pasta do ConecSync](#instalacao-estrutura-pasta-conecsync)
-*  [Instalando dependências](#instalacao-instalando-dependencias)
-
-# Seguindo a integração de exemplo
-
-*  [Integração modelo DB](#integracao-exemplo-integracao-modelo-db)
-  +  [Criando o banco de dados](#integracao-exemplo-criando-db)
-  +  [Criando as tabelas modelo](#integracao-exemplo-criando-tabelas)
-    -  [Tabela grupos](#integracao-exemplo-criando-tabelas-grupos)
-    -  [Tabela subgrupos](#integracao-exemplo-criando-tabelas-subgrupos)
-    -  [Tabela produtos](#integracao-exemplo-criando-tabelas-produtos)
-    -  [Tabela formas pgto](#integracao-exemplo-criando-tabelas-formas-pgto)
-  +  [Criando as views](#integracao-exemplo-criando-views)
-    -  [view_conecdata_formas](#integracao-exemplo-criando-views-formas)
-    -  [view_conecdata_produtos](#integracao-exemplo-criando-views-produtos)
-    -  [view_conecdata_estoque](#integracao-exemplo-criando-views-estoque)
-  +  [Configurando modo DB](#integracao-exemplo-config-db)
-    -  [Configuração geral](#integracao-exemplo-config-db-geral)
-    -  [Configurando origens](#integracao-exemplo-config-db-origens)
-    -  [Configurando projetos](#integracao-exemplo-config-db-projetos)
-*  [Integração modelo CSV](#integracao-exemplo-integracao-modelo-csv)
-
-# Testando sua integração
-
-*  [Linux](#executando-script-linux)
-
-# Executando o script
-
-*  [Linux](#executando-script-linux)
-*  [Windows](#executando-script-windows)
-
-# Anexos
-
-### Glossário
-
-*  [API](#glossario-api)
-*  [CLI](#glossario-cli)
-*  [Conecdata](#glossario-conecdata)
-*  [CSV](#glossario-csv)
-*  [ERP](#glossario-erp)
-*  [Integradores ou integradoras](#glossario-integradoras)
-*  [Tokens de loja](#glossario-tokens-loja)
-*  [Views](#glossario-views)

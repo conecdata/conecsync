@@ -2,7 +2,7 @@
 export const CONFIG_PRODUTOS = {
   /* Tipo de origem */
   // Se '' ignora essa origem de dados (não sincroniza).
-  tipo: '', // 'fb', 'db' | 'csv' | ''
+  tipo: 'db', // 'fb', 'db' | 'csv' | ''
 
   // Nome da view do cadastro de produtos de promoções
   nomeView: 'view_conecdata_produtos', // db/fb
