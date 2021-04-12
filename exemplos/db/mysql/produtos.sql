@@ -163,11 +163,13 @@ AS SELECT
   
   pro_b_ativo AS ativo_produto,
   
-  pro_b_online AS online,
+  pro_b_online AS online_produto,
   
   pro_c_descricao AS descricao_produto,
 
   pro_b_destaque AS destaque,
+  
+  1 AS online_departamento,
   
   1 AS id_loja
 FROM
