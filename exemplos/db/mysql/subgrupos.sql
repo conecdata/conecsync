@@ -13,3 +13,5 @@ ALTER TABLE subgrupos MODIFY sub_pk int(11) NOT NULL AUTO_INCREMENT;
 INSERT INTO subgrupos (sub_pk, sub_c_subgrupo, sub_b_ativo) VALUES
 (1, 'Sub 1', 1),
 (2, 'Sub 2', 1);
+
+// Incluída na view 'produtos'

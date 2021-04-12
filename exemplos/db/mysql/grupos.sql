@@ -16,3 +16,5 @@ INSERT INTO grupos (gru_pk, gru_b_ativo, gru_c_grupo) VALUES
 (3, 1, 'Açougue'),
 (4, 1, 'Cereais'),
 (5, 1, 'Enlatados');
+
+// Incluída na view 'produtos'

@@ -19,9 +19,9 @@ export const PRODUTOS_REQ_FIELDS: string[] = [
   'nome_produto', // STRING
   'nome_subdepartamento', // STRING
   'percentual_limite_venda', // INTEGER/FLOAT
-  'pesavel_fracao', // FLOAT
-  'pesavel_status', // BOOLEAN
-  'pesavel_tipo', // STRING
+  'fracionado_fracao', // FLOAT
+  'fracionado_status', // BOOLEAN
+  'fracionado_tipo', // STRING
   'preco_venda', // FLOAT
   'online_departamento', // BOOLEAN
   'online_produto', // BOOLEAN
@@ -185,17 +185,17 @@ export const CAMPOS_PRODUTOS: any = {
     type: DataTypes.BOOLEAN,
     field: 'ativo_subdepartamento'
   },
-  pesavel_status: {
+  fracionado_status: {
     type: DataTypes.BOOLEAN,
-    field: 'pesavel_status'
+    field: 'fracionado_status'
   },
-  pesavel_fracao: {
+  fracionado_fracao: {
     type: DataTypes.DECIMAL,
-    field: 'pesavel_fracao'
+    field: 'fracionado_fracao'
   },
-  pesavel_tipo: {
+  fracionado_tipo: {
     type: DataTypes.STRING,
-    field: 'pesavel_tipo'
+    field: 'fracionado_tipo'
   },
   destaque: {
     type: DataTypes.BOOLEAN,

@@ -4,8 +4,8 @@ CREATE TABLE formas_pgto (
   fpg_pk int(11) NOT NULL,
   fpg_c_forma varchar(40) CHARACTER SET utf8 DEFAULT NULL,
   fpg_c_legenda varchar(40) CHARACTER SET utf8 DEFAULT NULL,
-  fpg_c_id_externo varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  fpg_c_id_externo varchar(40) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE formas_pgto ADD PRIMARY KEY (fpg_pk);
 
@@ -15,10 +15,10 @@ INSERT INTO formas_pgto (fpg_pk, fpg_c_forma, fpg_c_legenda, fpg_c_id_externo) V
 (1, 'Dinheiro', 'Dinheiro', 'dinheiro'),
 (2, 'Debito - Elo', 'Débito', 'debito_elo'),
 (3, 'Debito - Maestro', 'Débito', 'debito_maestro'),
-(4, 'Debito - Redeshop', 'Débito', NULL),
-(5, 'Debito - Visa Electron', 'Débito', NULL),
+(4, 'Debito - Redeshop', 'Débito', 'debito_redeshop'),
+(5, 'Debito - Visa Electron', 'Débito', 'debito_visa',
 (6, 'Credito - American express', 'Crédito', 'credito_amex'),
-(7, 'Credito - Diners', 'Crédito', NULL),
+(7, 'Credito - Diners', 'Crédito', 'credito-diners'),
 (8, 'Credito - Elo', 'Crédito', 'credito_elo'),
 (9, 'Credito - Hipercard', 'Crédito', 'credito_hipercard'),
 (10, 'Credito - Mastercard', 'Crédito', 'credito_mastercard'),
@@ -35,5 +35,20 @@ INSERT INTO formas_pgto (fpg_pk, fpg_c_forma, fpg_c_legenda, fpg_c_id_externo) V
 (21, 'ValeCard - Alimentacao', 'Alimentação', 'valecard_alimentacao'),
 (22, 'ValeCard - Refeicao', 'Refeição', 'valecard_refeicao'),
 (23, 'Visa - Vale', 'Visa Vale', 'visa_vale'),
-(24, 'Voucher', 'Voucher', 'voucher'),
-(25, 'Desconto', 'Desconto', NULL);
+(24, 'Voucher', 'Voucher', 'voucher');
+
+DROP VIEW IF EXISTS view_conecdata_formas;
+
+CREATE VIEW
+  view_conecdata_formas
+AS SELECT
+  fpg_pk AS id_interno,
+  fpg_c_forma AS nome_forma,
+  fpg_c_id_forma_conecdata AS id_externo,
+  1 AS id_loja,
+  1 AS forma_ativa
+FROM
+  formas_pgto
+WHERE
+  fpg_c_id_forma_conecdata IS NOT NULL;
+  

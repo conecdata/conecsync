@@ -311,9 +311,9 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               nome_produto: -1,
               nome_subdepartamento: -1,
               percentual_limite_venda: -1,
-              pesavel_fracao: -1,
-              pesavel_status: -1,
-              pesavel_tipo: -1,
+              fracionado_fracao: -1,
+              fracionado_status: -1,
+              fracionado_tipo: -1,
               preco_venda: -1,
               ativo_produto: -1,
               qtde_estoque_atual: -1,
@@ -456,17 +456,17 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                       'online': FIELDPOS['online'] >= 0
                         && parseInt(ROW[FIELDPOS['online']] || '') > 0,
 
-                      'pesavel_status': FIELDPOS['pesavel_status'] >= 0
-                        && parseInt(ROW[FIELDPOS['pesavel_status']] || '') > 0,
+                      'fracionado_status': FIELDPOS['fracionado_status'] >= 0
+                        && parseInt(ROW[FIELDPOS['fracionado_status']] || '') > 0,
 
                       'percentual_limite_venda': FIELDPOS['percentual_limite_venda'] >= 0
                         && parseFloat(ROW[FIELDPOS['percentual_limite_venda']] || ''),
 
-                      'pesavel_fracao': FIELDPOS['pesavel_fracao'] >= 0
-                        && parseFloat(ROW[FIELDPOS['pesavel_fracao']] || ''),
+                      'fracionado_fracao': FIELDPOS['fracionado_fracao'] >= 0
+                        && parseFloat(ROW[FIELDPOS['fracionado_fracao']] || ''),
 
-                      'pesavel_tipo': FIELDPOS['pesavel_tipo'] >= 0
-                        && `${ROW[FIELDPOS['pesavel_tipo']].trim()}`,
+                      'fracionado_tipo': FIELDPOS['fracionado_tipo'] >= 0
+                        && `${ROW[FIELDPOS['fracionado_tipo']].trim()}`,
 
                       'descricao_produto': FIELDPOS['descricao_produto'] >= 0
                         && `${ROW[FIELDPOS['descricao_produto']].trim()}`,

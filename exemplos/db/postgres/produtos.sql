@@ -12,10 +12,10 @@ CREATE TABLE public.produtos (
   pro_c_barcode varchar(20) NULL DEFAULT NULL::character varying,
   pro_c_descricao varchar(60) NULL DEFAULT NULL::character varying,
   pro_c_img varchar(60) NULL DEFAULT NULL::character varying,
-  pro_c_pesavel_tipo varchar(5) NULL DEFAULT NULL::character varying,
+  pro_c_fracionado_tipo varchar(5) NULL DEFAULT NULL::character varying,
   pro_c_produto varchar(60) NULL DEFAULT NULL::character varying,
   pro_f_perc_limite_venda numeric(10,2) NULL DEFAULT 0,
-  pro_f_pesavel_fracao numeric(10,2) NULL DEFAULT 0,
+  pro_f_fracionado_fracao numeric(10,2) NULL DEFAULT 0,
   pro_f_preco numeric(10,2) NULL DEFAULT 0,
   pro_f_qtde_atacado numeric(10,2) NULL DEFAULT 0,
   pro_f_qtde_estoque_loja numeric(10,2) NULL DEFAULT 0,
@@ -29,7 +29,7 @@ CREATE TABLE public.produtos (
 
 ALTER TABLE public.produtos ADD CONSTRAINT produtos_pk PRIMARY KEY (pro_pk);
 
-INSERT INTO public.produtos (pro_fk_grupo,pro_fk_subgrupo,pro_b_ativo,pro_b_balanca,pro_b_destaque,pro_b_estoque,pro_b_favorito,pro_b_fracionado,pro_b_industrializado,pro_c_barcode,pro_c_descricao,pro_c_img,pro_c_pesavel_tipo,pro_c_produto,pro_f_perc_limite_venda,pro_f_pesavel_fracao,pro_f_preco,pro_f_qtde_atacado,pro_f_qtde_estoque_loja,pro_f_qtde_estoque_min,pro_f_qtde_limite_venda,pro_f_valor_atacado,pro_i_cod) VALUES 
+INSERT INTO public.produtos (pro_fk_grupo,pro_fk_subgrupo,pro_b_ativo,pro_b_balanca,pro_b_destaque,pro_b_estoque,pro_b_favorito,pro_b_fracionado,pro_b_industrializado,pro_c_barcode,pro_c_descricao,pro_c_img,pro_c_fracionado_tipo,pro_c_produto,pro_f_perc_limite_venda,pro_f_fracionado_fracao,pro_f_preco,pro_f_qtde_atacado,pro_f_qtde_estoque_loja,pro_f_qtde_estoque_min,pro_f_qtde_limite_venda,pro_f_valor_atacado,pro_i_cod) VALUES 
 (1,0,true,false,false,true,false,false,true,'7896020417149','','',NULL,'THREE BOND 2G TRADICIONAL',0.00,0.00,2.00,0.00,0.00,0.00,0.00,0.00,416)
 ,(1,0,true,false,false,true,false,false,true,'7891132007486','','',NULL,'VONO SOPA MILHO C/FRANGO 15G',0.00,0.00,2.25,0.00,0.00,0.00,0.00,0.00,15257)
 ,(1,0,true,false,false,true,false,false,true,'7896007912124','','',NULL,'FOSFORO FIAT LUX',0.00,0.00,3.50,0.00,0.00,0.00,0.00,0.00,1362)

@@ -38,7 +38,7 @@
       * [Atacado](#atacado)
       * [Produtos industrializados](#produtos_industrializados)
       * [Produtos em destaque](#produtos_destaque)
-      * [Produtos pesáveis](#produtos_pesaveis)
+      * [Produtos fracionados](#produtos_fracionados)
       * [Limitando a quantidade no pedido](#limitando_qtde)
     * [Origem Estoque](#origem_estoque)
     * [Controlando a disponibilidade dos produtos pela API](#controlando_disponibilidade_api)## Origem * * * [Origem Formas pagamento](#origem_formas_pgto)
@@ -237,7 +237,7 @@ Produtos promoções|Produtos presentes em cada promoção.|Origem **Promoções
 > Leia o capítulo [Detalhes de origens de dados](#detalhes_origens_dados) para maiores detalhes de cada origem.
 
 ## O que são projetos<a id="o_que_sao_projetos"></a>
-Agora que sabemos que as origens de dados são as informações que queremos ler, podendo assim considerá-las uma **origem**, essa leitura serã feita com intenção de gravá-las em um ou mais lugares, ou seja algum **destino**.
+Agora que sabemos que as origens de dados são as informações que queremos ler, podendo assim considerá-las uma **origem**, essa leitura será feita com intenção de gravá-las em um ou mais lugares, ou seja algum **destino**.
 
 Esse destino ou destinos, são exatamente os projetos da Conecdata com apis de integração compatíveis com o ConecSync. Mais especificamente gravaremos essas origens dentro de lojas de um ou mais desses projetos.
 
@@ -427,10 +427,10 @@ nome_produto|Nome do produto.|String|Se **barcode** = ''.|<font color='MediumSea
 nome_subdepartamento|Nome do subdepartamento.|String|Se **id_subdepartamento** indicado.|<font color='MediumSeaGreen'>Default **''**.</font>
 online_departamento|Status disponibilidade do departamento online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
 online_produto|Status de disponibilidade do produto online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
-pesavel_status|Status condição pesável do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
+fracionado_status|Status condição pesável do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
 percentual_limite_venda|% máximo do estoque disponível permitido para compra.|Número|Não|>= 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0** (desativado).</font>
-pesavel_fracao|Qtde adicionada/removida do produto por vez.|Número|Se **pesavel_status** true.| > 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
-pesavel_tipo|Unidade de pesagem do produto.|String|Se **pesavel_status** true.|'K', 'KG', 'G', 'GR', 'L', 'LT', 'ML', 'M' ou 'CM'.<br><font color='MediumSeaGreen'>Default **''**.</font>
+fracionado_fracao|Qtde adicionada/removida do produto por vez.|Número|Se **fracionado_status** true.| > 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
+fracionado_tipo|Unidade de fracionamento do produto.|String|Se **fracionado_status** true.|'K', 'KG', 'G', 'GR', 'L', 'LT', 'ML', 'M' ou 'CM'.<br><font color='MediumSeaGreen'>Default **''**.</font>
 preco_venda|Preço normal do produto.|Número|**SIM**| > 0.
 qtde_estoque_atual|Qtde atual no estoque.|Número|Se **estoque_controlado** true.|-
 qtde_estoque_minimo|Disponibilidade mínima do produto para status regular de estoque.|Número|Se **estoque_controlado** true.|>= 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
@@ -477,23 +477,21 @@ São produtos que tem a propriedade **barcode_produto** indicada. Produtos indus
 #### Produtos em destaque<a id="produtos_destaque"></a>
 Produtos marcados como destaque possuem uma exibição privilegiada na plataforma, eles são apresentados na tela principal do site/app e nos resumos dos subdepartamentos, quando um departamento (que não possua produtos próprios) é selecionado.
 
-#### Produtos pesáveis<a id="produtos_pesaveis"></a>
+#### Produtos fracionados<a id="produtos_fracionados"></a>
 Produtos pesáveis são os que permitem venda a granel, tendo uma unidade e fração indicadas. Esse grupo é composto pelas seguintes propriedades.
 
-* **pesavel_status**
-* **pesavel_tipo**
-* **pesavel_fracao**
+* **fracionado_status**
+* **fracionado_tipo**
+* **fracionado_fracao**
 
-> Apesar da utilização do termo pesável, algumas unidades correspondem a medidas e não de peso.
-
-Suponhamos que um produto com o nome "Banana Kg" foi cadastrado com pesável (**pesavel_status** true).
-Para produtos com o status pesável ativo, temos que indicar tanto um valor para **pesavel_tipo** como um para **pesavel_fracao**. Para cada tipo pesável, existem sempre dois valores com correspondência entre si, nesse caso seriam 'KG' (ou 'K') e 'GR' (ou 'G'). Suponhamos que queremos vender esse produto (banana) de 300 em 300 gramas, as duas indicações seguintes surtiriam o mesmo efeito.
+Suponhamos que um produto com o nome "Banana Kg" foi cadastrado com fracionado (**fracionado_status** true).
+Para produtos com o status fracionado ativo, temos que indicar tanto um valor para **fracionado_tipo** como um para **fracionado_fracao**. Para cada tipo fracionado, existem sempre dois valores com correspondência entre si, nesse caso seriam 'KG' (ou 'K') e 'GR' (ou 'G'). Suponhamos que queremos vender esse produto (banana) de 300 em 300 gramas, as duas indicações seguintes surtiriam o mesmo efeito.
 Tipo|Fração|Resultado
 |:--:|:--:|:--|
 KG ou K|0, 3|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
 GR ou G|300|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
 
-> A exibição na plataforma das unidades pesáveis se fará sempre pela de maior unidade (no caso Kg), sendo realizada automaticamente a conversão quando for necessário.
+> A exibição na plataforma das unidades fracionadas se fará sempre pela de maior unidade (no caso Kg), sendo realizada automaticamente a conversão quando for necessário.
 
 #### Limitando a quantidade no pedido<a id="limitando_qtde"></a>
 Existem duas maneiras de se limitar a quantidade de cada produto no carrinho, uma direta (pela propriedade **qtde_limite_venda**) e outra que depende do status e da situação do estoque do produto. A lógica utilizada para se chegar ao valor limite é algo como:
@@ -780,7 +778,7 @@ export const CONFIG_MERCADEIRO = {
 }
 ```
 
-> Em caso de suspeita de utilização indevida de um token de loja, a integradora ou o lojista podem solicitar à Conecdata a **revogação** do token atual. Ao ser revogado, o token deixa de ser válido e todas suas referências deixam de funcionar e devem ser substituídas pelo novo token. O novo token pode ser acessado pelo modo lojistas apenas por integradoras e agentes locais da Conecdata.
+> Em caso de suspeita de utilização indevida de um token de loja, a integradora ou o lojista podem solicitar à Conecdata a **revogação** do token atual. Ao ser revogado, o token deixa de ser válido e todas suas referências deixam de funcionar e devem ser substituídas pelo novo token. O novo token pode ser acessado pelo módulo lojistas apenas por integradoras e agentes locais da Conecdata.
 
 > Quando uma API é chamada sem um token de loja ou com um token inválido, é retornado um erro de **Acesso negado**. Já foi citado anteriormente que tokens de lojas são diferentes entre o modo produção e sandbox, e a configuração do modo do script com um tipo (no arquivo config.ts) e a indicação de outro nessa lista gerará erros quando o script usá-los para chamar as apis.
 

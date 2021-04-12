@@ -41,9 +41,9 @@ export const CONFIG_PRODUTOS = {
     0 AS percentual_limite_venda,
     0 AS qtde_limite_venda,
   
-    0 AS pesavel_status,
-    0 AS pesavel_fracao,
-    '' AS pesavel_tipo,
+    0 AS fracionado_status,
+    0 AS fracionado_fracao,
+    '' AS fracionado_tipo,
     
     1 AS ativo_produto,
     
@@ -92,9 +92,9 @@ export const CONFIG_PRODUTOS = {
     pro_f_perc_limite_venda AS percentual_limite_venda,
     pro_f_qtde_limite_venda AS qtde_limite_venda,
   
-    pro_b_fracionado AS pesavel_status,
-    pro_f_pesavel_fracao AS pesavel_fracao,
-    pro_c_pesavel_tipo AS pesavel_tipo,
+    pro_b_fracionado AS fracionado_status,
+    pro_f_fracionado_fracao AS fracionado_fracao,
+    pro_c_fracionado_tipo AS fracionado_tipo,
     
     pro_b_ativo AS ativo_produto,
    
@@ -144,9 +144,9 @@ CREATE VIEW view_conecdata_produtos
     percentual_limite_venda,
     qtde_limite_venda,
 
-    pesavel_status,
-    pesavel_fracao,
-    pesavel_tipo,
+    fracionado_status,
+    fracionado_fracao,
+    fracionado_tipo,
 
     ativo_produto,
 
@@ -183,8 +183,8 @@ AS SELECT
   pro_f_qtde_limite_venda,
 
   pro_b_fracionado,
-  pro_f_pesavel_fracao,
-  pro_c_pesavel_tipo,
+  pro_f_fracionado_fracao,
+  pro_c_fracionado_tipo,
   
   pro_b_ativo,
   

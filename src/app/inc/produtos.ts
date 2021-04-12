@@ -148,8 +148,8 @@ export async function buscaProdutosFB(idLoja: string) {
                     row.ATIVO_SUBDEPARTAMENTO = fixBuffStr(row.ATIVO_SUBDEPARTAMENTO);
                     row.INDUSTRIALIZADO = fixBuffStr(row.INDUSTRIALIZADO);
                     row.ESTOQUE_CONTROLADO = fixBuffStr(row.ESTOQUE_CONTROLADO);
-                    row.PESAVEL_STATUS = fixBuffStr(row.PESAVEL_STATUS);
-                    row.PESAVEL_TIPO = fixBuffStr(row.PESAVEL_TIPO);
+                    row.FRACIONADO_STATUS = fixBuffStr(row.FRACIONADO_STATUS);
+                    row.FRACIONADO_TIPO = fixBuffStr(row.FRACIONADO_TIPO);
                     row.ATIVO_PRODUTO = fixBuffStr(row.ATIVO_PRODUTO);
                     row.ONLINE_PRODUTO = fixBuffStr(row.ONLINE_PRODUTO);
                     row.DESCRICAO_PRODUTO = fixBuffStr(row.DESCRICAO_PRODUTO);
@@ -343,11 +343,11 @@ function findOne(
       "limiteVenda": LIMITE_VENDA.menorValor,
       "nome": get(produto, 'nome_produto') || '',
       "online": chkBool(get(produto, 'online_produto', true)),
-      "pesavel": {
-        "status": chkBool(get(produto, 'pesavel_status', false)),
+      "fracionado": {
+        "status": chkBool(get(produto, 'fracionado_status', false)),
         "unidade": {
-          "fracao": parseFloat(get(produto, 'pesavel_fracao')) || 0,
-          "tipo": get(produto, 'pesavel_tipo') || ''
+          "fracao": parseFloat(get(produto, 'fracionado_fracao')) || 0,
+          "tipo": get(produto, 'fracionado_tipo') || ''
         }
       },
       "preco": parseFloat(get(produto, 'preco_venda')) || 0
