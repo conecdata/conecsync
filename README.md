@@ -228,7 +228,7 @@ Origem|Descrição|Requerimento|
 |:--:|:--|:--:|
 Produtos|Produtos com departamentos (obrigatório) e subdepartamentos (opcional) incluídos.|-
 Estoque|Ativa/desativa venda online de produtos.|Origem **Produtos** não indicada.
-Formas pagamento|Relacionamento de suas formas de pagamento com nossas, relação completa AQUI.|-
+Formas pagamento|Relacionamento de suas formas de pagamento com nossas, [relação completa](https://firebasestorage.googleapis.com/v0/b/formas-pgto.appspot.com/o/formas-pgto-integracao.json?alt=media).|-
 Promoções|Promoções (sem indicação dos produtos).|Origem **Produtos promoções**.
 Produtos promoções|Produtos presentes em cada promoção.|Origem **Promoções**.
 
