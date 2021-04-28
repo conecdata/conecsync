@@ -21,6 +21,27 @@ export function errorLog(msg: string) {
   CONFIG.verbose && console.log('\x1b[31m', `${TS} ERRO: ${msg}`, '\x1b[0m');
 }
 
+export function errorLogApi(
+  origem: string,
+  ids: string[],
+  retorno: string,
+  msg: string
+) {
+  const TS = moment().format('YYYY-MM-DD HH:mm:ss');
+  const ERRO: string = `${ids.join(',')} (${retorno}) ${JSON.stringify(msg)}\n`;
+  fs.writeFile(
+    `${origem}-api-errors.log`,
+    `${TS} ${ERRO}`,
+    { flag: 'a' }
+  );
+  CONFIG.verbose && console.log(
+    // '\x1b[31m',
+    '\x1b[128m',
+    `${TS} ERRO: ${ERRO}`,
+    '\x1b[0m'
+  );
+}
+
 export function chkBool(val: any): boolean {
   switch (typeof val) {
     case 'boolean':

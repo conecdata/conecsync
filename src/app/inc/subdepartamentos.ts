@@ -1,5 +1,5 @@
 import * as rp from 'request-promise';
-import { errorLog, log } from './lib';
+import { errorLog, errorLogApi, log } from './lib';
 import { get } from 'lodash';
 import { CONFIG } from '../config/config';
 import { CONFIG_MERCADEIRO } from '../config/projetos/config-mercadeiro';
@@ -66,7 +66,7 @@ function apiUpdateSubdepartamento(
   if (token) {
     const URL: string = `${URL_API}/departamentos/${idDepartamento}/subdepartamentos/${idSubdepartamento}`;
     // console.log(URL);
-    console.log(body);
+    // console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -104,20 +104,31 @@ function findOne(
         try {
           if (!doc) {
             // console.log('Criando subdepartamento ' + ID_SUBDEPARTAMENTO);
-            await apiUpdateSubdepartamento(
-              ID_DEPARTAMENTO,
-              ID_SUBDEPARTAMENTO,
-              body,
-              idLoja
-            );
             neDB.insert(
               DOC,
-              function (err, newDoc) {
+              async function (err, newDoc) {
                 // console.log('newDoc', newDoc);
                 if (err) {
                   return reject(err);
                 } else {
-                  return resolve(1);
+                  try {
+                    await apiUpdateSubdepartamento(
+                      ID_DEPARTAMENTO,
+                      ID_SUBDEPARTAMENTO,
+                      body,
+                      idLoja
+                    );
+                    console.log("\nOK", body);
+                    return resolve(1);
+                  } catch (error) {
+                    errorLogApi(
+                      'subdepartamentos',
+                      [ID_DEPARTAMENTO, ID_SUBDEPARTAMENTO],
+                      get(error, 'statusCode'),
+                      get(error, 'response.body.errors')
+                    );
+                    return resolve(0);
+                  } // try-catch
                 } // else
               }
             );
@@ -125,13 +136,6 @@ function findOne(
             // console.log(doc);
             if (doc.hash !== HASH_SUBDEPARTAMENTO) {
               // console.log('Atualizando subdepartamento ' + ID_SUBDEPARTAMENTO);
-              await apiUpdateSubdepartamento(
-                ID_DEPARTAMENTO,
-                ID_SUBDEPARTAMENTO,
-                body,
-                idLoja
-              );
-
               neDB.remove(
                 { id: ID_SUBDEPARTAMENTO },
                 { multi: true },
@@ -142,12 +146,29 @@ function findOne(
                   } else {
                     neDB.insert(
                       DOC,
-                      function (err, newDoc) {
+                      async function (err, newDoc) {
                         // console.log('newDoc', newDoc);
                         if (err) {
                           return reject(err);
                         } else {
-                          return resolve(1);
+                          try {
+                            await apiUpdateSubdepartamento(
+                              ID_DEPARTAMENTO,
+                              ID_SUBDEPARTAMENTO,
+                              body,
+                              idLoja
+                            );
+                            console.log("\nOK", body);
+                            return resolve(1);
+                          } catch (error) {
+                            errorLogApi(
+                              'subdepartamentos',
+                              [ID_DEPARTAMENTO, ID_SUBDEPARTAMENTO],
+                              get(error, 'statusCode'),
+                              get(error, 'response.body.errors')
+                            );
+                            return resolve(0);
+                          } // try-catch
                         } // else
                       }
                     );

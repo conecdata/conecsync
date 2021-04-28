@@ -85,7 +85,6 @@ Facilidade|<font color='Tomato'>**MENOR** Requer modificações de arquivos font
 Mão de obra/Custo|<font color='Tomato'>**MAIOR** Devido à necessidade de ocupação de programadores.</font>|<font color='MediumSeaGreen'>**MENOR** Modificações/configurações necessárias são simples e de rápida implementação.</font>
 Velocidade implementação|<font color='Tomato'>**MENOR** Adaptações mais complexas que levam mais tempo.</font>|<font color='MediumSeaGreen'>**MAIOR** Ajustes rápidos e simples.</font>
 Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações em seus cadastros são replicadas instantaneamente.</font>|<font color='Tomato'>**MENOR** As modificações só são replicadas a cada execução do script.</font>
-Recuperação de falhas|<font color='Tomato'>**MENOR** Eventuais erros em chamadas à API exigiriam mais código para serem tentados novamente.</font>|<font color='MediumSeaGreen'>**MAIOR** A execução periódica do Script resolve eventuais erros de tentativas prévias.</font>
 
 > Conhecendo os prós e contras, caso você opte por realizar a integração diretamente pelas APIs dos projetos, o restante dessa documentação é irrelevante (pois só diz respeito ao uso do ConecSync) e recomendamos que consulte a documentação de cada API em seu lugar.
 

@@ -1,5 +1,5 @@
 import * as rp from 'request-promise';
-import { chkBool, errorLog, log } from './lib';
+import { chkBool, errorLog, errorLogApi, log } from './lib';
 import {
   API_URL,
   CAMPOS_PROMOCOES
@@ -182,7 +182,7 @@ async function apiUpdatePromocao(
   if (token) {
     const URL: string = `${URL_API}/promocoes/${idPromocao}`;
     // console.log(URL);
-    console.log(body);
+    // console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -239,19 +239,30 @@ function findOne(
         try {
           if (!doc) {
             // console.log('Criando produto ' + ID_PROMOCAO);
-            await apiUpdatePromocao(
-              ID_PROMOCAO,
-              BODY,
-              idLoja
-            );
             neDB.insert(
               DOC,
-              function (err, newDoc) {
+              async function (err, newDoc) {
                 // console.log('newDoc', newDoc);
                 if (err) {
                   return reject(err);
                 } else {
-                  return resolve(1);
+                  try {
+                    await apiUpdatePromocao(
+                      ID_PROMOCAO,
+                      BODY,
+                      idLoja
+                    );
+                    console.log("\nOK", BODY);
+                    return resolve(1);
+                  } catch (error) {
+                    errorLogApi(
+                      'promocoes',
+                      [ID_PROMOCAO],
+                      get(error, 'statusCode'),
+                      get(error, 'response.body.errors')
+                    );
+                    return resolve(0);
+                  } // try-catch
                 } // else
               }
             );
@@ -259,11 +270,6 @@ function findOne(
             // console.log(doc);
             if (doc.hash !== HASH_PROMOCAO) {
               // console.log('Atualizando produto ' + ID_PROMOCAO);
-              await apiUpdatePromocao(
-                ID_PROMOCAO,
-                BODY,
-                idLoja
-              );
               neDB.remove(
                 { id: ID_PROMOCAO },
                 { multi: true },
@@ -274,12 +280,28 @@ function findOne(
                   } else {
                     neDB.insert(
                       DOC,
-                      function (err, newDoc) {
+                      async function (err, newDoc) {
                         // console.log('newDoc', newDoc);
                         if (err) {
                           return reject(err);
                         } else {
-                          return resolve(1);
+                          try {
+                            await apiUpdatePromocao(
+                              ID_PROMOCAO,
+                              BODY,
+                              idLoja
+                            );
+                            console.log("\nOK", BODY);
+                            return resolve(1);
+                          } catch (error) {
+                            errorLogApi(
+                              'promocoes',
+                              [ID_PROMOCAO],
+                              get(error, 'statusCode'),
+                              get(error, 'response.body.errors')
+                            );
+                            return resolve(0);
+                          } // try-catch
                         } // else
                       }
                     );

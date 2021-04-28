@@ -2,6 +2,7 @@ import * as rp from 'request-promise';
 import {
   chkBool,
   errorLog,
+  errorLogApi,
   fixBuffStr,
   log
 } from './lib';
@@ -209,9 +210,9 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
     } // if
   } // for
 
-  RETORNO.departamentos = uniqBy(RETORNO.departamentos, 'id'); // Elimina repetições
+  RETORNO.departamentos = uniqBy(RETORNO.departamentos, 'id');
   // console.log(RETORNO.departamentos);
-  RETORNO.subdepartamentos = uniqBy(RETORNO.subdepartamentos, 'id'); // Elimina repetições
+  RETORNO.subdepartamentos = uniqBy(RETORNO.subdepartamentos, 'id');
   // console.log(RETORNO.subdepartamentos);
 
   return RETORNO;
@@ -279,7 +280,7 @@ async function apiUpdateProduto(
   if (token) {
     const URL: string = `${URL_API}/produtos/${idProduto}`;
     // console.log(URL);
-    console.log(body);
+    // console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -368,19 +369,30 @@ function findOne(
         try {
           if (!doc) {
             // console.log('Criando produto ' + ID_PRODUTO);
-            await apiUpdateProduto(
-              ID_PRODUTO,
-              BODY_PRODUTO,
-              idLoja
-            );
             neDB.insert(
               DOC,
-              function (err, newDoc) {
+              async function (err, newDoc) {
                 // console.log('newDoc', newDoc);
                 if (err) {
                   return reject(err);
                 } else {
-                  return resolve(1);
+                  try {
+                    await apiUpdateProduto(
+                      ID_PRODUTO,
+                      BODY_PRODUTO,
+                      idLoja
+                    );
+                    console.log("\nOK", BODY_PRODUTO);
+                    return resolve(1);
+                  } catch (error) {
+                    errorLogApi(
+                      'produtos',
+                      [ID_PRODUTO],
+                      get(error, 'statusCode'),
+                      get(error, 'response.body.errors')
+                    );
+                    return resolve(0);
+                  }
                 } // else
               }
             );
@@ -388,11 +400,6 @@ function findOne(
             // console.log(doc);
             if (doc.hash !== HASH_PRODUTO) {
               // console.log('Atualizando produto ' + ID_PRODUTO);
-              await apiUpdateProduto(
-                ID_PRODUTO,
-                BODY_PRODUTO,
-                idLoja
-              );
               neDB.remove(
                 { id: ID_PRODUTO },
                 { multi: true },
@@ -403,12 +410,28 @@ function findOne(
                   } else {
                     neDB.insert(
                       DOC,
-                      function (err, newDoc) {
+                      async function (err, newDoc) {
                         // console.log('newDoc', newDoc);
                         if (err) {
                           return reject(err);
                         } else {
-                          return resolve(1);
+                          try {
+                            await apiUpdateProduto(
+                              ID_PRODUTO,
+                              BODY_PRODUTO,
+                              idLoja
+                            );
+                            console.log("\nOK", BODY_PRODUTO);
+                            return resolve(1);
+                          } catch (error) {
+                            errorLogApi(
+                              'produtos',
+                              [ID_PRODUTO],
+                              get(error, 'statusCode'),
+                              get(error, 'response.body.errors')
+                            );
+                            return resolve(0);
+                          } // try-catch
                         } // else
                       }
                     );

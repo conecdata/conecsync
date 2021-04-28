@@ -1,5 +1,5 @@
 import * as rp from 'request-promise';
-import { errorLog, log } from './lib';
+import { errorLog, errorLogApi, log } from './lib';
 import {
   API_URL,
   CAMPOS_ESTOQUE
@@ -177,7 +177,7 @@ async function apiUpdateEstoque(
   if (token) {
     const URL: string = `${URL_API}/produtos/estoque/${idProduto}`;
     // console.log(URL);
-    console.log(body);
+    // console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -221,19 +221,30 @@ function findOne(
         try {
           if (!doc) {
             // console.log('Criando produto ' + ID_PRODUTO);
-            await apiUpdateEstoque(
-              ID_PRODUTO,
-              BODY,
-              idLoja
-            );
             neDB.insert(
               DOC,
-              function (err, newDoc) {
+              async function (err, newDoc) {
                 // console.log('newDoc', newDoc);
                 if (err) {
                   return reject(err);
                 } else {
-                  return resolve(1);
+                  try {
+                    await apiUpdateEstoque(
+                      ID_PRODUTO,
+                      BODY,
+                      idLoja
+                    );
+                    console.log("\nOK", BODY);
+                    return resolve(1);
+                  } catch (error) {
+                    errorLogApi(
+                      'estoque',
+                      [ID_PRODUTO],
+                      get(error, 'statusCode'),
+                      get(error, 'response.body.errors')
+                    );
+                    return resolve(0);
+                  } // try-catch
                 } // else
               }
             );
@@ -241,11 +252,6 @@ function findOne(
             // console.log(doc);
             if (doc.estoqueMinimo !== BODY.estoqueMinimo) {
               // console.log('Atualizando produto ' + ID_PRODUTO);
-              await apiUpdateEstoque(
-                ID_PRODUTO,
-                BODY,
-                idLoja
-              );
               neDB.remove(
                 { id: ID_PRODUTO },
                 { multi: true },
@@ -256,12 +262,28 @@ function findOne(
                   } else {
                     neDB.insert(
                       DOC,
-                      function (err, newDoc) {
+                      async function (err, newDoc) {
                         // console.log('newDoc', newDoc);
                         if (err) {
                           return reject(err);
                         } else {
-                          return resolve(1);
+                          try {
+                            await apiUpdateEstoque(
+                              ID_PRODUTO,
+                              BODY,
+                              idLoja
+                            );
+                            console.log("\nOK", BODY);
+                            return resolve(1);
+                          } catch (error) {
+                            errorLogApi(
+                              'estoque',
+                              [ID_PRODUTO],
+                              get(error, 'statusCode'),
+                              get(error, 'response.body.errors')
+                            );
+                            return resolve(0);
+                          } // try-catch
                         } // else
                       }
                     );

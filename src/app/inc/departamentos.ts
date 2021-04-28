@@ -1,5 +1,5 @@
 import * as rp from 'request-promise';
-import { errorLog, log } from './lib';
+import { errorLog, errorLogApi, log } from './lib';
 import { get } from 'lodash';
 import { CONFIG } from '../config/config';
 import { CONFIG_MERCADEIRO } from '../config/projetos/config-mercadeiro';
@@ -12,7 +12,7 @@ export async function syncDepartamentos(
   departamentos: any[]
 ): Promise<number> {
   let count: number = 0;
-  console.log('DEPARTAMENTOS:', departamentos);
+  // console.log('DEPARTAMENTOS:', departamentos);
 
   if (
     idLoja
@@ -66,7 +66,7 @@ function apiUpdateDepartamento(
   if (token) {
     const URL: string = `${URL_API}/departamentos/${idDepartamento}`;
     // console.log(URL);
-    console.log(body);
+    // console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -104,17 +104,28 @@ function findOne(
         try {
           if (!doc) {
             // log('Criando departamento ' + ID_DEPARTAMENTO);
-            await apiUpdateDepartamento(
-              ID_DEPARTAMENTO,
-              body,
-              idLoja
-            );
-            neDB.insert(DOC, (err, newDoc) => {
+            neDB.insert(DOC, async (err, newDoc) => {
               // console.log('newDoc', newDoc);
               if (err) {
                 return reject(err);
               } else {
-                return resolve(1);
+                try {
+                  await apiUpdateDepartamento(
+                    ID_DEPARTAMENTO,
+                    body,
+                    idLoja
+                  );
+                  console.log("\nOK", body);
+                  return resolve(1);
+                } catch (error) {
+                  errorLogApi(
+                    'departamentos',
+                    [ID_DEPARTAMENTO],
+                    get(error, 'statusCode'),
+                    get(error, 'response.body.errors')
+                  );
+                  return resolve(0);
+                } // try-catch
               } // else
             });
           } else {
@@ -122,11 +133,6 @@ function findOne(
             // console.log(get(doc, 'hash') || '', '!==', HASH_DEPARTAMENTO);
             if ((get(doc, 'hash') || '') !== HASH_DEPARTAMENTO) {
               // log('Atualizando departamento ' + ID_DEPARTAMENTO);
-              await apiUpdateDepartamento(
-                ID_DEPARTAMENTO,
-                body,
-                idLoja
-              );
               neDB.remove(
                 { id: ID_DEPARTAMENTO },
                 { multi: true },
@@ -137,12 +143,28 @@ function findOne(
                   } else {
                     neDB.insert(
                       DOC,
-                      function (err, newDoc) {
+                      async function (err, newDoc) {
                         // console.log('newDoc', newDoc);
                         if (err) {
                           return reject(err);
                         } else {
-                          return resolve(1);
+                          try {
+                            await apiUpdateDepartamento(
+                              ID_DEPARTAMENTO,
+                              body,
+                              idLoja
+                            );
+                            console.log("\nOK", body);
+                            return resolve(1);
+                          } catch (error) {
+                            errorLogApi(
+                              'departamentos',
+                              [ID_DEPARTAMENTO],
+                              get(error, 'statusCode'),
+                              get(error, 'response.body.errors')
+                            );
+                            return resolve(0);
+                          } // try-catch
                         } // else
                       }
                     );

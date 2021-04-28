@@ -2,6 +2,7 @@ import * as rp from 'request-promise';
 import {
   chkBool,
   errorLog,
+  errorLogApi,
   log
 } from './lib';
 import {
@@ -182,7 +183,7 @@ async function apiUpdateForma(
   if (token) {
     const URL: string = `${URL_API}/formas-pgto/${idForma}`;
     // console.log(URL);
-    console.log(body);
+    // console.log(body);
     return rp.post(URL, {
       json: true,
       headers: {
@@ -223,19 +224,30 @@ function findOne(
         try {
           if (!doc) {
             // console.log('Criando forma pgto ' + ID_FORMA);
-            await apiUpdateForma(
-              ID_FORMA,
-              BODY_FORMA,
-              idLoja
-            );
             neDB.insert(
               DOC,
-              function (err, newDoc) {
+              async function (err, newDoc) {
                 // console.log('newDoc', newDoc);
                 if (err) {
                   return reject(err);
                 } else {
-                  return resolve(1);
+                  try {
+                    await apiUpdateForma(
+                      ID_FORMA,
+                      BODY_FORMA,
+                      idLoja
+                    );
+                    console.log("\nOK", BODY_FORMA);
+                    return resolve(1);
+                  } catch (error) {
+                    errorLogApi(
+                      'formas-pgto',
+                      [ID_FORMA],
+                      get(error, 'statusCode'),
+                      get(error, 'response.body.errors')
+                    );
+                    return resolve(0);
+                  } // try-catch
                 } // else
               }
             );
@@ -243,11 +255,6 @@ function findOne(
             // console.log(doc);
             if (doc.hash !== HASH_FORMA) {
               // console.log('Atualizando forma pgto ' + ID_FORMA);
-              await apiUpdateForma(
-                ID_FORMA,
-                BODY_FORMA,
-                idLoja
-              );
               neDB.remove(
                 { id: ID_FORMA },
                 { multi: true },
@@ -258,12 +265,28 @@ function findOne(
                   } else {
                     neDB.insert(
                       DOC,
-                      function (err, newDoc) {
+                      async function (err, newDoc) {
                         // console.log('newDoc', newDoc);
                         if (err) {
                           return reject(err);
                         } else {
-                          return resolve(1);
+                          try {
+                            await apiUpdateForma(
+                              ID_FORMA,
+                              BODY_FORMA,
+                              idLoja
+                            );
+                            console.log("\nOK", BODY_FORMA);
+                            return resolve(1);
+                          } catch (error) {
+                            errorLogApi(
+                              'formas-pgto',
+                              [ID_FORMA],
+                              get(error, 'statusCode'),
+                              get(error, 'response.body.errors')
+                            );
+                            return resolve(0);
+                          } // try-catch
                         } // else
                       }
                     );
