@@ -1020,7 +1020,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               ))
                 .map(p => get(p, 'dataValues') || {});
 
-              console.log(PROMOCOES);
+              // console.log(PROMOCOES);
               // console.log(PRODUTOS_PROMOCOES_MAP);              
 
               resultado = {
