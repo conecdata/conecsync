@@ -57,7 +57,7 @@ export function chkBool(val: any): boolean {
       break;
 
     default:
-      return false;
+      return null;
       break;
   }
 }

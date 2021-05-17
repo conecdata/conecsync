@@ -11,7 +11,8 @@ import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
 import { CONFIG } from '../config/config';
 import {
   get,
-  uniqBy
+  uniqBy,
+  set
 } from 'lodash';
 import { CONFIG_MERCADEIRO } from '../config/projetos/config-mercadeiro';
 import { syncDepartamentos } from './departamentos';
@@ -191,22 +192,32 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
     // console.log(produtos[i].dataValues);
 
     // Gera lista de departamentos dos produtos.
-    RETORNO.departamentos.push({
-      id: `${get(produtos[i], 'id_departamento') || ''}`,
-      ativo: chkBool(get(produtos[i], 'ativo_departamento')),
-      nome: get(produtos[i], 'nome_departamento') || '',
-      online: get(produtos[i], 'online_departamento') || ''
-    });
+    let idDepartamento: any = get(produtos[i], 'id_departamento') || null;
+    if (idDepartamento === '0') idDepartamento = null;
+    if (idDepartamento) {
+      const BODY_DEPARTAMENTO: any = {
+        id: `${idDepartamento}`,
+        ativo: chkBool(get(produtos[i], 'ativo_departamento')),
+        nome: get(produtos[i], 'nome_departamento') || '',
+      };
+      const ONLINE_DEPARTAMENTO: any = get(produtos[i], 'online_departamento');
+      if (ONLINE_DEPARTAMENTO !== null) {
+        BODY_DEPARTAMENTO.online = chkBool(ONLINE_DEPARTAMENTO);
+      } // if
+      RETORNO.departamentos.push(BODY_DEPARTAMENTO);
 
-    // Gera lista de subdepartamentos dos produtos.
-    // console.log('idSubdepartamento', get(produtos[i], 'idSubdepartamento') || '');
-    if (get(produtos[i], 'id_subdepartamento') || '') {
-      RETORNO.subdepartamentos.push({
-        id: `${get(produtos[i], 'id_subdepartamento') || ''}`,
-        idDepartamento: `${get(produtos[i], 'id_departamento') || ''}`,
-        ativo: chkBool(get(produtos[i], 'ativo_subdepartamento')),
-        nome: get(produtos[i], 'nome_subdepartamento') || ''
-      });
+      // Gera lista de subdepartamentos dos produtos.
+      // console.log('idSubdepartamento', get(produtos[i], 'idSubdepartamento') || '');
+      let idSubdepartamento: any = get(produtos[i], 'id_subdepartamento') || null;
+      if (idSubdepartamento === '0') idSubdepartamento = null;
+      if (idSubdepartamento) {
+        RETORNO.subdepartamentos.push({
+          id: `${idSubdepartamento}`,
+          idDepartamento: `${idDepartamento}`,
+          ativo: chkBool(get(produtos[i], 'ativo_subdepartamento')),
+          nome: get(produtos[i], 'nome_subdepartamento') || ''
+        });
+      } // if
     } // if
   } // for
 
@@ -308,51 +319,111 @@ function findOne(
       min: parseFloat(get(produto, 'qtde_estoque_minimo')) || 0,
       atual: parseFloat(get(produto, 'qtde_estoque_atual')) || 0
     };
-    const LIMITE_VENDA = {
-      percentual: parseFloat(get(produto, 'percentual_limite_venda')) || 0,
-      qtde: parseFloat(get(produto, 'qtde_limite_venda')) || 0,
-      menorValor: 0
-    };
-    const VAL_PERCENTUAL: number = ESTOQUE.atual * (LIMITE_VENDA.percentual / 100);
-    LIMITE_VENDA.menorValor = LIMITE_VENDA.qtde > 0
-      ? (
-        VAL_PERCENTUAL > 0
-          ? (
-            VAL_PERCENTUAL < LIMITE_VENDA.qtde
-              ? VAL_PERCENTUAL
-              : LIMITE_VENDA.qtde
-          )
-          : LIMITE_VENDA.qtde
-      )
-      : VAL_PERCENTUAL;
+    // const LIMITE_VENDA = {
+    //   percentual: parseFloat(get(produto, 'percentual_limite_venda')) || 0,
+    //   qtde: parseFloat(get(produto, 'qtde_limite_venda')) || 0,
+    //   menorValor: 0
+    // };
+    // const VAL_PERCENTUAL: number = ESTOQUE.atual * (LIMITE_VENDA.percentual / 100);
+    // LIMITE_VENDA.menorValor = LIMITE_VENDA.qtde > 0
+    //   ? (
+    //     VAL_PERCENTUAL > 0
+    //       ? (
+    //         VAL_PERCENTUAL < LIMITE_VENDA.qtde
+    //           ? VAL_PERCENTUAL
+    //           : LIMITE_VENDA.qtde
+    //       )
+    //       : LIMITE_VENDA.qtde
+    //   )
+    //   : VAL_PERCENTUAL;
     // console.log(produto);
-    const BODY_PRODUTO = {
-      "atacado": {
-        "status": chkBool(get(produto, 'atacado_status', false)),
-        "qtde": parseFloat(get(produto, 'atacado_qtde')) || 0,
-        "valor": parseFloat(get(produto, 'atacado_valor')) || 0,
-      },
+    let idDepartamento: any = get(produto, 'id_departamento') || null;
+    if (idDepartamento === '0') idDepartamento = null;
+    let idSubdepartamento: any = get(produto, 'id_subdepartamento') || null;
+    if (idSubdepartamento === '0') idSubdepartamento = null;
+
+    const BODY_PRODUTO: any = {
       "ativo": chkBool(get(produto, 'ativo_produto', true)),
       "barcode": get(produto, 'barcode_produto') || '',
       "descricao": get(produto, 'descricao_produto') || '',
-      "destaque": chkBool(get(produto, 'destaque', false)),
       "estoqueMinimo": ESTOQUE.controlado && ESTOQUE.min
         ? ESTOQUE.atual <= ESTOQUE.min
         : false,
-      "idDepartamento": get(produto, 'id_departamento') || '',
-      "idSubdepartamento": get(produto, 'id_subdepartamento') || '',
-      "limiteVenda": LIMITE_VENDA.menorValor,
+      "idDepartamento": idDepartamento === null ? '' : `${idDepartamento}`,
       "nome": get(produto, 'nome_produto') || '',
-      "online": chkBool(get(produto, 'online_produto', true)),
-      "fracionado": {
-        "status": chkBool(get(produto, 'fracionado_status', false)),
-        "unidade": {
-          "fracao": parseFloat(get(produto, 'fracionado_fracao')) || 0,
-          "tipo": get(produto, 'fracionado_tipo') || ''
-        }
-      },
       "preco": parseFloat(get(produto, 'preco_venda')) || 0
     };
+
+    const ATACADO_STATUS: any = get(produto, 'atacado_status');
+    ATACADO_STATUS !== null && set(
+      BODY_PRODUTO,
+      'atacado',
+      {
+        status: chkBool(ATACADO_STATUS),
+        qtde: parseFloat(get(produto, 'atacado_qtde')) || 0,
+        valor: parseFloat(get(produto, 'atacado_valor')) || 0,
+      }
+    );
+
+    const DESTAQUE: any = get(produto, 'destaque');
+    DESTAQUE !== null && set(
+      BODY_PRODUTO,
+      'destaque',
+      chkBool(DESTAQUE)
+    );
+
+    const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status'));
+    const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao');
+    const FRACIONADO_TIPO: any = get(produto, 'fracionado_tipo');
+    if (FRACIONADO_STATUS !== null) {
+      set(
+        BODY_PRODUTO,
+        'fracionado.status',
+        chkBool(FRACIONADO_STATUS)
+      );
+
+      FRACIONADO_FRACAO !== null && set(
+        BODY_PRODUTO,
+        'fracionado.unidade.fracao',
+        parseFloat(FRACIONADO_FRACAO) || 0
+      );
+
+      FRACIONADO_TIPO !== null && set(
+        BODY_PRODUTO,
+        'fracionado.unidade.tipo',
+        FRACIONADO_TIPO || ''
+      );
+
+      FRACIONADO_STATUS
+        && (+FRACIONADO_FRACAO <= 0 || !FRACIONADO_TIPO)
+        && set(
+          BODY_PRODUTO,
+          'ativo',
+          false
+        );
+    } // if
+    // console.log('BODY_PRODUTO', BODY_PRODUTO);
+
+    const LIMITE_VENDA: any = get(produto, 'qtde_limite_venda');
+    LIMITE_VENDA !== null && set(
+      BODY_PRODUTO,
+      'limiteVenda',
+      parseFloat(LIMITE_VENDA)
+    )
+
+    const ONLINE_PRODUTO: any = get(produto, 'online_produto');
+    ONLINE_PRODUTO !== null && set(
+      BODY_PRODUTO,
+      'online',
+      chkBool(ONLINE_PRODUTO)
+    );
+
+    idSubdepartamento !== null && set(
+      BODY_PRODUTO,
+      'idSubdepartamento',
+      `${idSubdepartamento}`
+    );
+
     // console.log(BODY_PRODUTO);
     const HASH_PRODUTO: string = hash(BODY_PRODUTO);
     // console.log(HASH_PRODUTO);

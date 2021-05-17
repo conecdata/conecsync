@@ -406,7 +406,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                       .map((r: string) => r.toLowerCase() === 'null' ? '' : r.trim());
                     // console.log(ROW);
                     const ID_SUBDEPARTAMENTO: string = `${ROW[FIELDPOS['id_subdepartamento']]}`.trim();
-                    const PRODUTO = {
+
+
+
+                    const PRODUTO: any = {
                       'id_produto': FIELDPOS['id_produto'] >= 0
                         && `${ROW[FIELDPOS['id_produto']].trim()}`,
 
@@ -486,7 +489,18 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                       'estoque_controlado': FIELDPOS['estoque_controlado'] >= 0
                         && parseInt(ROW[FIELDPOS['estoque_controlado']] || '') > 0,
                     };
+
+                    const INDEX_ONLINE_DEPARTAMENTO: number = FIELDPOS['online_departamento'];
+                    if (INDEX_ONLINE_DEPARTAMENTO >= 0) {
+                      PRODUTO.online_departamento = parseInt(ROW[INDEX_ONLINE_DEPARTAMENTO] || '') > 0;
+                    } // if
+
                     PRODUTOS.push(PRODUTO);
+
+
+
+
+
                   } // if
                 } // for
                 // console.log(PRODUTOS);

@@ -1,12 +1,19 @@
 export const CONFIG = {
   db: {
     conexao: {
-      host: '127.0.0.1',
-      tabela: 'hypico',
-      usuario: 'conecdata',
-      senha: 'masterkey',
-      tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
+      host: 'DESKTOP-APL18I2',
+      tabela: 'MDADOS',
+      usuario: 'ADMINSQL',
+      senha: '123',
+      tipo: 'mssql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
     }
+    // conexao: {
+    //   host: '127.0.0.1',
+    //   tabela: 'hypico',
+    //   usuario: 'conecdata',
+    //   senha: 'masterkey',
+    //   tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
+    // }
   },
   fb: { // Firebird
     conexao: {
