@@ -5,8 +5,8 @@ export const CONFIG_PRODUTOS = {
   tipo: 'db', // 'fb', 'db' | 'csv' | ''
 
   // Nome da view do cadastro de produtos de promoções
-  nomeView: 'View_IntegracaoMercadeiro2', // db/fb
-  // nomeView: 'view_conecdata_produtos', // db/fb
+  // nomeView: 'View_IntegracaoMercadeiro2', // db/fb
+  nomeView: 'view_conecdata_produtos', // db/fb
 }
 
 
