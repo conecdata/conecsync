@@ -9,7 +9,6 @@ export const CONFIG_PRODUTOS = {
   nomeView: 'view_conecdata_produtos', // db/fb
 }
 
-
 // VERSÃO SIMPLIFICADA
 /* Mysql
   DROP VIEW IF EXISTS view_conecdata_produtos;
