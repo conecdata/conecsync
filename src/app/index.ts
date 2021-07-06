@@ -28,6 +28,7 @@ import {
   processaFormasLoja
 } from './inc/formas-pgto';
 import {
+  AUTO_DESTAQUES,
   ESTOQUE_REQ_FIELDS,
   FORMAS_REQ_FIELDS,
   PRODUTOS_REQ_FIELDS
@@ -496,11 +497,6 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                     } // if
 
                     PRODUTOS.push(PRODUTO);
-
-
-
-
-
                   } // if
                 } // for
                 // console.log(PRODUTOS);
@@ -1454,6 +1450,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     //#endregion
 
     log(JSON.stringify(resultado));
+    // log(JSON.stringify(AUTO_DESTAQUES));
   } catch (error) {
     errorLog(error.message);
   } // try-catch

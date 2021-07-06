@@ -6,7 +6,7 @@ import {
   fixBuffStr,
   log
 } from './lib';
-import { API_URL, CAMPOS_PRODUTOS } from '../consts';
+import { API_URL, AUTO_DESTAQUES, CAMPOS_PRODUTOS } from '../consts';
 import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
 import { CONFIG } from '../config/config';
 import {
@@ -409,7 +409,7 @@ function findOne(
       BODY_PRODUTO,
       'limiteVenda',
       parseFloat(LIMITE_VENDA)
-    )
+    );
 
     const ONLINE_PRODUTO: any = get(produto, 'online_produto');
     ONLINE_PRODUTO !== null && set(
@@ -448,11 +448,26 @@ function findOne(
                   return reject(err);
                 } else {
                   try {
+                    const KEY: string = idSubdepartamento
+                      ? `${idLoja}_${idDepartamento}_${idSubdepartamento}`
+                      : `${idLoja}_${idDepartamento}`;
+                    const COUNT: number = AUTO_DESTAQUES[KEY] || 0;
+                    // console.log('KEY', KEY);
+                    // console.log('COUNT', COUNT);
+
+                    if (COUNT) {
+                      AUTO_DESTAQUES[KEY] = COUNT - 1;
+                      BODY_PRODUTO.destaque = true;
+                    } // if
+
                     await apiUpdateProduto(
                       ID_PRODUTO,
                       BODY_PRODUTO,
                       idLoja
                     );
+
+                    COUNT && (await new Promise(r => setTimeout(r, 2000)));
+
                     console.log("\nOK", BODY_PRODUTO);
                     return resolve(1);
                   } catch (error) {

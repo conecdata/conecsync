@@ -1,5 +1,9 @@
 // Origens de dados podem ser "views no DB" ou "paths de arquivos CSV"
 export const CONFIG_PRODUTOS = {
+  autoDestaque: 10,
+  // destaque: {
+  //   origem: ''
+  // },
   /* Tipo de origem */
   // Se '' ignora essa origem de dados (não sincroniza).
   tipo: 'db', // 'fb', 'db' | 'csv' | ''
@@ -7,6 +11,7 @@ export const CONFIG_PRODUTOS = {
   // Nome da view do cadastro de produtos de promoções
   // nomeView: 'View_IntegracaoMercadeiro2', // db/fb
   nomeView: 'view_conecdata_produtos', // db/fb
+  // nomeView: 'view_conecdata_produtos_bebidas', // db/fb
 }
 
 // VERSÃO SIMPLIFICADA

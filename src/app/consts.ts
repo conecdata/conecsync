@@ -292,3 +292,6 @@ export const CAMPOS_PROMOCOES: any = {
     field: 'qtde_pague_lp'
   },
 };
+
+// destaques
+export const AUTO_DESTAQUES = {};

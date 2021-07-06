@@ -3,7 +3,8 @@ import { errorLog, errorLogApi, log } from './lib';
 import { get } from 'lodash';
 import { CONFIG } from '../config/config';
 import { CONFIG_MERCADEIRO } from '../config/projetos/config-mercadeiro';
-import { API_URL } from '../consts';
+import { API_URL, AUTO_DESTAQUES } from '../consts';
+import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
 var hash = require('object-hash');
 var Datastore = require('nedb');
 
@@ -110,11 +111,20 @@ function findOne(
                 return reject(err);
               } else {
                 try {
-                  await apiUpdateDepartamento(
-                    ID_DEPARTAMENTO,
-                    body,
-                    idLoja
+                  const NEW: boolean = !!get(
+                    (await apiUpdateDepartamento(
+                      ID_DEPARTAMENTO,
+                      body,
+                      idLoja
+                    )),
+                    'new'
                   );
+
+                  if (NEW) {
+                    const KEY: string = `${idLoja}_${ID_DEPARTAMENTO}`;
+                    AUTO_DESTAQUES[KEY] = +get(CONFIG_PRODUTOS, 'autoDestaque', 0) || 0;
+                  } // if
+
                   console.log("\nOK", body);
                   return resolve(1);
                 } catch (error) {
@@ -154,6 +164,7 @@ function findOne(
                               body,
                               idLoja
                             );
+
                             console.log("\nOK", body);
                             return resolve(1);
                           } catch (error) {
