@@ -1,37 +1,73 @@
-2021-07-05 09:53:12 1181593 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:12 993340 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:13 989060 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:14 493680 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:15 252010 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:15 1062434 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:16 597555 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:16 597548 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:17 842198 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:17 465359 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:18 38829 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:19 237796 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:19 163408 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:19 38669 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:20 1128178 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:21 30960 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:21 1117288 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:22 483490 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:23 483490 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:23 622417 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:24 38652 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:24 48385 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:25 58193 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:26 53068 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:26 274883 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:27 284110 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:27 1072884 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:53:28 1171419 (400) {"geral":"","produto":{"idSubdepartamento":"Subdepartamento inválido.25001"}}
-2021-07-05 09:56:46 74605 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:47 936293 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:47 238670 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:48 36221 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:49 31653 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:49 1097375 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:50 556767 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:50 31660 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
-2021-07-05 09:56:51 50333 (400) {"geral":"","produto":{"idDepartamento":"Departamento inválido.29"}}
+2021-07-08 09:36:05 2413 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:36:30 1126 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:38:09 2917 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:38:29 1371 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:38:35 1386 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:38:51 1417 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:38:52 1409 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:38:53 1418 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:38:58 1411 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:38:58 1412 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:38:59 1413 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:39:05 1446 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:40:05 1693 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:40:06 1712 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:40:06 1698 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:08 1699 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:09 1749 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:40:13 1740 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:27 1904 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:28 1817 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:29 1818 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:29 1819 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:33 1910 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:33 1912 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:33 1913 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:34 1914 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:34 1925 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:35 1926 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:36 1927 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:37 1937 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:37 1928 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:39 1916 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:39 1917 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:40:43 1807 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:40:56 1773 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:42:18 2222 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:43:01 2310 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:43:04 2261 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:43:14 2327 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:43:22 1923 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:43:22 1924 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:14 2440 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:15 2436 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:44:25 2437 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:27 2428 (400) {"geral":"","produto":{"nome":"Nome já cadastrado."}}
+2021-07-08 09:44:40 2448 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:40 2449 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:41 2450 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:44 2451 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:44 2452 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:46 2438 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:47 2443 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:55 2445 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:44:55 2446 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:55 2439 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:44:56 2442 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:45:00 2478 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:45:17 2549 (400) {"geral":"","produto":{"nome":"Nome já cadastrado.","preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:45:19 2488 (400) {"geral":"","produto":{"fracionadoTipo":"Tipo pesável de produto inválido."}}
+2021-07-08 09:45:56 2665 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:46:54 2670 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:47:07 2688 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:47:10 2689 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:48:32 2840 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:48:33 2901 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:48:54 2867 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:48:55 2868 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:49:27 2911 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:49:35 2915 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:49:57 3063 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}
+2021-07-08 09:50:00 3071 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:50:02 3064 (400) {"geral":"","produto":{"barcode":"Código de barras já cadastrado."}}
+2021-07-08 09:50:15 3066 (400) {"geral":"","produto":{"preco":"Preço inválido ou não indicado."}}

@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 const path = require('path');
 import { get } from 'lodash';
 const { Sequelize } = require('sequelize');
-import { errorLog, log } from './inc/lib';
+import { chkBool, errorLog, log } from './inc/lib';
 import {
   buscaProdutosDB,
   buscaProdutosFB,
@@ -293,7 +293,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
             // console.log(LOJA);
             const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
 
-            const CSV_PATH: string = `${PASTA_CSV}\\produtos\\${ID_LOJA}.csv`;
+            const CSV_PATH: string = `${PASTA_CSV}\/produtos\/${ID_LOJA}.csv`;
             const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
             const FIELDPOS = {
               id_produto: -1,
@@ -361,7 +361,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                   } // if
                 } // for
                 // console.log(req);
-                // console.log(FIELDPOS);
+                console.log(FIELDPOS);
 
                 if (req.length) {
                   throw new Error(`Campos obrigatórios não indicados: ${req.join(', ')}`);
@@ -408,92 +408,115 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                     // console.log(ROW);
                     const ID_SUBDEPARTAMENTO: string = `${ROW[FIELDPOS['id_subdepartamento']]}`.trim();
 
-
-
                     const PRODUTO: any = {
                       'id_produto': FIELDPOS['id_produto'] >= 0
-                        && `${ROW[FIELDPOS['id_produto']].trim()}`,
+                        ? `${ROW[FIELDPOS['id_produto']].trim()}`
+                        : '',
 
                       'barcode_produto': FIELDPOS['barcode_produto'] >= 0
-                        && `${ROW[FIELDPOS['barcode_produto']].trim()}`,
+                        ? `${ROW[FIELDPOS['barcode_produto']].trim()}`
+                        : '',
 
                       'nome_produto': FIELDPOS['nome_produto'] >= 0
-                        && `${ROW[FIELDPOS['nome_produto']].trim()}`,
+                        ? `${ROW[FIELDPOS['nome_produto']].trim()}`
+                        : '',
 
                       'preco_venda': FIELDPOS['preco_venda'] >= 0
-                        && parseFloat(ROW[FIELDPOS['preco_venda']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['preco_venda']] || '') || 0
+                        : 0,
 
                       'id_departamento': FIELDPOS['id_departamento'] >= 0
-                        && `${ROW[FIELDPOS['id_departamento']].trim()}`,
+                        ? `${ROW[FIELDPOS['id_departamento']].trim()}`
+                        : '',
 
                       'nome_departamento': FIELDPOS['nome_departamento'] >= 0
-                        && `${ROW[FIELDPOS['nome_departamento']].trim()}`,
+                        ? `${ROW[FIELDPOS['nome_departamento']].trim()}`
+                        : '',
 
                       'ativo_departamento': FIELDPOS['ativo_departamento'] >= 0
-                        && parseInt(ROW[FIELDPOS['ativo_departamento']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['ativo_departamento']] || '')
+                        : true,
 
                       'atacado_status': FIELDPOS['atacado_status'] >= 0
-                        && parseInt(ROW[FIELDPOS['atacado_status']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['atacado_status']] || '')
+                        : false,
 
                       'atacado_qtde': FIELDPOS['atacado_qtde'] >= 0
-                        && parseFloat(ROW[FIELDPOS['atacado_qtde']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['atacado_qtde']] || '') || 0
+                        : 0,
 
                       'atacado_preco': FIELDPOS['atacado_preco'] >= 0
-                        && parseFloat(ROW[FIELDPOS['atacado_preco']] || ''),
-
-                      // 'industrializado': FIELDPOS['industrializado'] >= 0
-                      //   && parseInt(ROW[FIELDPOS['industrializado']] || '') > 0,
+                        ? parseFloat(ROW[FIELDPOS['atacado_preco']] || '') || 0
+                        : 0,
 
                       'id_subdepartamento': FIELDPOS['id_subdepartamento'] >= 0
                         && (ID_SUBDEPARTAMENTO === '0' ? '' : ID_SUBDEPARTAMENTO)
                         || '',
 
                       'nome_subdepartamento': FIELDPOS['nome_subdepartamento'] >= 0
-                        && `${ROW[FIELDPOS['nome_subdepartamento']].trim()}`,
+                        ? `${ROW[FIELDPOS['nome_subdepartamento']].trim()}`
+                        : '',
 
                       'ativo_subdepartamento': FIELDPOS['ativo_subdepartamento'] >= 0
-                        && parseInt(ROW[FIELDPOS['ativo_subdepartamento']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['ativo_subdepartamento']] || '')
+                        : true,
 
                       'ativo_produto': FIELDPOS['ativo_produto'] >= 0
-                        && parseInt(ROW[FIELDPOS['ativo_produto']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['ativo_produto']] || '')
+                        : true,
 
-                      'online': FIELDPOS['online'] >= 0
-                        && parseInt(ROW[FIELDPOS['online']] || '') > 0,
+                      'online_produto': FIELDPOS['online_produto'] >= 0
+                        ? chkBool(ROW[FIELDPOS['online_produto']] || '')
+                        : true,
+
+                      'online_departamento': FIELDPOS['online_departamento'] >= 0
+                        ? chkBool(ROW[FIELDPOS['online_departamento']] || '')
+                        : true,
 
                       'fracionado_status': FIELDPOS['fracionado_status'] >= 0
-                        && parseInt(ROW[FIELDPOS['fracionado_status']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['fracionado_status']] || '')
+                        : false,
 
                       'percentual_limite_venda': FIELDPOS['percentual_limite_venda'] >= 0
-                        && parseFloat(ROW[FIELDPOS['percentual_limite_venda']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['percentual_limite_venda']] || '') || 0
+                        : 0,
 
                       'fracionado_fracao': FIELDPOS['fracionado_fracao'] >= 0
-                        && parseFloat(ROW[FIELDPOS['fracionado_fracao']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['fracionado_fracao']] || '') || 0
+                        : 0,
 
                       'fracionado_tipo': FIELDPOS['fracionado_tipo'] >= 0
-                        && `${ROW[FIELDPOS['fracionado_tipo']].trim()}`,
+                        ? `${ROW[FIELDPOS['fracionado_tipo']].trim()}`
+                        : '',
 
                       'descricao_produto': FIELDPOS['descricao_produto'] >= 0
-                        && `${ROW[FIELDPOS['descricao_produto']].trim()}`,
+                        ? `${ROW[FIELDPOS['descricao_produto']].trim()}`
+                        : '',
 
                       'destaque': FIELDPOS['destaque'] >= 0
-                        && parseInt(ROW[FIELDPOS['destaque']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['destaque']] || '')
+                        : false,
 
                       'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || '') || 0
+                        : 0,
 
                       'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '') || 0
+                        : 0,
 
                       'qtde_limite_venda': FIELDPOS['qtde_limite_venda'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_limite_venda']] || ''),
+                        ? parseFloat(ROW[FIELDPOS['qtde_limite_venda']] || '') || 0
+                        : 0,
 
                       'estoque_controlado': FIELDPOS['estoque_controlado'] >= 0
-                        && parseInt(ROW[FIELDPOS['estoque_controlado']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['estoque_controlado']] || '')
+                        : false,
                     };
 
                     const INDEX_ONLINE_DEPARTAMENTO: number = FIELDPOS['online_departamento'];
                     if (INDEX_ONLINE_DEPARTAMENTO >= 0) {
-                      PRODUTO.online_departamento = parseInt(ROW[INDEX_ONLINE_DEPARTAMENTO] || '') > 0;
+                      PRODUTO.online_departamento = chkBool(ROW[INDEX_ONLINE_DEPARTAMENTO] || '');
                     } // if
 
                     PRODUTOS.push(PRODUTO);
@@ -1006,15 +1029,15 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     //#endregion
 
     //#region promocoes
-    let tipoPromocoes: string = (get(CONFIG_PROMOCOES, 'tipo') || '').toLowerCase();
+    let TIPO_PROMOCOES: string = (get(CONFIG_PROMOCOES, 'tipo') || '').toLowerCase();
     // console.log(tipoEstoque);
 
-    log('Verificando promoções.');
-    if (tipoPromocoes) {
+    log('Verificando integração PROMOÇÕES.');
+    if (TIPO_PROMOCOES) {
       const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
       const VIEW_PROMOCOES: string = get(CONFIG_PROMOCOES, 'nomeView') || '';
 
-      switch (tipoPromocoes) {
+      switch (TIPO_PROMOCOES) {
         case 'db':
           log('Encontrado: ' + VIEW_PROMOCOES);
           // console.log(CAMPOS_ESTOQUE);
@@ -1315,7 +1338,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
             // console.log(LOJA);
             const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
 
-            const CSV_PATH: string = `${PASTA_CSV}\\formas-pgto\\${ID_LOJA}.csv`;
+            const CSV_PATH: string = `${PASTA_CSV}\/formas-pgto\/${ID_LOJA}.csv`;
             const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
             const FIELDPOS = {
               id_interno: -1,
@@ -1359,8 +1382,8 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                     FIELDPOS[FIELD] = i; // Guarda posição da coluna.
                   } // if
                 } // for
-                // console.log(req);
-                // console.log(FIELDPOS);
+                // console.log('req', req);
+                // console.log('FIELDPOS', FIELDPOS);
 
                 if (req.length) {
                   throw new Error(`Campos obrigatórios não indicados: ${req.join(', ')}`);
@@ -1407,21 +1430,25 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                     // console.log(ROW);
                     const FORMA = {
                       'id_interno': FIELDPOS['id_interno'] >= 0
-                        && `${ROW[FIELDPOS['id_interno']].trim()}`,
+                        ? `${ROW[FIELDPOS['id_interno']].trim()}`
+                        : '',
 
                       'forma_ativa': FIELDPOS['forma_ativa'] >= 0
-                        && parseInt(ROW[FIELDPOS['forma_ativa']] || '') > 0,
+                        ? chkBool(ROW[FIELDPOS['forma_ativa']] || '')
+                        : true,
 
                       'nome_forma': FIELDPOS['nome_forma'] >= 0
-                        && `${ROW[FIELDPOS['nome_forma']].trim()}`,
+                        ? `${ROW[FIELDPOS['nome_forma']].trim()}`
+                        : '',
 
                       'id_externo': FIELDPOS['id_externo'] >= 0
-                        && `${ROW[FIELDPOS['id_externo']].trim()}`,
+                        ? `${ROW[FIELDPOS['id_externo']].trim()}`
+                        : '',
                     };
                     FORMAS.push(FORMA);
                   } // if
                 } // for
-                // console.log(FORMAS);
+                console.log(FORMAS);
                 resultado = {
                   ...resultado,
                   ...await processaFormasLoja(

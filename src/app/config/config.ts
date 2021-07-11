@@ -28,7 +28,7 @@ export const CONFIG = {
     }
   },
   csv: {
-    path: ''
+    path: '\/home\/conecdata\/csvs'
   },
   /* 
     TRUE = plataforma de testes

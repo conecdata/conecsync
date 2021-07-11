@@ -28,13 +28,13 @@ export const PRODUTOS_REQ_FIELDS: string[] = [
   'qtde_estoque_atual', // INTEGER/FLOAT
   'qtde_estoque_minimo', // INTEGER/FLOAT
   'qtde_limite_venda', // INTEGER/FLOAT
-  'destaque', // BOOLEAN
+  // 'destaque', // BOOLEAN
 ];
 
 export const FORMAS_REQ_FIELDS: string[] = [
   'id_interno', // INTEGER
   'forma_ativa', // BOOLEAN
-  'nome_forma', // STRING
+  // 'nome_forma', // STRING
   'id_externo', // STRING
 ];
 
@@ -295,3 +295,4 @@ export const CAMPOS_PROMOCOES: any = {
 
 // destaques
 export const AUTO_DESTAQUES = {};
+
