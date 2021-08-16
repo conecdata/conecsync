@@ -10,8 +10,8 @@ export const CONFIG_MERCADEIRO = {
     OBS: Uma array vazia ignora sincronização com esse projeto.
     */
     {
-      id: '1', 
-      token: ''
+      id: '1',
+      token: 'ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnNiMnBoVUdGMGFDSTZJbDkxWm5NdmJXY3ZiRzlqWVd4cFpHRmtaWE12ZFdKbGNtRmlZUzB0YldjdmJHOXFZWE12WVdZdGMzVndaWEp0WlhKallXUnZMUzF0WnkwdGRXSmxjbUZpWVMwdFkyOXVhblZ1ZEc4dFlXeG1jbVZrYnkxbWNtVnBjbVV0TFhKMVlTMW1jbUZ1WTJselkyOHRiWFZ1YUc5NkxXeHZjR1Z6SWl3aWFHRnphQ0k2SW1FeU9EQmhPVGt6SWl3aWFXUkpiblJsWjNKaFpHOXlZU0k2SW1SMVluSmhjMmxzSWl3aWFXRjBJam94TmpJNE9EY3hORGc0ZlEubkZ3MGwybUhOSEI1T2xTaUZNdzF3QmhDN3A3VlN2cDUxeFlZQVF5TUdlYw=='
     }
   ]
 }

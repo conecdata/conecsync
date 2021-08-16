@@ -1,3 +1,4 @@
+import { promises as fs } from 'fs';
 import * as rp from 'request-promise';
 import {
   chkBool,
@@ -234,6 +235,8 @@ export async function syncProdutos(
   produtos: any[]
 ): Promise<number> {
   let count: number = 0;
+  let whitelist: boolean = false;
+  let wlRows: string[] = [];
 
   if (
     idLoja
@@ -247,6 +250,27 @@ export async function syncProdutos(
       }
     );
 
+    const WHITELIST_FILE: string = `whitelists/${idLoja}.txt`;
+    try {
+      const VALUE = await fs.readFile(WHITELIST_FILE, 'ascii');
+      // console.log(VALUE);
+      if (VALUE.trim()) {
+        log('Removendo linhas vazias ou comentadas.');
+        // Separa linhas e remove vazias ou comentadas.
+        wlRows = VALUE
+          .split("\n")
+          .filter(r => r.trim() && r && r[0] !== '*');
+        whitelist = !!wlRows.length;
+      } else {
+        whitelist = false;
+      } // else
+    } catch (error) {
+      whitelist = false;
+      console.error(error);
+    } // try-catch
+
+    // console.log(whitelist, wlRows);
+
     log('Sincronizando produtos.');
     for (let i = 0; i < produtos.length; i++) {
       // console.log("\n");
@@ -255,12 +279,17 @@ export async function syncProdutos(
       const PRODUTO = produtos[i] || {};
       // console.log(PRODUTO);
       const ID_PRODUTO: string = get(PRODUTO, 'id_produto') || '';
-
+      
+      // console.log(ID_PRODUTO);
+      // console.log(wlRows.includes(`${get(PRODUTO, 'id')}`));
       try {
         count += await findOne(
           NeDB_produtos,
           idLoja,
-          PRODUTO
+          PRODUTO,
+          whitelist
+            ? wlRows.includes(`${ID_PRODUTO}`)
+            : undefined
         );
       } catch (error) {
         errorLog(`Produto ${ID_PRODUTO}: ${error.message}`);
@@ -308,7 +337,8 @@ async function apiUpdateProduto(
 function findOne(
   neDB: any,
   idLoja: string,
-  produto: any
+  produto: any,
+  forceOnline: any,
 ): Promise<number> {
   return new Promise((resolve, reject) => {
     // console.log(produto);
@@ -374,7 +404,9 @@ function findOne(
 
     const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status'));
     const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao');
+    const FRACIONADO_PERC_DESC_PROMO_AUTO: any = get(produto, 'fracionado_perc_desc_promo_auto');
     const FRACIONADO_TIPO: any = get(produto, 'fracionado_tipo');
+
     if (FRACIONADO_STATUS !== null) {
       set(
         BODY_PRODUTO,
@@ -386,6 +418,12 @@ function findOne(
         BODY_PRODUTO,
         'fracionado.unidade.fracao',
         parseFloat(FRACIONADO_FRACAO) || 0
+      );
+
+      FRACIONADO_PERC_DESC_PROMO_AUTO !== null && set(
+        BODY_PRODUTO,
+        'fracionado.percDescPromocaoAutomatica',
+        parseFloat(FRACIONADO_PERC_DESC_PROMO_AUTO) || 0
       );
 
       FRACIONADO_TIPO !== null && set(
@@ -411,12 +449,20 @@ function findOne(
       parseFloat(LIMITE_VENDA)
     );
 
-    const ONLINE_PRODUTO: any = get(produto, 'online_produto');
-    ONLINE_PRODUTO !== null && set(
-      BODY_PRODUTO,
-      'online',
-      chkBool(ONLINE_PRODUTO)
-    );
+    if (forceOnline !== undefined) {
+      set(
+        BODY_PRODUTO,
+        'online',
+        chkBool(forceOnline)
+      );
+    } else {
+      const ONLINE_PRODUTO: any = get(produto, 'online_produto');
+      ONLINE_PRODUTO !== null && set(
+        BODY_PRODUTO,
+        'online',
+        chkBool(ONLINE_PRODUTO)
+      );
+    } // else
 
     idSubdepartamento !== null && set(
       BODY_PRODUTO,

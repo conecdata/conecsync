@@ -41,7 +41,8 @@
       * [Produtos fracionados](#produtos_fracionados)
       * [Limitando a quantidade no pedido](#limitando_qtde)
     * [Origem Estoque](#origem_estoque)
-    * [Controlando a disponibilidade dos produtos pela API](#controlando_disponibilidade_api)## Origem * * * [Origem Formas pagamento](#origem_formas_pgto)
+    * [Controlando a disponibilidade dos produtos pela API](#controlando_disponibilidade_api)
+    * [Origem Formas pagamento](#origem_formas_pgto)
     * [Origem Promoções](#origem_promocoes)
       * [Promoção Leve... Pague...](#promocao_lp)
       * [Promoção A partir de...](#promocao_apd)
@@ -89,13 +90,13 @@ Velocidade integração|<font color='MediumSeaGreen'>**MAIOR** As modificações
 > Conhecendo os prós e contras, caso você opte por realizar a integração diretamente pelas APIs dos projetos, o restante dessa documentação é irrelevante (pois só diz respeito ao uso do ConecSync) e recomendamos que consulte a documentação de cada API em seu lugar.
 
 ## Passo a passo utilização script<a id="passo_passo_script"></a>
-1. Instalação do nodejs.
-1. Baixando do repositório do GitHub.
-1. Instalação das dependências.
-1. Configuração.
-1. Execução periódica.
+* Instalação do nodejs.
+* Baixando do repositório do GitHub.
+* Instalação das dependências.
+* Configuração.
+* Execução periódica.
 
-# 2 - Instalação do nodejs<a id="instalacao_nodejs"></a>
+# 2 - Instalação do NodeJs<a id="instalacao_nodejs"></a>
 
 Basicamente, o único programa necessário para a execução do script é o Node Js. Para instalá-lo, siga as recomendações específicas para seu sistema operacional no site <https://nodejs.org>.
 
@@ -213,6 +214,7 @@ Para cada origem de dados que deseja utilizar, o parceiro deve gerar uma view em
  * MySql
  * Maria Db
  * Postgres
+ * MsSQL
  * Firebird
 
 **Vantagens da utilização das views para leitura do banco de dados:**
@@ -427,9 +429,10 @@ nome_subdepartamento|Nome do subdepartamento.|String|Se **id_subdepartamento** i
 online_departamento|Status disponibilidade do departamento online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
 online_produto|Status de disponibilidade do produto online.|Boolean|Não|<font color='MediumSeaGreen'>Default **true**.</font>
 fracionado_status|Status condição pesável do produto.|Boolean|Não|<font color='MediumSeaGreen'>Default **false**.</font>
-percentual_limite_venda|% máximo do estoque disponível permitido para compra.|Número|Não|>= 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0** (desativado).</font>
+fracionado_perc_desc_promo_auto|Percentual de desconto automático do produto fracionado.|Número|Se **fracionado_status** true.|>= 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0** (sem desconto).</font>
 fracionado_fracao|Qtde adicionada/removida do produto por vez.|Número|Se **fracionado_status** true.| > 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
 fracionado_tipo|Unidade de fracionamento do produto.|String|Se **fracionado_status** true.|'K', 'KG', 'G', 'GR', 'L', 'LT', 'ML', 'M' ou 'CM'.<br><font color='MediumSeaGreen'>Default **''**.</font>
+percentual_limite_venda|% máximo do estoque disponível permitido para compra.|Número|Não|>= 0 e <= 100 se indicado.<br><font color='MediumSeaGreen'>Default **0** (desativado).</font>
 preco_venda|Preço normal do produto.|Número|**SIM**| > 0.
 qtde_estoque_atual|Qtde atual no estoque.|Número|Se **estoque_controlado** true.|-
 qtde_estoque_minimo|Disponibilidade mínima do produto para status regular de estoque.|Número|Se **estoque_controlado** true.|>= 0 se indicado.<br><font color='MediumSeaGreen'>Default **0**.</font>
@@ -477,9 +480,10 @@ São produtos que tem a propriedade **barcode_produto** indicada. Produtos indus
 Produtos marcados como destaque possuem uma exibição privilegiada na plataforma, eles são apresentados na tela principal do site/app e nos resumos dos subdepartamentos, quando um departamento (que não possua produtos próprios) é selecionado.
 
 #### Produtos fracionados<a id="produtos_fracionados"></a>
-Produtos pesáveis são os que permitem venda a granel, tendo uma unidade e fração indicadas. Esse grupo é composto pelas seguintes propriedades.
+Produtos fracionados são os que permitem venda a granel, tendo uma unidade e fração indicadas. Esse grupo é composto pelas seguintes propriedades.
 
 * **fracionado_status**
+* **fracionado_perc_desc_promo_auto**
 * **fracionado_tipo**
 * **fracionado_fracao**
 
@@ -491,6 +495,8 @@ KG ou K|0, 3|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
 GR ou G|300|0, 3Kg 0, 6Kg 0, 9Kg 1, 2Kg...
 
 > A exibição na plataforma das unidades fracionadas se fará sempre pela de maior unidade (no caso Kg), sendo realizada automaticamente a conversão quando for necessário.
+
+Produtos fracionados não podem constar em promoções, entretanto, caso se queira por exemplo apresentar um produto como: `banana de R$ 4,00 por R$ 3,00`, pode-se indicar o campo **fracionado_perc_desc_promo_auto** com valor 25 (25%), o que exibirá sempre o valor integral do produto (figurativo) junto do valor com desconto automático (utilizado).
 
 #### Limitando a quantidade no pedido<a id="limitando_qtde"></a>
 Existem duas maneiras de se limitar a quantidade de cada produto no carrinho, uma direta (pela propriedade **qtde_limite_venda**) e outra que depende do status e da situação do estoque do produto. A lógica utilizada para se chegar ao valor limite é algo como:

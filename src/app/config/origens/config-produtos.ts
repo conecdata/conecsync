@@ -6,7 +6,7 @@ export const CONFIG_PRODUTOS = {
   // },
   /* Tipo de origem */
   // Se '' ignora essa origem de dados (não sincroniza).
-  tipo: '', // 'fb', 'db' | 'csv' | ''
+  tipo: 'csv', // 'fb', 'db' | 'csv' | ''
 
   // Nome da view do cadastro de produtos de promoções
   // nomeView: 'View_IntegracaoMercadeiro2', // db/fb
@@ -49,6 +49,7 @@ export const CONFIG_PRODUTOS = {
 
     0 AS fracionado_status,
     0 AS fracionado_fracao,
+    0 AS fracionado_perc_desc_promo_auto,
     '' AS fracionado_tipo,
 
     1 AS ativo_produto,
@@ -100,6 +101,7 @@ export const CONFIG_PRODUTOS = {
 
     pro_b_fracionado AS fracionado_status,
     pro_f_fracionado_fracao AS fracionado_fracao,
+    pro_f_fracionado_perc_desc_promo_auto AS fracionado_perc_desc_promo_auto,
     pro_c_fracionado_tipo AS fracionado_tipo,
 
     pro_b_ativo AS ativo_produto,
@@ -152,6 +154,7 @@ CREATE VIEW view_conecdata_produtos
 
     fracionado_status,
     fracionado_fracao,
+    fracionado_perc_desc_promo_auto,
     fracionado_tipo,
 
     ativo_produto,
@@ -190,6 +193,7 @@ AS SELECT
 
   pro_b_fracionado,
   pro_f_fracionado_fracao,
+  pro_f_fracionado_perc_desc_promo_auto,
   pro_c_fracionado_tipo,
 
   pro_b_ativo,

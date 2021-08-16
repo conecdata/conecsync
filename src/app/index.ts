@@ -313,6 +313,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               nome_subdepartamento: -1,
               percentual_limite_venda: -1,
               fracionado_fracao: -1,
+              fracionado_perc_desc_promo_auto: -1,
               fracionado_status: -1,
               fracionado_tipo: -1,
               preco_venda: -1,
@@ -483,6 +484,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
                       'fracionado_fracao': FIELDPOS['fracionado_fracao'] >= 0
                         ? parseFloat(ROW[FIELDPOS['fracionado_fracao']] || '') || 0
+                        : 0,
+
+                      'fracionado_perc_desc_promo_auto': FIELDPOS['fracionado_perc_desc_promo_auto'] >= 0
+                        ? parseFloat(ROW[FIELDPOS['fracionado_perc_desc_promo_auto']] || '') || 0
                         : 0,
 
                       'fracionado_tipo': FIELDPOS['fracionado_tipo'] >= 0

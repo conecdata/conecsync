@@ -20,6 +20,7 @@ export const PRODUTOS_REQ_FIELDS: string[] = [
   'nome_subdepartamento', // STRING
   'percentual_limite_venda', // INTEGER/FLOAT
   'fracionado_fracao', // FLOAT
+  'fracionado_perc_desc_promo_auto', // FLOAT
   'fracionado_status', // BOOLEAN
   'fracionado_tipo', // STRING
   'preco_venda', // FLOAT
@@ -192,6 +193,10 @@ export const CAMPOS_PRODUTOS: any = {
   fracionado_fracao: {
     type: DataTypes.DECIMAL,
     field: 'fracionado_fracao'
+  },
+  fracionado_perc_desc_promo_auto: {
+    type: DataTypes.DECIMAL,
+    field: 'fracionado_perc_desc_promo_auto'
   },
   fracionado_tipo: {
     type: DataTypes.STRING,
