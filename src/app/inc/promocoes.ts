@@ -1,5 +1,11 @@
 import * as rp from 'request-promise';
-import { chkBool, errorLog, errorLogApi, log } from './lib';
+import {
+  chkBool,
+  errorLog,
+  errorLogApi,
+  log,
+  toFloat
+} from './lib';
 import {
   API_URL,
   CAMPOS_PROMOCOES
@@ -212,16 +218,16 @@ function findOne(
       tipo: get(promocao, 'tipo') || '',
       idsProdutos: produtosPromocoes.get(ID_PROMOCAO_MAP) || [],
       tipoAPD: {
-        qtde: parseFloat(get(promocao, 'qtde_apd')) || 0,
+        qtde: toFloat(get(promocao, 'qtde_apd')),
         desconto: {
-          limite: parseFloat(get(promocao, 'lim_desc_apd')) || 0,
-          percentual: parseFloat(get(promocao, 'perc_desc_apd')) || 0,
+          limite: toFloat(get(promocao, 'lim_desc_apd')),
+          percentual: toFloat(get(promocao, 'perc_desc_apd')),
         }
       },
       tipoLP: {
         qtde: {
-          leve: parseFloat(get(promocao, 'qtde_leve_lp')) || 0,
-          pague: parseFloat(get(promocao, 'qtde_pague_lp')) || 0,
+          leve: toFloat(get(promocao, 'qtde_leve_lp')),
+          pague: toFloat(get(promocao, 'qtde_pague_lp')),
         }
       }
     };

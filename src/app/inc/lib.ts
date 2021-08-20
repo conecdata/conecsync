@@ -2,6 +2,22 @@ import { promises as fs } from 'fs';
 import moment from 'moment';
 import { CONFIG } from '../config/config';
 
+export function toFloat(val: any): number {
+  switch (typeof val) {
+    case 'number':
+      return val;
+      break;
+
+    case 'string':
+      return parseFloat((val || '').replace(',', '.')) || 0;
+      break;
+
+    default:
+      return 0;
+      break;
+  } // switch
+}
+
 export function log(msg: string) {
   const TS = moment().format('YYYY-MM-DD HH:mm:ss');
   msg = `${TS} ${msg}`;

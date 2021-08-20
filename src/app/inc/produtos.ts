@@ -5,7 +5,8 @@ import {
   errorLog,
   errorLogApi,
   fixBuffStr,
-  log
+  log,
+  toFloat
 } from './lib';
 import { API_URL, AUTO_DESTAQUES, CAMPOS_PRODUTOS } from '../consts';
 import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
@@ -235,8 +236,10 @@ export async function syncProdutos(
   produtos: any[]
 ): Promise<number> {
   let count: number = 0;
+  // let blacklist: boolean = false;
   let whitelist: boolean = false;
   let wlRows: string[] = [];
+  let blRows: string[] = [];
 
   if (
     idLoja
@@ -250,16 +253,37 @@ export async function syncProdutos(
       }
     );
 
-    const WHITELIST_FILE: string = `whitelists/${idLoja}.txt`;
+    const WHITELIST_FILE: string = `partial/${idLoja}/white.txt`;
+    const BLACKLIST_FILE: string = `partial/${idLoja}/black.txt`;
     try {
-      const VALUE = await fs.readFile(WHITELIST_FILE, 'ascii');
-      // console.log(VALUE);
-      if (VALUE.trim()) {
-        log('Removendo linhas vazias ou comentadas.');
+      const BLACK = await fs.readFile(BLACKLIST_FILE, 'ascii');
+      // console.log(WHITE);
+      if (BLACK.trim()) {
+        log('Blacklist, removendo linhas vazias ou comentadas.');
         // Separa linhas e remove vazias ou comentadas.
-        wlRows = VALUE
+        blRows = BLACK
           .split("\n")
           .filter(r => r.trim() && r && r[0] !== '*');
+        console.log(blRows);
+        blRows = [...new Set(blRows)];
+        console.log(blRows);
+
+        // blacklist = !!blRows.length;
+      } else {
+        // blacklist = false;
+      } // else
+
+      const WHITE = await fs.readFile(WHITELIST_FILE, 'ascii');
+      if (WHITE.trim()) {
+        log('Whitelist, removendo linhas vazias ou comentadas.');
+        // Separa linhas e remove vazias ou comentadas.
+        wlRows = WHITE
+          .split("\n")
+          .filter(r => r.trim()
+            && r
+            && r[0] !== '*'
+            && !blRows.includes(r)
+          );
         whitelist = !!wlRows.length;
       } else {
         whitelist = false;
@@ -279,7 +303,7 @@ export async function syncProdutos(
       const PRODUTO = produtos[i] || {};
       // console.log(PRODUTO);
       const ID_PRODUTO: string = get(PRODUTO, 'id_produto') || '';
-      
+
       // console.log(ID_PRODUTO);
       // console.log(wlRows.includes(`${get(PRODUTO, 'id')}`));
       try {
@@ -346,12 +370,12 @@ function findOne(
     // console.log(ID_PRODUTO);
     const ESTOQUE = {
       controlado: chkBool(get(produto, 'estoque_controlado')),
-      min: parseFloat(get(produto, 'qtde_estoque_minimo')) || 0,
-      atual: parseFloat(get(produto, 'qtde_estoque_atual')) || 0
+      min: toFloat(get(produto, 'qtde_estoque_minimo')),
+      atual: toFloat(get(produto, 'qtde_estoque_atual'))
     };
     // const LIMITE_VENDA = {
-    //   percentual: parseFloat(get(produto, 'percentual_limite_venda')) || 0,
-    //   qtde: parseFloat(get(produto, 'qtde_limite_venda')) || 0,
+    //   percentual: toFloat(get(produto, 'percentual_limite_venda')),
+    //   qtde: toFloat(get(produto, 'qtde_limite_venda')),
     //   menorValor: 0
     // };
     // const VAL_PERCENTUAL: number = ESTOQUE.atual * (LIMITE_VENDA.percentual / 100);
@@ -381,7 +405,7 @@ function findOne(
         : false,
       "idDepartamento": idDepartamento === null ? '' : `${idDepartamento}`,
       "nome": get(produto, 'nome_produto') || '',
-      "preco": parseFloat(get(produto, 'preco_venda')) || 0
+      "preco": toFloat(get(produto, 'preco_venda'))
     };
 
     const ATACADO_STATUS: any = get(produto, 'atacado_status');
@@ -390,8 +414,8 @@ function findOne(
       'atacado',
       {
         status: chkBool(ATACADO_STATUS),
-        qtde: parseFloat(get(produto, 'atacado_qtde')) || 0,
-        valor: parseFloat(get(produto, 'atacado_valor')) || 0,
+        qtde: toFloat(get(produto, 'atacado_qtde')),
+        valor: toFloat(get(produto, 'atacado_valor')),
       }
     );
 
@@ -417,13 +441,13 @@ function findOne(
       FRACIONADO_FRACAO !== null && set(
         BODY_PRODUTO,
         'fracionado.unidade.fracao',
-        parseFloat(FRACIONADO_FRACAO) || 0
+        toFloat(FRACIONADO_FRACAO)
       );
 
       FRACIONADO_PERC_DESC_PROMO_AUTO !== null && set(
         BODY_PRODUTO,
         'fracionado.percDescPromocaoAutomatica',
-        parseFloat(FRACIONADO_PERC_DESC_PROMO_AUTO) || 0
+        toFloat(FRACIONADO_PERC_DESC_PROMO_AUTO)
       );
 
       FRACIONADO_TIPO !== null && set(
@@ -446,7 +470,7 @@ function findOne(
     LIMITE_VENDA !== null && set(
       BODY_PRODUTO,
       'limiteVenda',
-      parseFloat(LIMITE_VENDA)
+      toFloat(LIMITE_VENDA)
     );
 
     if (forceOnline !== undefined) {

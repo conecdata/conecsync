@@ -1,5 +1,10 @@
 import * as rp from 'request-promise';
-import { errorLog, errorLogApi, log } from './lib';
+import {
+  errorLog,
+  errorLogApi,
+  log,
+  toFloat
+} from './lib';
 import {
   API_URL,
   CAMPOS_ESTOQUE
@@ -200,8 +205,8 @@ function findOne(
     const ID_PRODUTO: string = get(produto, 'id_produto') || '';
     // console.log(ID_PRODUTO);
     const ESTOQUE = {
-      min: parseFloat(get(produto, 'qtde_estoque_minimo') || 0),
-      atual: parseFloat(get(produto, 'qtde_estoque_atual') || 0)
+      min: toFloat(get(produto, 'qtde_estoque_minimo')),
+      atual: toFloat(get(produto, 'qtde_estoque_atual'))
     };
     const BODY = {
       "estoqueMinimo": ESTOQUE.min

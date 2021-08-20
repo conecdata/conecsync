@@ -2,7 +2,12 @@ import { promises as fs } from 'fs';
 const path = require('path');
 import { get } from 'lodash';
 const { Sequelize } = require('sequelize');
-import { chkBool, errorLog, log } from './inc/lib';
+import {
+  chkBool,
+  errorLog,
+  log,
+  toFloat
+} from './inc/lib';
 import {
   buscaProdutosDB,
   buscaProdutosFB,
@@ -423,7 +428,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         : '',
 
                       'preco_venda': FIELDPOS['preco_venda'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['preco_venda']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['preco_venda']])
                         : 0,
 
                       'id_departamento': FIELDPOS['id_departamento'] >= 0
@@ -443,11 +448,11 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         : false,
 
                       'atacado_qtde': FIELDPOS['atacado_qtde'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['atacado_qtde']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['atacado_qtde']])
                         : 0,
 
                       'atacado_preco': FIELDPOS['atacado_preco'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['atacado_preco']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['atacado_preco']])
                         : 0,
 
                       'id_subdepartamento': FIELDPOS['id_subdepartamento'] >= 0
@@ -479,15 +484,15 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         : false,
 
                       'percentual_limite_venda': FIELDPOS['percentual_limite_venda'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['percentual_limite_venda']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['percentual_limite_venda']])
                         : 0,
 
                       'fracionado_fracao': FIELDPOS['fracionado_fracao'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['fracionado_fracao']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['fracionado_fracao']])
                         : 0,
 
                       'fracionado_perc_desc_promo_auto': FIELDPOS['fracionado_perc_desc_promo_auto'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['fracionado_perc_desc_promo_auto']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['fracionado_perc_desc_promo_auto']])
                         : 0,
 
                       'fracionado_tipo': FIELDPOS['fracionado_tipo'] >= 0
@@ -503,15 +508,15 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         : false,
 
                       'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['qtde_estoque_minimo']])
                         : 0,
 
                       'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['qtde_estoque_atual']])
                         : 0,
 
                       'qtde_limite_venda': FIELDPOS['qtde_limite_venda'] >= 0
-                        ? parseFloat(ROW[FIELDPOS['qtde_limite_venda']] || '') || 0
+                        ? toFloat(ROW[FIELDPOS['qtde_limite_venda']])
                         : 0,
 
                       'estoque_controlado': FIELDPOS['estoque_controlado'] >= 0
@@ -749,10 +754,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         && `${ROW[FIELDPOS['nome_produto']].trim()}`,
 
                       'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || ''),
+                        && toFloat(ROW[FIELDPOS['qtde_estoque_minimo']]),
 
                       'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '')
+                        && toFloat(ROW[FIELDPOS['qtde_estoque_atual']])
                     };
                     ESTOQUE.push(PRODUTO);
                   } // if
@@ -997,10 +1002,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         && `${ROW[FIELDPOS['nome_produto']].trim()}`,
 
                       'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || ''),
+                        && toFloat(ROW[FIELDPOS['qtde_estoque_minimo']]),
 
                       'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '')
+                        && toFloat(ROW[FIELDPOS['qtde_estoque_atual']])
                     };
                     ESTOQUE.push(PRODUTO);
                   } // if
@@ -1225,10 +1230,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                         && `${ROW[FIELDPOS['nome_produto']].trim()}`,
 
                       'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_minimo']] || ''),
+                        && toFloat(ROW[FIELDPOS['qtde_estoque_minimo']]),
 
                       'qtde_estoque_atual': FIELDPOS['qtde_estoque_atual'] >= 0
-                        && parseFloat(ROW[FIELDPOS['qtde_estoque_atual']] || '')
+                        && toFloat(ROW[FIELDPOS['qtde_estoque_atual']])
                     };
                     ESTOQUE.push(PRODUTO);
                   } // if
