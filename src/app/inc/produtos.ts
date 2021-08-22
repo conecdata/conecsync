@@ -426,10 +426,10 @@ function findOne(
       chkBool(DESTAQUE)
     );
 
-    const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status'));
-    const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao');
-    const FRACIONADO_PERC_DESC_PROMO_AUTO: any = get(produto, 'fracionado_perc_desc_promo_auto');
-    const FRACIONADO_TIPO: any = get(produto, 'fracionado_tipo');
+    const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status', 'F'));
+    const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao', 0);
+    const FRACIONADO_PERC_DESC_PROMO_AUTO: any = get(produto, 'fracionado_perc_desc_promo_auto', 0);
+    const FRACIONADO_TIPO: any = get(produto, 'fracionado_tipo', '');
 
     if (FRACIONADO_STATUS !== null) {
       set(

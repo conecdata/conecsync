@@ -3,33 +3,39 @@ const { DataTypes } = require('sequelize');
 // CSVs
 export const PRODUTOS_REQ_FIELDS: string[] = [
   'id_produto', // INTEGER
+
   'id_departamento', // INTEGER
-  'id_subdepartamento', // INTEGER
-  'atacado_status', // BOOLEAN
-  'atacado_qtde', // INTEGER
-  'atacado_preco', // INTEGER/FLOAT
-  'ativo_departamento', // BOOLEAN
-  'ativo_produto', // BOOLEAN
-  'ativo_subdepartamento', // BOOLEAN
-  'barcode_produto', // STRING
-  'descricao_produto', // STRING
-  'estoque_controlado', // BOOLEAN
-  // 'industrializado', // BOOLEAN
   'nome_departamento', // STRING
+  // 'ativo_departamento', // BOOLEAN
+  // 'online_departamento', // BOOLEAN
+
   'nome_produto', // STRING
-  'nome_subdepartamento', // STRING
-  'percentual_limite_venda', // INTEGER/FLOAT
-  'fracionado_fracao', // FLOAT
-  'fracionado_perc_desc_promo_auto', // FLOAT
-  'fracionado_status', // BOOLEAN
-  'fracionado_tipo', // STRING
+  'barcode_produto', // STRING
   'preco_venda', // FLOAT
-  'online_departamento', // BOOLEAN
-  'online_produto', // BOOLEAN
-  'qtde_estoque_atual', // INTEGER/FLOAT
-  'qtde_estoque_minimo', // INTEGER/FLOAT
-  'qtde_limite_venda', // INTEGER/FLOAT
-  // 'destaque', // BOOLEAN
+  // 'ativo_produto', // BOOLEAN
+  // 'descricao_produto', // STRING
+  // 'online_produto', // BOOLEAN
+  // 'destaque_produto', // BOOLEAN
+    
+  // 'id_subdepartamento', // INTEGER
+  // 'nome_subdepartamento', // STRING
+  // 'ativo_subdepartamento', // BOOLEAN
+  
+  // 'atacado_status', // BOOLEAN
+  // 'atacado_qtde', // INTEGER
+  // 'atacado_preco', // INTEGER/FLOAT
+  
+  // 'percentual_limite_venda', // INTEGER/FLOAT
+  // 'qtde_limite_venda', // INTEGER/FLOAT
+  
+  // 'fracionado_status', // BOOLEAN
+  // 'fracionado_fracao', // FLOAT
+  // 'fracionado_perc_desc_promo_auto', // FLOAT
+  // 'fracionado_tipo', // STRING
+  
+  // 'estoque_controlado', // BOOLEAN
+  // 'qtde_estoque_atual', // INTEGER/FLOAT
+  // 'qtde_estoque_minimo', // INTEGER/FLOAT
 ];
 
 export const FORMAS_REQ_FIELDS: string[] = [
@@ -300,4 +306,3 @@ export const CAMPOS_PROMOCOES: any = {
 
 // destaques
 export const AUTO_DESTAQUES = {};
-

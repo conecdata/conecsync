@@ -19,7 +19,7 @@ export const CONFIG = {
     conexao: {
       host: '127.0.0.1',
       port: 3050,
-      database: 'D:\\arquivo_firebird.FDB',
+      database: 'D:\\mercadeiro\\fb\\TGAalfredo.FDB',
       user: 'SYSDBA',
       password: 'masterkey',
       lowercase_keys: false,
@@ -28,7 +28,7 @@ export const CONFIG = {
     }
   },
   csv: {
-    path: '\/home\/conecdata\/csvs'
+    path: 'd:\\conecsync-csvs' // '\/home\/conecdata\/csvs'
   },
   /* 
     TRUE = plataforma de testes

@@ -505,7 +505,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
                       'destaque': FIELDPOS['destaque'] >= 0
                         ? chkBool(ROW[FIELDPOS['destaque']] || '')
-                        : false,
+                        : null,
 
                       'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
                         ? toFloat(ROW[FIELDPOS['qtde_estoque_minimo']])
