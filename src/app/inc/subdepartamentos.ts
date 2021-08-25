@@ -3,14 +3,19 @@ import { errorLog, errorLogApi, log } from './lib';
 import { get } from 'lodash';
 import { CONFIG } from '../config/config';
 import { CONFIG_MERCADEIRO } from '../config/projetos/config-mercadeiro';
-import { API_URL, AUTO_DESTAQUES } from '../consts';
+import {
+  // API_URL,
+  AUTO_DESTAQUES
+} from '../consts';
 import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
 var hash = require('object-hash');
 var Datastore = require('nedb');
 
 export async function syncSubdepartamentos(
+  apiUrl: string,
   idLoja: string,
-  subdepartamentos: any[]
+  subdepartamentos: any[],
+  hasSome: boolean
 ) {
   let count: number = 0;
 
@@ -34,8 +39,10 @@ export async function syncSubdepartamentos(
       try {
         count += await findOne(
           NeDB_subdepartamentos,
+          apiUrl,
           idLoja,
-          BODY_SUBDEPARTAMENTO
+          BODY_SUBDEPARTAMENTO,
+          hasSome
         );
       } catch (error) {
         errorLog(`Subdepartamento ${ID_SUBDEPARTAMENTO}: ${error.message}`);
@@ -50,12 +57,13 @@ function apiUpdateSubdepartamento(
   idDepartamento: string,
   idSubdepartamento: string,
   body: any,
+  apiUrl: string,
   idLoja: string
 ) {
   /* MERCADEIRO */
-  const URL_API: string = CONFIG.sandbox
-    ? API_URL.mercadeiro.sandbox
-    : API_URL.mercadeiro.producao;
+  // const URL_API: string = CONFIG.sandbox
+  //   ? API_URL.mercadeiro.sandbox
+  //   : API_URL.mercadeiro.producao;
 
   let token: string = '';
   const L: any = CONFIG_MERCADEIRO.lojas
@@ -65,7 +73,7 @@ function apiUpdateSubdepartamento(
   } // if
 
   if (token && idSubdepartamento) {
-    const URL: string = `${URL_API}/departamentos/${idDepartamento}/subdepartamentos/${idSubdepartamento}`;
+    const URL: string = `${apiUrl}/departamentos/${idDepartamento}/subdepartamentos/${idSubdepartamento}`;
     // console.log(URL);
     // console.log(body);
     return rp.post(URL, {
@@ -83,8 +91,10 @@ function apiUpdateSubdepartamento(
 
 function findOne(
   neDB: any,
+  apiUrl: string,
   idLoja: string,
-  body: any
+  body: any,
+  hasSome: boolean
 ): Promise<number> {
   return new Promise((resolve, reject) => {
     const ID_SUBDEPARTAMENTO: string = get(body, 'id') || '';
@@ -113,11 +123,12 @@ function findOne(
                   return reject(err);
                 } else {
                   try {
-                    const NEW: boolean = !!get(
+                    /* const NEW: boolean = !!get(
                       (await apiUpdateSubdepartamento(
                         ID_DEPARTAMENTO,
                         ID_SUBDEPARTAMENTO,
                         body,
+                        apiUrl,
                         idLoja
                       )),
                       'new'
@@ -128,7 +139,21 @@ function findOne(
                       const KEY: string = `${idLoja}_${ID_DEPARTAMENTO}_${ID_SUBDEPARTAMENTO}`;
                       AUTO_DESTAQUES[KEY] = +get(CONFIG_PRODUTOS, 'autoDestaque', 0) || 0;
                       // console.log('KEY', KEY);
+                    } // if */
+
+                    if (!hasSome) {
+                      const KEY: string = `${idLoja}_${ID_DEPARTAMENTO}_${ID_SUBDEPARTAMENTO}`;
+                      AUTO_DESTAQUES[KEY] = +get(CONFIG_PRODUTOS, 'autoDestaque', 0) || 0;
+                      // console.log('KEY', KEY);
                     } // if
+
+                    await apiUpdateSubdepartamento(
+                      ID_DEPARTAMENTO,
+                      ID_SUBDEPARTAMENTO,
+                      body,
+                      apiUrl,
+                      idLoja
+                    );
 
                     console.log("\nOK", body);
                     return resolve(1);
@@ -168,6 +193,7 @@ function findOne(
                               ID_DEPARTAMENTO,
                               ID_SUBDEPARTAMENTO,
                               body,
+                              apiUrl,
                               idLoja
                             );
 

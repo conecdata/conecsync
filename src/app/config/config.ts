@@ -34,7 +34,7 @@ export const CONFIG = {
     TRUE = plataforma de testes
     FALSE = plataforma definitiva ( CUIDADO )
   */
-  sandbox: true,
+  sandbox: false,
   /* 
     TRUE = Envia mensagens para terminal (se disponível)
     FALSE = Não envia mensagens, apenas grava no arquivo de log

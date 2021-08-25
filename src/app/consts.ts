@@ -54,10 +54,10 @@ export const ESTOQUE_REQ_FIELDS: string[] = [
 ];
 
 // Apis
-export const API_URL = {
+export const API_URLS = {
   mercadeiro: {
     sandbox: 'https://us-central1-mercadeiro-896b2.cloudfunctions.net/v1',
-    producao: 'https://api.mercadeiro.com.br/v1'
+    producao: 'https://us-central1-mercadeiro--prod.cloudfunctions.net/v1', // 'https://api.mercadeiro.com.br/v1'
   }
 }
 

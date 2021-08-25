@@ -6,7 +6,7 @@ import {
   toFloat
 } from './lib';
 import {
-  API_URL,
+  // API_URL,
   CAMPOS_ESTOQUE
 } from '../consts';
 import { CONFIG } from '../config/config';
@@ -17,6 +17,7 @@ var Datastore = require('nedb');
 var Firebird = require('node-firebird');
 
 export async function processaEstoqueLoja(
+  apiUrl: string,
   idLoja: string,
   estoque: any[]
 ) {
@@ -32,6 +33,7 @@ export async function processaEstoqueLoja(
     log(`${RESULTADO.estoque.total} produto(s) estoque controlado encontrado(s).`);
     // console.log(estoque);
     RESULTADO.estoque.sincronizados = await syncEstoque(
+      apiUrl,
       idLoja,
       estoque
     );
@@ -121,6 +123,7 @@ export async function buscaEstoqueFB(idLoja: string) {
 }
 
 export async function syncEstoque(
+  apiUrl: string,
   idLoja: string,
   estoque: any[]
 ): Promise<number> {
@@ -150,6 +153,7 @@ export async function syncEstoque(
       try {
         count += await findOne(
           NeDB_estoque,
+          apiUrl,
           idLoja,
           PRODUTO
         );
@@ -165,12 +169,13 @@ export async function syncEstoque(
 async function apiUpdateEstoque(
   idProduto: string,
   body: any,
+  apiUrl: string,
   idLoja: string
 ) {
-  /* MERCADEIRO */
-  const URL_API: string = CONFIG.sandbox
-    ? API_URL.mercadeiro.sandbox
-    : API_URL.mercadeiro.producao;
+  // /* MERCADEIRO */
+  // const URL_API: string = CONFIG.sandbox
+  //   ? API_URL.mercadeiro.sandbox
+  //   : API_URL.mercadeiro.producao;
 
   let token: string = '';
   const L: any = CONFIG_MERCADEIRO.lojas
@@ -180,7 +185,7 @@ async function apiUpdateEstoque(
   } // if
 
   if (token) {
-    const URL: string = `${URL_API}/produtos/estoque/${idProduto}`;
+    const URL: string = `${apiUrl}/produtos/estoque/${idProduto}`;
     // console.log(URL);
     // console.log(body);
     return rp.post(URL, {
@@ -198,6 +203,7 @@ async function apiUpdateEstoque(
 
 function findOne(
   neDB: any,
+  apiUrl: string,
   idLoja: string,
   produto: any
 ): Promise<number> {
@@ -237,6 +243,7 @@ function findOne(
                     await apiUpdateEstoque(
                       ID_PRODUTO,
                       BODY,
+                      apiUrl,
                       idLoja
                     );
                     console.log("\nOK", BODY);
@@ -276,6 +283,7 @@ function findOne(
                             await apiUpdateEstoque(
                               ID_PRODUTO,
                               BODY,
+                              apiUrl,
                               idLoja
                             );
                             console.log("\nOK", BODY);

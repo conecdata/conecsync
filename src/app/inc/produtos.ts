@@ -8,7 +8,11 @@ import {
   log,
   toFloat
 } from './lib';
-import { API_URL, AUTO_DESTAQUES, CAMPOS_PRODUTOS } from '../consts';
+import {
+  // API_URL,
+  AUTO_DESTAQUES,
+  CAMPOS_PRODUTOS
+} from '../consts';
 import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
 import { CONFIG } from '../config/config';
 import {
@@ -24,8 +28,10 @@ var Datastore = require('nedb');
 var Firebird = require('node-firebird');
 
 export async function processaProdutosLoja(
+  apiUrl: string,
   idLoja: string,
-  produtos: any[]
+  produtos: any[],
+  hasSome: boolean
 ) {
   const RESULTADO = {
     produtos: {
@@ -43,35 +49,43 @@ export async function processaProdutosLoja(
   };
 
   try {
-    // console.log(produtos);
+    console.log(produtos.length);
+    // produtos = produtos.slice(0, 100);
+    // console.log(produtos.length);
+
     const {
       departamentos: DEPARTAMENTOS,
       subdepartamentos: SUBDEPARTAMENTOS
     } = buscaDepartamentosSubdepartamentos(produtos);
-    console.log(DEPARTAMENTOS);
-    // console.log(SUBDEPARTAMENTOS);
+    // console.log(DEPARTAMENTOS);
 
     log(`${DEPARTAMENTOS.length} departamento(s) encontrado(s).`);
     RESULTADO.departamentos.total = DEPARTAMENTOS.length || 0;
     RESULTADO.departamentos.sincronizados = await syncDepartamentos(
+      apiUrl,
       idLoja,
-      DEPARTAMENTOS
+      DEPARTAMENTOS,
+      hasSome
     );
 
     // console.log(SUBDEPARTAMENTOS);
     log(`${SUBDEPARTAMENTOS.length} subdepartamento(s) encontrado(s).`);
     RESULTADO.subdepartamentos.total = SUBDEPARTAMENTOS.length || 0;
     RESULTADO.subdepartamentos.sincronizados = await syncSubdepartamentos(
+      apiUrl,
       idLoja,
-      SUBDEPARTAMENTOS
+      SUBDEPARTAMENTOS,
+      hasSome
     );
 
     RESULTADO.produtos.total = produtos.length;
     log(`${RESULTADO.produtos.total} produto(s) encontrado(s).`);
     // console.log(produtos);
     RESULTADO.produtos.sincronizados = await syncProdutos(
+      apiUrl,
       idLoja,
-      produtos
+      produtos,
+      hasSome
     );
 
     return RESULTADO;
@@ -232,8 +246,10 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
 }
 
 export async function syncProdutos(
+  apiUrl,
   idLoja: string,
-  produtos: any[]
+  produtos: any[],
+  hasSome: boolean
 ): Promise<number> {
   let count: number = 0;
   // let blacklist: boolean = false;
@@ -253,45 +269,57 @@ export async function syncProdutos(
       }
     );
 
-    const WHITELIST_FILE: string = `partial/${idLoja}/white.txt`;
-    const BLACKLIST_FILE: string = `partial/${idLoja}/black.txt`;
-    try {
-      const BLACK = await fs.readFile(BLACKLIST_FILE, 'ascii');
-      // console.log(WHITE);
-      if (BLACK.trim()) {
-        log('Blacklist, removendo linhas vazias ou comentadas.');
-        // Separa linhas e remove vazias ou comentadas.
-        blRows = BLACK
-          .split("\n")
-          .filter(r => r.trim() && r && r[0] !== '*');
-        console.log(blRows);
-        blRows = [...new Set(blRows)];
-        console.log(blRows);
+    if (!hasSome) {
+      const WHITELIST_FILE: string = `partial/${idLoja}/white.txt`;
+      const BLACKLIST_FILE: string = `partial/${idLoja}/black.txt`;
 
-        // blacklist = !!blRows.length;
-      } else {
-        // blacklist = false;
-      } // else
+      try {
+        const BLACK = await fs.readFile(BLACKLIST_FILE, 'ascii');
+        // console.log(WHITE);
+        if (BLACK.trim()) {
+          log('Blacklist, removendo linhas vazias ou comentadas.');
+          // Separa linhas e remove vazias ou comentadas.
+          blRows = BLACK
+            .split("\n")
+            .filter(r => r.trim() && r && r[0] !== '*')
+            .map(r => (r || '').trim());
+          // console.log(blRows);
+          blRows = [...new Set(blRows)];
+          // console.log(blRows);
+          // blacklist = !!blRows.length;
+        } else {
+          // blacklist = false;
+        } // else
+      } catch (error) {
+        blRows = [];
+        console.error(error);
+      }  // try-catch
+      log(`blacklist (${blRows.length})`);
 
-      const WHITE = await fs.readFile(WHITELIST_FILE, 'ascii');
-      if (WHITE.trim()) {
-        log('Whitelist, removendo linhas vazias ou comentadas.');
-        // Separa linhas e remove vazias ou comentadas.
-        wlRows = WHITE
-          .split("\n")
-          .filter(r => r.trim()
-            && r
-            && r[0] !== '*'
-            && !blRows.includes(r)
-          );
-        whitelist = !!wlRows.length;
-      } else {
+      try {
+        const WHITE = await fs.readFile(WHITELIST_FILE, 'ascii');
+        if (WHITE.trim()) {
+          log('Whitelist, removendo linhas vazias ou comentadas.');
+          // Separa linhas e remove vazias ou comentadas.
+          wlRows = WHITE
+            .split("\n")
+            .filter(r => r.trim()
+              && r
+              && r[0] !== '*'
+              && !blRows.includes(r.trim())
+            )
+            .map(r => (r || '').trim());
+          whitelist = !!wlRows.length;
+        } else {
+          whitelist = false;
+        } // else
+      } catch (error) {
         whitelist = false;
-      } // else
-    } catch (error) {
-      whitelist = false;
-      console.error(error);
-    } // try-catch
+        console.error(error);
+      } // try-catch
+      log(`whitelist (${wlRows.length}) ${whitelist}`);
+      console.log(wlRows);
+    } // if
 
     // console.log(whitelist, wlRows);
 
@@ -304,15 +332,16 @@ export async function syncProdutos(
       // console.log(PRODUTO);
       const ID_PRODUTO: string = get(PRODUTO, 'id_produto') || '';
 
-      // console.log(ID_PRODUTO);
-      // console.log(wlRows.includes(`${get(PRODUTO, 'id')}`));
+      // console.log(ID_PRODUTO, wlRows.includes(`${ID_PRODUTO}`.trim()));
+      // log(ID_PRODUTO);
       try {
         count += await findOne(
           NeDB_produtos,
+          apiUrl,
           idLoja,
           PRODUTO,
           whitelist
-            ? wlRows.includes(`${ID_PRODUTO}`)
+            ? wlRows.includes(`${ID_PRODUTO}`.trim())
             : undefined
         );
       } catch (error) {
@@ -327,12 +356,13 @@ export async function syncProdutos(
 async function apiUpdateProduto(
   idProduto: string,
   body: any,
+  apiUrl: string,
   idLoja: string
 ) {
   /* MERCADEIRO */
-  const URL_API: string = CONFIG.sandbox
-    ? API_URL.mercadeiro.sandbox
-    : API_URL.mercadeiro.producao;
+  // const URL_API: string = CONFIG.sandbox
+  //   ? API_URL.mercadeiro.sandbox
+  //   : API_URL.mercadeiro.producao;
 
   let token: string = '';
   const L: any = CONFIG_MERCADEIRO.lojas
@@ -342,7 +372,7 @@ async function apiUpdateProduto(
   } // if
 
   if (token) {
-    const URL: string = `${URL_API}/produtos/${idProduto}`;
+    const URL: string = `${apiUrl}/produtos/${idProduto}`;
     // console.log(URL);
     // console.log(body);
     return rp.post(URL, {
@@ -360,6 +390,7 @@ async function apiUpdateProduto(
 
 function findOne(
   neDB: any,
+  apiUrl: string,
   idLoja: string,
   produto: any,
   forceOnline: any,
@@ -480,8 +511,8 @@ function findOne(
         chkBool(forceOnline)
       );
     } else {
-      const ONLINE_PRODUTO: any = get(produto, 'online_produto');
-      ONLINE_PRODUTO !== null && set(
+      const ONLINE_PRODUTO: any = get(produto, 'online_produto', 1);
+      /* ONLINE_PRODUTO !== null && */ set(
         BODY_PRODUTO,
         'online',
         chkBool(ONLINE_PRODUTO)
@@ -522,10 +553,13 @@ function findOne(
                       ? `${idLoja}_${idDepartamento}_${idSubdepartamento}`
                       : `${idLoja}_${idDepartamento}`;
                     const COUNT: number = AUTO_DESTAQUES[KEY] || 0;
-                    // console.log('KEY', KEY);
-                    // console.log('COUNT', COUNT);
+                    console.log(KEY, COUNT);
 
-                    if (COUNT) {
+                    if (
+                      COUNT
+                      && !!BODY_PRODUTO.ativo
+                      && !!BODY_PRODUTO.online
+                    ) {
                       AUTO_DESTAQUES[KEY] = COUNT - 1;
                       BODY_PRODUTO.destaque = true;
                     } // if
@@ -533,6 +567,7 @@ function findOne(
                     await apiUpdateProduto(
                       ID_PRODUTO,
                       BODY_PRODUTO,
+                      apiUrl,
                       idLoja
                     );
 
@@ -575,6 +610,7 @@ function findOne(
                             await apiUpdateProduto(
                               ID_PRODUTO,
                               BODY_PRODUTO,
+                              apiUrl,
                               idLoja
                             );
                             console.log("\nOK", BODY_PRODUTO);

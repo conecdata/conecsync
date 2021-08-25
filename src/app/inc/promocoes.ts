@@ -7,7 +7,7 @@ import {
   toFloat
 } from './lib';
 import {
-  API_URL,
+  // API_URL,
   CAMPOS_PROMOCOES
 } from '../consts';
 import { CONFIG } from '../config/config';
@@ -19,6 +19,7 @@ var Datastore = require('nedb');
 var Firebird = require('node-firebird');
 
 export async function processaPromocoesLoja(
+  apiUrl: string,
   idLoja: string,
   promocoes: any[],
   produtosPromocoes: Map<string, string[]>
@@ -35,6 +36,7 @@ export async function processaPromocoesLoja(
     log(`${RESULTADO.promocoes.total} promoções encontrada(s).`);
     // console.log(promocoes);
     RESULTADO.promocoes.sincronizados = await syncPromocoes(
+      apiUrl,
       idLoja,
       promocoes,
       produtosPromocoes
@@ -125,6 +127,7 @@ export async function buscaPromocoesFB(idLoja: string) {
 }
 
 export async function syncPromocoes(
+  apiUrl: string,
   idLoja: string,
   promocoes: any[],
   produtosPromocoes: Map<string, string[]>
@@ -155,6 +158,7 @@ export async function syncPromocoes(
       try {
         count += await findOne(
           NeDB_promocoes,
+          apiUrl,
           idLoja,
           PROMOCAO,
           produtosPromocoes
@@ -171,12 +175,13 @@ export async function syncPromocoes(
 async function apiUpdatePromocao(
   idPromocao: string,
   body: any,
+  apiUrl: string,
   idLoja: string
 ) {
   /* MERCADEIRO */
-  const URL_API: string = CONFIG.sandbox
-    ? API_URL.mercadeiro.sandbox
-    : API_URL.mercadeiro.producao;
+  // const URL_API: string = CONFIG.sandbox
+  //   ? API_URL.mercadeiro.sandbox
+  //   : API_URL.mercadeiro.producao;
 
   let token: string = '';
   const L: any = CONFIG_MERCADEIRO.lojas
@@ -186,7 +191,7 @@ async function apiUpdatePromocao(
   } // if
 
   if (token) {
-    const URL: string = `${URL_API}/promocoes/${idPromocao}`;
+    const URL: string = `${apiUrl}/promocoes/${idPromocao}`;
     // console.log(URL);
     // console.log(body);
     return rp.post(URL, {
@@ -204,6 +209,7 @@ async function apiUpdatePromocao(
 
 function findOne(
   neDB: any,
+  apiUrl: string,
   idLoja: string,
   promocao: any,
   produtosPromocoes: Map<string, string[]>
@@ -256,6 +262,7 @@ function findOne(
                     await apiUpdatePromocao(
                       ID_PROMOCAO,
                       BODY,
+                      apiUrl,
                       idLoja
                     );
                     console.log("\nOK", BODY);
@@ -295,6 +302,7 @@ function findOne(
                             await apiUpdatePromocao(
                               ID_PROMOCAO,
                               BODY,
+                              apiUrl,
                               idLoja
                             );
                             console.log("\nOK", BODY);

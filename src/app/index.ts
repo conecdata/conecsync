@@ -6,6 +6,7 @@ import {
   chkBool,
   errorLog,
   log,
+  produtosHasSome,
   toFloat
 } from './inc/lib';
 import {
@@ -33,7 +34,8 @@ import {
   processaFormasLoja
 } from './inc/formas-pgto';
 import {
-  AUTO_DESTAQUES,
+  API_URLS,
+  // AUTO_DESTAQUES,
   ESTOQUE_REQ_FIELDS,
   FORMAS_REQ_FIELDS,
   PRODUTOS_REQ_FIELDS
@@ -217,8 +219,13 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     // console.log(TIPO_PRODUTOS);
     log('Verificando integração PRODUTOS.');
     if (TIPO_PRODUTOS) {
-      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
       const VIEW_PRODUTOS: string = get(CONFIG_PRODUTOS, 'nomeView') || '';
+
+      // MERCADEIRO
+      const API_URL: string = CONFIG.sandbox
+        ? API_URLS.mercadeiro.sandbox
+        : API_URLS.mercadeiro.producao;
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
 
       switch (TIPO_PRODUTOS) {
         case 'db':
@@ -227,6 +234,12 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
           for (const LOJA of LOJAS_MERCADEIRO) {
             // console.log(LOJA);
             const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+            const HAS_SOME: boolean = await produtosHasSome(
+              LOJAS_MERCADEIRO,
+              API_URL,
+              ID_LOJA
+            );
+            log(`HAS_SOME ${HAS_SOME}`);
 
             try {
               const PRODUTOS: any = (await buscaProdutosDB(
@@ -238,8 +251,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaProdutosLoja(
+                  API_URL,
                   ID_LOJA,
-                  PRODUTOS
+                  PRODUTOS,
+                  HAS_SOME
                 )
               };
             } catch (error) {
@@ -254,7 +269,12 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
           for (const LOJA of LOJAS_MERCADEIRO) {
             // console.log(LOJA);
             const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
-            // console.log('ID_LOJA:', ID_LOJA);
+            const HAS_SOME: boolean = await produtosHasSome(
+              LOJAS_MERCADEIRO,
+              API_URL,
+              ID_LOJA
+            );
+            log(`HAS_SOME ${HAS_SOME}`);
 
             try {
               const PRODUTOS: any = (await buscaProdutosFB(ID_LOJA));
@@ -281,8 +301,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaProdutosLoja(
+                  API_URL,
                   ID_LOJA,
-                  produtos
+                  produtos,
+                  HAS_SOME
                 )
               };
               // console.log(resultado);
@@ -297,6 +319,12 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
           for (const LOJA of LOJAS_MERCADEIRO) {
             // console.log(LOJA);
             const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+            const HAS_SOME: boolean = await produtosHasSome(
+              LOJAS_MERCADEIRO,
+              API_URL,
+              ID_LOJA
+            );
+            log(`HAS_SOME ${HAS_SOME}`);
 
             const CSV_PATH: string = `${PASTA_CSV}\/produtos\/${ID_LOJA}.csv`;
             const EXTENSION: string = path.extname(CSV_PATH).toLowerCase();
@@ -536,8 +564,10 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 resultado = {
                   ...resultado,
                   ...await processaProdutosLoja(
+                    API_URL,
                     ID_LOJA,
-                    PRODUTOS
+                    PRODUTOS,
+                    HAS_SOME
                   )
                 };
               } else {
@@ -572,8 +602,13 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
     log('Verificando integração ESTOQUE.');
     if (tipoEstoque) {
-      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
       const VIEW_ESTOQUE: string = get(CONFIG_ESTOQUE, 'nomeView') || '';
+
+      // MERCADEIRO
+      const API_URL: string = CONFIG.sandbox
+        ? API_URLS.mercadeiro.sandbox
+        : API_URLS.mercadeiro.producao;
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
 
       switch (tipoEstoque) {
         case 'db':
@@ -594,6 +629,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaEstoqueLoja(
+                  API_URL,
                   ID_LOJA,
                   ESTOQUE
                 )
@@ -636,6 +672,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaEstoqueLoja(
+                  API_URL,
                   ID_LOJA,
                   estoque
                 )
@@ -766,6 +803,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 resultado = {
                   ...resultado,
                   ...await processaEstoqueLoja(
+                    API_URL,
                     ID_LOJA,
                     ESTOQUE
                   )
@@ -796,8 +834,13 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
     log('Verificando integração PRODUTOS_PROMOCOES.');
     if (tipoProdutosPromocoes) {
-      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
       const VIEW_PRODUTOS_PROMOCOES: string = get(CONFIG_PRODUTOS_PROMOCOES, 'nomeView') || '';
+
+      // MERCADEIRO
+      const API_URL: string = CONFIG.sandbox
+        ? API_URLS.mercadeiro.sandbox
+        : API_URLS.mercadeiro.producao;
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
 
       switch (tipoProdutosPromocoes) {
         case 'db':
@@ -884,6 +927,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaEstoqueLoja(
+                  API_URL,
                   ID_LOJA,
                   estoque
                 )
@@ -1014,6 +1058,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 resultado = {
                   ...resultado,
                   ...await processaEstoqueLoja(
+                    API_URL,
                     ID_LOJA,
                     ESTOQUE
                   )
@@ -1044,8 +1089,13 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
     log('Verificando integração PROMOÇÕES.');
     if (TIPO_PROMOCOES) {
-      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
       const VIEW_PROMOCOES: string = get(CONFIG_PROMOCOES, 'nomeView') || '';
+
+      // MERCADEIRO
+      const API_URL: string = CONFIG.sandbox
+        ? API_URLS.mercadeiro.sandbox
+        : API_URLS.mercadeiro.producao;
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
 
       switch (TIPO_PROMOCOES) {
         case 'db':
@@ -1069,6 +1119,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaPromocoesLoja(
+                  API_URL,
                   ID_LOJA,
                   PROMOCOES,
                   PRODUTOS_PROMOCOES_MAP
@@ -1112,6 +1163,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaEstoqueLoja(
+                  API_URL,
                   ID_LOJA,
                   estoque
                 )
@@ -1242,6 +1294,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 resultado = {
                   ...resultado,
                   ...await processaEstoqueLoja(
+                    API_URL,
                     ID_LOJA,
                     ESTOQUE
                   )
@@ -1270,8 +1323,13 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
     const TIPO_FORMAS: string = (get(CONFIG_FORMAS, 'tipo') || '').toLowerCase();
     log('Verificando integração FORMAS PGTO.');
     if (TIPO_FORMAS) {
-      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
       const VIEW_FORMAS: string = get(CONFIG_FORMAS, 'nomeView') || '';
+
+      // MERCADEIRO
+      const API_URL: string = CONFIG.sandbox
+        ? API_URLS.mercadeiro.sandbox
+        : API_URLS.mercadeiro.producao;
+      const LOJAS_MERCADEIRO: any[] = get(CONFIG_MERCADEIRO, 'lojas') || [];
 
       // console.log(TIPO_FORMAS);
       switch (TIPO_FORMAS) {
@@ -1292,6 +1350,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaFormasLoja(
+                  API_URL,
                   ID_LOJA,
                   FORMAS
                 )
@@ -1332,6 +1391,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               resultado = {
                 ...resultado,
                 ...await processaFormasLoja(
+                  API_URL,
                   ID_LOJA,
                   formas
                 )
@@ -1458,10 +1518,11 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                     FORMAS.push(FORMA);
                   } // if
                 } // for
-                console.log(FORMAS);
+                // console.log(FORMAS);
                 resultado = {
                   ...resultado,
                   ...await processaFormasLoja(
+                    API_URL,
                     ID_LOJA,
                     FORMAS
                   )

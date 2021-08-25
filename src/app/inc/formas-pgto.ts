@@ -6,7 +6,7 @@ import {
   log
 } from './lib';
 import {
-  API_URL,
+  // API_URL,
   CAMPOS_FORMAS
 } from '../consts';
 import { CONFIG } from '../config/config';
@@ -18,6 +18,7 @@ var Datastore = require('nedb');
 var Firebird = require('node-firebird');
 
 export async function processaFormasLoja(
+  apiUrl: string,
   idLoja: string,
   formas: any[]
 ) {
@@ -33,6 +34,7 @@ export async function processaFormasLoja(
     log(`${RESULTADO.formas.total} formas(s) pgto encontrada(s).`);
     // console.log(formas);
     RESULTADO.formas.sincronizados = await syncFormas(
+      apiUrl,
       idLoja,
       formas
     );
@@ -122,6 +124,7 @@ export async function buscaFormasFB(idLoja: string) {
 }
 
 export async function syncFormas(
+  apiUrl: string,
   idLoja: string,
   formas: any[]
 ): Promise<number> {
@@ -151,6 +154,7 @@ export async function syncFormas(
       try {
         count += await findOne(
           NeDB_formas,
+          apiUrl,
           idLoja,
           FORMA
         );
@@ -166,12 +170,13 @@ export async function syncFormas(
 async function apiUpdateForma(
   idForma: string,
   body: any,
+  apiUrl: string,
   idLoja: string
 ) {
-  /* MERCADEIRO */
-  const URL_API: string = CONFIG.sandbox
-    ? API_URL.mercadeiro.sandbox
-    : API_URL.mercadeiro.producao;
+  // /* MERCADEIRO */
+  // const URL_API: string = CONFIG.sandbox
+  //   ? API_URL.mercadeiro.sandbox
+  //   : API_URL.mercadeiro.producao;
 
   let token: string = '';
   const L: any = CONFIG_MERCADEIRO.lojas
@@ -181,7 +186,7 @@ async function apiUpdateForma(
   } // if
 
   if (token) {
-    const URL: string = `${URL_API}/formas-pgto/${idForma}`;
+    const URL: string = `${apiUrl}/formas-pgto/${idForma}`;
     // console.log(URL);
     // console.log(body);
     return rp.post(URL, {
@@ -199,6 +204,7 @@ async function apiUpdateForma(
 
 function findOne(
   neDB: any,
+  apiUrl: string,
   idLoja: string,
   forma: any
 ): Promise<number> {
@@ -235,6 +241,7 @@ function findOne(
                     await apiUpdateForma(
                       ID_FORMA,
                       BODY_FORMA,
+                      apiUrl,
                       idLoja
                     );
                     console.log("\nOK", BODY_FORMA);
@@ -274,6 +281,7 @@ function findOne(
                             await apiUpdateForma(
                               ID_FORMA,
                               BODY_FORMA,
+                              apiUrl,
                               idLoja
                             );
                             console.log("\nOK", BODY_FORMA);

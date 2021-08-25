@@ -1,6 +1,8 @@
 import { promises as fs } from 'fs';
 import moment from 'moment';
 import { CONFIG } from '../config/config';
+import { get } from 'lodash';
+import * as rp from 'request-promise';
 
 export function toFloat(val: any): number {
   switch (typeof val) {
@@ -57,6 +59,51 @@ export function errorLogApi(
     '\x1b[0m'
   );
 }
+
+export function produtosHasSome(
+  lojas: any[],
+  apiUrl: string,
+  idLoja: string
+): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    // console.log('ID_LOJA:', ID_LOJA);
+    let hasSome: boolean = true;
+    if (
+      (lojas || []).length
+      && apiUrl
+      && idLoja
+    ) {
+      let token: string = '';
+      const L: any = (lojas || [])
+        .find((l: any) => l.id.toString() === idLoja);
+      if (L) {
+        token = get(L, 'token') || '';
+      } // if
+      // console.log('api.some.token', token);
+
+      if (token) {
+        const URL: string = `${apiUrl}/produtos/some`;
+        // console.log(URL);
+        // console.log(body);
+        try {
+          const RESP: any = await rp.get(URL, {
+            json: true,
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          // console.log('api.some.RESP', RESP);
+          hasSome = !!get(RESP, 'some', true);
+        } catch (error) {
+          hasSome = true;
+        } // try-catch
+      } // if
+    } // if
+
+    return resolve(hasSome);
+  });
+}
+
 
 export function chkBool(val: any): boolean {
   switch (typeof val) {

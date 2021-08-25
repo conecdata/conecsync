@@ -3,14 +3,19 @@ import { errorLog, errorLogApi, log } from './lib';
 import { get } from 'lodash';
 import { CONFIG } from '../config/config';
 import { CONFIG_MERCADEIRO } from '../config/projetos/config-mercadeiro';
-import { API_URL, AUTO_DESTAQUES } from '../consts';
+import {
+  // API_URL,
+  AUTO_DESTAQUES
+} from '../consts';
 import { CONFIG_PRODUTOS } from '../config/origens/config-produtos';
 var hash = require('object-hash');
 var Datastore = require('nedb');
 
 export async function syncDepartamentos(
+  apiUrl: string,
   idLoja: string,
-  departamentos: any[]
+  departamentos: any[],
+  hasSome: boolean
 ): Promise<number> {
   let count: number = 0;
   // console.log('DEPARTAMENTOS:', departamentos);
@@ -35,8 +40,10 @@ export async function syncDepartamentos(
       try {
         count += await findOne(
           NeDB_departamentos,
+          apiUrl,
           idLoja,
-          BODY_DEPARTAMENTO
+          BODY_DEPARTAMENTO,
+          hasSome
         );
       } catch (error) {
         errorLog(`Departamento ${ID_DEPARTAMENTO}: ${error.message}`);
@@ -50,12 +57,13 @@ export async function syncDepartamentos(
 function apiUpdateDepartamento(
   idDepartamento: string,
   body: any,
+  apiUrl: string,
   idLoja: string
 ) {
-  /* MERCADEIRO */
-  const URL_API: string = CONFIG.sandbox
-    ? API_URL.mercadeiro.sandbox
-    : API_URL.mercadeiro.producao;
+  // /* MERCADEIRO */
+  // const URL_API: string = CONFIG.sandbox
+  //   ? API_URL.mercadeiro.sandbox
+  //   : API_URL.mercadeiro.producao;
 
   let token: string = '';
   const L: any = CONFIG_MERCADEIRO.lojas
@@ -65,7 +73,7 @@ function apiUpdateDepartamento(
   } // if
 
   if (token) {
-    const URL: string = `${URL_API}/departamentos/${idDepartamento}`;
+    const URL: string = `${apiUrl}/departamentos/${idDepartamento}`;
     // console.log(URL);
     // console.log(body);
     return rp.post(URL, {
@@ -83,8 +91,10 @@ function apiUpdateDepartamento(
 
 function findOne(
   neDB: any,
+  apiUrl: string,
   idLoja: string,
-  body: any
+  body: any,
+  hasSome: boolean
 ): Promise<number> {
   return new Promise((resolve, reject) => {
     const ID_DEPARTAMENTO: string = get(body, 'id');
@@ -111,10 +121,11 @@ function findOne(
                 return reject(err);
               } else {
                 try {
-                  const NEW: boolean = !!get(
+                  /* const NEW: boolean = !!get(
                     (await apiUpdateDepartamento(
                       ID_DEPARTAMENTO,
                       body,
+                      apiUrl,
                       idLoja
                     )),
                     'new'
@@ -123,7 +134,19 @@ function findOne(
                   if (NEW) {
                     const KEY: string = `${idLoja}_${ID_DEPARTAMENTO}`;
                     AUTO_DESTAQUES[KEY] = +get(CONFIG_PRODUTOS, 'autoDestaque', 0) || 0;
-                  } // if
+                  } // if */
+
+                  if (!hasSome) {
+                    const KEY: string = `${idLoja}_${ID_DEPARTAMENTO}`;
+                    AUTO_DESTAQUES[KEY] = +get(CONFIG_PRODUTOS, 'autoDestaque', 0) || 0;
+                  }
+
+                  await apiUpdateDepartamento(
+                    ID_DEPARTAMENTO,
+                    body,
+                    apiUrl,
+                    idLoja
+                  );
 
                   console.log("\nOK", body);
                   return resolve(1);
@@ -162,6 +185,7 @@ function findOne(
                             await apiUpdateDepartamento(
                               ID_DEPARTAMENTO,
                               body,
+                              apiUrl,
                               idLoja
                             );
 
