@@ -50,7 +50,7 @@ export async function processaProdutosLoja(
 
   try {
     console.log(produtos.length);
-    // produtos = produtos.slice(0, 100);
+    // produtos = produtos.slice(0, 200);
     // console.log(produtos.length);
 
     const {
@@ -270,8 +270,8 @@ export async function syncProdutos(
     );
 
     if (!hasSome) {
-      const WHITELIST_FILE: string = `partial/${idLoja}/white.txt`;
-      const BLACKLIST_FILE: string = `partial/${idLoja}/black.txt`;
+      const WHITELIST_FILE: string = `partials/${idLoja}/white.txt`;
+      const BLACKLIST_FILE: string = `partials/${idLoja}/black.txt`;
 
       try {
         const BLACK = await fs.readFile(BLACKLIST_FILE, 'ascii');
@@ -290,11 +290,12 @@ export async function syncProdutos(
         } else {
           // blacklist = false;
         } // else
+        log(`blacklist (${blRows.length})`);
       } catch (error) {
+        log('Blacklist NÃO encontrada.');
         blRows = [];
         console.error(error);
       }  // try-catch
-      log(`blacklist (${blRows.length})`);
 
       try {
         const WHITE = await fs.readFile(WHITELIST_FILE, 'ascii');
@@ -313,12 +314,13 @@ export async function syncProdutos(
         } else {
           whitelist = false;
         } // else
+        log(`whitelist (${wlRows.length}) ${whitelist}`);
       } catch (error) {
+        log('Whitelist NÃO encontrada.');
         whitelist = false;
         console.error(error);
       } // try-catch
-      log(`whitelist (${wlRows.length}) ${whitelist}`);
-      console.log(wlRows);
+      // console.log(wlRows);
     } // if
 
     // console.log(whitelist, wlRows);
@@ -358,7 +360,7 @@ async function apiUpdateProduto(
   body: any,
   apiUrl: string,
   idLoja: string
-) {
+): Promise<any> {
   /* MERCADEIRO */
   // const URL_API: string = CONFIG.sandbox
   //   ? API_URL.mercadeiro.sandbox
@@ -371,7 +373,7 @@ async function apiUpdateProduto(
     token = get(L, 'token') || '';
   } // if
 
-  if (token) {
+  if (apiUrl && token && idProduto) {
     const URL: string = `${apiUrl}/produtos/${idProduto}`;
     // console.log(URL);
     // console.log(body);
@@ -553,7 +555,12 @@ function findOne(
                       ? `${idLoja}_${idDepartamento}_${idSubdepartamento}`
                       : `${idLoja}_${idDepartamento}`;
                     const COUNT: number = AUTO_DESTAQUES[KEY] || 0;
-                    console.log(KEY, COUNT);
+                    // console.log(
+                    //   KEY,
+                    //   COUNT,
+                    //   !!BODY_PRODUTO.ativo,
+                    //   !!BODY_PRODUTO.online
+                    // );
 
                     if (
                       COUNT
@@ -562,6 +569,10 @@ function findOne(
                     ) {
                       AUTO_DESTAQUES[KEY] = COUNT - 1;
                       BODY_PRODUTO.destaque = true;
+                      // console.log(
+                      //   KEY,
+                      //   AUTO_DESTAQUES[KEY]
+                      // );
                     } // if
 
                     await apiUpdateProduto(

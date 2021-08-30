@@ -273,7 +273,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               LOJAS_MERCADEIRO,
               API_URL,
               ID_LOJA
-            );
+            ); 
             log(`HAS_SOME ${HAS_SOME}`);
 
             try {

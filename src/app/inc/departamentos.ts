@@ -139,7 +139,8 @@ function findOne(
                   if (!hasSome) {
                     const KEY: string = `${idLoja}_${ID_DEPARTAMENTO}`;
                     AUTO_DESTAQUES[KEY] = +get(CONFIG_PRODUTOS, 'autoDestaque', 0) || 0;
-                  }
+                  } // if
+                  // console.log(hasSome, JSON.stringify(AUTO_DESTAQUES));
 
                   await apiUpdateDepartamento(
                     ID_DEPARTAMENTO,
