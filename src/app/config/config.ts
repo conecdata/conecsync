@@ -28,13 +28,14 @@ export const CONFIG = {
     }
   },
   csv: {
-    path: 'd:\\conecsync-csvs' // '\/home\/conecdata\/csvs'
+    path: '\/home\/conecdata\/csvs' // 'd:\\conecsync-csvs'
+    // path: 'd:\\conecsync-csvs' // '\/home\/conecdata\/csvs'
   },
   /* 
     TRUE = plataforma de testes
     FALSE = plataforma definitiva ( CUIDADO )
   */
-  sandbox: false,
+  sandbox: true,
   /* 
     TRUE = Envia mensagens para terminal (se disponível)
     FALSE = Não envia mensagens, apenas grava no arquivo de log

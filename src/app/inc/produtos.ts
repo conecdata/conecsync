@@ -164,7 +164,7 @@ export async function buscaProdutosFB(idLoja: string) {
                     row.ID_SUBDEPARTAMENTO = fixBuffStr(row.ID_SUBDEPARTAMENTO);
                     row.NOME_SUBDEPARTAMENTO = fixBuffStr(row.NOME_SUBDEPARTAMENTO);
                     row.ATIVO_SUBDEPARTAMENTO = fixBuffStr(row.ATIVO_SUBDEPARTAMENTO);
-                    row.INDUSTRIALIZADO = fixBuffStr(row.INDUSTRIALIZADO);
+                    // row.INDUSTRIALIZADO = fixBuffStr(row.INDUSTRIALIZADO);
                     row.ESTOQUE_CONTROLADO = fixBuffStr(row.ESTOQUE_CONTROLADO);
                     row.FRACIONADO_STATUS = fixBuffStr(row.FRACIONADO_STATUS);
                     row.FRACIONADO_TIPO = fixBuffStr(row.FRACIONADO_TIPO);
@@ -429,9 +429,14 @@ function findOne(
     let idSubdepartamento: any = get(produto, 'id_subdepartamento') || null;
     if (idSubdepartamento === '0') idSubdepartamento = null;
 
+    let barcodeProduto: string = get(produto, 'barcode_produto') || '';
+    if (barcodeProduto === ID_PRODUTO) {
+      barcodeProduto = '';
+    } // if
+    
     const BODY_PRODUTO: any = {
       "ativo": chkBool(get(produto, 'ativo_produto', true)),
-      "barcode": get(produto, 'barcode_produto') || '',
+      "barcode": barcodeProduto,
       "descricao": get(produto, 'descricao_produto') || '',
       "estoqueMinimo": ESTOQUE.controlado && ESTOQUE.min
         ? ESTOQUE.atual <= ESTOQUE.min
@@ -513,8 +518,8 @@ function findOne(
         chkBool(forceOnline)
       );
     } else {
-      const ONLINE_PRODUTO: any = get(produto, 'online_produto', 1);
-      /* ONLINE_PRODUTO !== null && */ set(
+      const ONLINE_PRODUTO: any = get(produto, 'online_produto');
+      ONLINE_PRODUTO !== null && set(
         BODY_PRODUTO,
         'online',
         chkBool(ONLINE_PRODUTO)
