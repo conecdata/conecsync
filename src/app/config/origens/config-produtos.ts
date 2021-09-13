@@ -6,7 +6,7 @@ export const CONFIG_PRODUTOS = {
   // },
   /* Tipo de origem */
   // Se '' ignora essa origem de dados (não sincroniza).
-  tipo: '', // 'fb', 'db' | 'csv' | ''
+  tipo: 'fb', // 'fb', 'db' | 'csv' | ''
 
   // Nome da view do cadastro de produtos de promoções
   // nomeView: 'View_IntegracaoMercadeiro2', // db/fb
