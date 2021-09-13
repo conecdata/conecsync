@@ -9,7 +9,7 @@ export const CONFIG = {
     // }
     conexao: {
       host: '127.0.0.1',
-      tabela: 'hypico',
+      tabela: 'zebu',
       usuario: 'conecdata',
       senha: 'masterkey',
       tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
@@ -28,8 +28,8 @@ export const CONFIG = {
     }
   },
   csv: {
-    path: '\/home\/conecdata\/csvs' // 'd:\\conecsync-csvs'
-    // path: 'd:\\conecsync-csvs' // '\/home\/conecdata\/csvs'
+    path: 'd:\\conecsync-csvs' // '\/home\/conecdata\/csvs'
+    // path: '\/home\/conecdata\/csvs' // 'd:\\conecsync-csvs'
   },
   /* 
     TRUE = plataforma de testes

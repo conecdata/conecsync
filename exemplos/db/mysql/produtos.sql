@@ -160,6 +160,7 @@ AS SELECT
   pro_b_fracionado AS fracionado_status,
   pro_f_fracao AS fracionado_fracao,
   pro_c_fracionado_tipo AS fracionado_tipo,
+  0 AS fracionado_perc_desc_promo_auto,
   
   pro_b_ativo AS ativo_produto,
   
@@ -178,3 +179,50 @@ LEFT JOIN
   grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk
 LEFT JOIN
   subgrupos AS subdepartamentos ON produtos.pro_fk_subgrupo = subdepartamentos.sub_pk;
+
+/* CREATE VIEW
+  view_conecdata_produtos
+AS SELECT
+  pro_pk AS id_produto,
+  pro_c_barcode AS barcode_produto,
+  pro_f_preco AS preco_venda,
+  
+  pro_fk_grupo AS id_departamento,
+  pro_c_grupo AS nome_departamento,
+  1 AS ativo_departamento,
+  
+  pro_fk_subgrupo AS id_subdepartamento,
+  pro_c_subgrupo AS nome_subdepartamento,
+  1 AS ativo_subdepartamento,
+  
+  pro_c_produto AS nome_produto,
+
+  0 AS estoque_controlado,
+  0 AS qtde_estoque_minimo,
+  0 AS qtde_estoque_atual,
+  
+  0 AS atacado_status,
+  0 AS atacado_qtde,
+  0 AS atacado_preco,
+  
+  0 AS percentual_limite_venda,
+  0 AS qtde_limite_venda,
+
+  0 AS fracionado_status,
+  0 AS fracionado_fracao,
+  '' AS fracionado_tipo,
+  0 AS fracionado_perc_desc_promo_auto,
+  
+  1 AS ativo_produto,
+  
+  null AS online_produto,
+  
+  '' AS descricao_produto,
+
+  null AS destaque,
+  
+  1 AS online_departamento,
+  
+  1 AS id_loja
+FROM
+  produtos */
