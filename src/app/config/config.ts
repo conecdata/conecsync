@@ -27,6 +27,15 @@ export const CONFIG = {
       pageSize: 4096
     }
   },
+  mongodb: {
+    conexao: {
+      host: 'mongodb://localhost:27017',
+      database: 'conecdata',
+      usuario: 'conecdata',
+      senha: 'masterkey',
+      tipo: 'mongodb',
+    }
+  },
   csv: {
     path: 'd:\\conecsync-csvs' // '\/home\/conecdata\/csvs'
     // path: '\/home\/conecdata\/csvs' // 'd:\\conecsync-csvs'

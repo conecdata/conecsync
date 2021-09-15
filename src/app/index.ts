@@ -3,6 +3,8 @@ import * as yargs from 'yargs';
 const path = require('path');
 import { get } from 'lodash';
 const { Sequelize } = require('sequelize');
+import mongoose from 'mongoose';
+// const mongoCliente = require('mongodb').MongoClient;
 import {
   chkBool,
   errorLog,
@@ -13,6 +15,7 @@ import {
 import {
   buscaProdutosDB,
   buscaProdutosFB,
+  buscaProdutosMongoDB,
   processaProdutosLoja
 } from './inc/produtos';
 import {
@@ -125,6 +128,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
       } // else
     } else {
       let sequelize;
+      let mongoDb;
 
       const PRODUTOS_PROMOCOES_MAP: Map<string, string[]> = new Map();
 
@@ -199,7 +203,6 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
       //#endregion
 
       //#region checkDb
-
       log('Verificando configurações de conexão db.');
       if ( // Alguma conexão com db?
         CONFIG_PRODUTOS.tipo.toLowerCase() === 'db'
@@ -282,6 +285,36 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
         } // else
       } else {
         log('OBS: Nenhuma integração com Firebird indicada.');
+      } // else
+      //#endregion
+
+      //#region checkMongoDb
+      log('Verificando configurações de conexão mongodb.');
+      if ( // Alguma conexão com mongodb?
+        CONFIG_PRODUTOS.tipo.toLowerCase() === 'mongodb'
+        || CONFIG_ESTOQUE.tipo.toLowerCase() === 'mongodb'
+        || CONFIG_PROMOCOES.tipo.toLowerCase() === 'mongodb'
+        || CONFIG_PRODUTOS_PROMOCOES.tipo.toLowerCase() === 'mongodb'
+        || CONFIG_FORMAS.tipo.toLowerCase() === 'mongodb'
+      ) {
+        // Erros de conexão com MONGO_DB?
+        if (
+          !CONFIG.mongodb.conexao.tipo
+          || !CONFIG.mongodb.conexao.host
+          || !CONFIG.mongodb.conexao.database
+        ) {
+          throw new Error('Configurações de conexão insuficientes em: config/config.ts: mongodb.conexao');
+        } else {
+          const PATH_CONNECT: string = `${CONFIG.mongodb.conexao.host}/${CONFIG.mongodb.conexao.database}`;
+          try {
+            await mongoose.connect(PATH_CONNECT);
+            log('Conexão com banco de dados estabelecida com sucesso.');
+          } catch (error) {
+            throw new Error(`Falha de conexão com banco de dados: ${error.message}`);
+          } // try-catch
+        } // else
+      } else {
+        log('OBS: Nenhuma integração db indicada.');
       } // else
       //#endregion
 
@@ -383,6 +416,45 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 errorLog(`Loja ${ID_LOJA}: ${error.message}`);
               } // try-catch
             } // for
+            break;
+
+          case 'mongodb':
+            log('Encontrado: ' + VIEW_PRODUTOS);
+            const customerSchema = new mongoose.Schema({ });
+            const Produto = mongoose.model('Produto', customerSchema);
+            const docs = await Produto.find();
+            console.log(docs);
+            // console.log(CAMPOS_PRODUTOS);
+            // for (const LOJA of LOJAS_MERCADEIRO) {
+            //   // console.log(LOJA);
+            //   const ID_LOJA: string = `${get(LOJA, 'id') || ''}`;
+            //   const HAS_SOME: boolean = await produtosHasSome(
+            //     LOJAS_MERCADEIRO,
+            //     API_URL,
+            //     ID_LOJA
+            //   );
+            //   log(`HAS_SOME ${HAS_SOME}`);
+
+            //   try {
+            //     const PRODUTOS: any = (await buscaProdutosDB(
+            //       sequelize,
+            //       ID_LOJA
+            //     ))
+            //       .map(p => get(p, 'dataValues') || {});
+
+            //     resultado = {
+            //       ...resultado,
+            //       ...await processaProdutosLoja(
+            //         API_URL,
+            //         ID_LOJA,
+            //         PRODUTOS,
+            //         HAS_SOME
+            //       )
+            //     };
+            //   } catch (error) {
+            //     errorLog(`Loja ${ID_LOJA}: ${error.message}`);
+            //   } // try-catch
+            // } // for
             break;
 
           case 'csv':

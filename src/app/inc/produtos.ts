@@ -130,6 +130,42 @@ export async function buscaProdutosDB(
   } // else
 }
 
+export async function buscaProdutosMongoDB(
+  mongoDb,
+  idLoja: string
+) {
+  if (mongoDb) {
+    try {
+      log('Buscando produtos do mongoDB.');
+      // await mongoDb.sync();
+
+      // const Produto = mongoDb.define('Produto',
+      //   CAMPOS_PRODUTOS,
+      //   {
+      //     timestamps: false,
+      //     mongoDb,
+      //     modelName: 'Produto',
+      //     tableName: get(CONFIG_PRODUTOS, 'nomeView') || ''
+      //   }
+      // );
+
+      // // console.log('findall');
+      // return Produto.findAll(
+      //   {
+      //     where: {
+      //       id_loja: +idLoja
+      //     }
+      //   }
+      // );
+    } catch (error) {
+      errorLog(error.message);
+      return [];
+    } // try-catch
+  } else {
+    return [];
+  } // else
+}
+
 export async function buscaProdutosFB(idLoja: string) {
   return new Promise((resolve, reject) => {
     if (Firebird) {
@@ -433,7 +469,7 @@ function findOne(
     if (barcodeProduto === ID_PRODUTO) {
       barcodeProduto = '';
     } // if
-    
+
     const BODY_PRODUTO: any = {
       "ativo": chkBool(get(produto, 'ativo_produto', true)),
       "barcode": barcodeProduto,
