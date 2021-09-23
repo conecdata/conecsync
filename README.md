@@ -1,4 +1,4 @@
-<img src="https://firebasestorage.googleapis.com/v0/b/mercadeiro-896b2.appspot.com/o/misc%2Flogo_conecdata_dark.svg?alt=media" alt="Logo Conecdata" style="width: 300px; "/>
+<img src="https://firebasestorage.googleapis.com/v0/b/conecdata-e8ed0.appspot.com/o/logos%2Flogo_conecsync_dark.svg?alt=media" alt="Logo Conecdata" style="width: 300px; "/>
 
 > Documentação ConecSync v 1.0. 
 
