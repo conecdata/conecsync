@@ -6,7 +6,7 @@ export const CONFIG_PRODUTOS = {
   // },
   /* Tipo de origem */
   // Se '' ignora essa origem de dados (não sincroniza).
-  tipo: 'mongodb', // 'fb', 'db' | 'csv' | ''
+  tipo: 'csv', // 'fb', 'db' | 'csv' | ''
 
   nomeView: 'produtos', // mongodb
   // nomeView: 'view_conecdata_produtos', // db/fb

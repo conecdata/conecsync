@@ -420,7 +420,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
 
           case 'mongodb':
             log('Encontrado: ' + VIEW_PRODUTOS);
-            const customerSchema = new mongoose.Schema({ });
+            const customerSchema = new mongoose.Schema({});
             const Produto = mongoose.model('Produto', customerSchema);
             const docs = await Produto.find();
             console.log(docs);
@@ -483,7 +483,6 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 barcode_produto: -1,
                 descricao_produto: -1,
                 estoque_controlado: -1,
-                // industrializado: -1,
                 nome_departamento: -1,
                 nome_produto: -1,
                 nome_subdepartamento: -1,
@@ -527,7 +526,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                   let req: string[] = PRODUTOS_REQ_FIELDS;
                   const LH: number = HEADER.length;
                   for (let i = 0; i < LH; i++) {
-                    const FIELD: string = HEADER[i].trim().replace(SEARCH_REG_EXP, '');
+                    const FIELD: string = HEADER[i].trim().replace(SEARCH_REG_EXP, '').toLocaleLowerCase();
                     // console.log(FIELD);
                     // i === 1 && console.log(v.trim().toLowerCase().replace(SEARCH_REG_EXP, ''), FIELD);
                     req = req.filter(v => {
