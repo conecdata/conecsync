@@ -1,12 +1,5 @@
 export const CONFIG = {
   db: {
-    // conexao: {
-    //   host: 'DESKTOP-APL18I2',
-    //   tabela: 'MDADOS',
-    //   usuario: 'ADMINSQL',
-    //   senha: '123',
-    //   tipo: 'mssql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
-    // }
     conexao: {
       host: '127.0.0.1',
       tabela: 'hypico',
@@ -44,7 +37,7 @@ export const CONFIG = {
     TRUE = plataforma de testes
     FALSE = plataforma definitiva ( CUIDADO )
   */
-  sandbox: true,
+  sandbox: false,
   /* 
     TRUE = Envia mensagens para terminal (se disponível)
     FALSE = Não envia mensagens, apenas grava no arquivo de log

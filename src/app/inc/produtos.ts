@@ -204,11 +204,11 @@ export async function buscaProdutosFB(idLoja: string) {
                     row.ATIVO_SUBDEPARTAMENTO = fixBuffStr(row.ATIVO_SUBDEPARTAMENTO);
                     row.ESTOQUE_CONTROLADO = fixBuffStr(row.ESTOQUE_CONTROLADO);
                     row.FRACIONADO_TIPO = fixBuffStr(row.FRACIONADO_TIPO);
-                    // row.ONLINE_PRODUTO = fixBuffStr(row.ONLINE_PRODUTO);
                     // row.DESTAQUE = fixBuffStr(row.DESTAQUE);
-                    // row.ONLINE_DEPARTAMENTO = fixBuffStr(row.ONLINE_DEPARTAMENTO);
+                    // row.ONLINE_PRODUTO = fixBuffStr(row.ONLINE_PRODUTO);
                     // row.INDUSTRIALIZADO = fixBuffStr(row.INDUSTRIALIZADO);
                     // row.FRACIONADO_STATUS = fixBuffStr(row.FRACIONADO_STATUS);
+                    // row.ONLINE_DEPARTAMENTO = fixBuffStr(row.ONLINE_DEPARTAMENTO);
                   });
                   db.detach();
                   resolve(result);
@@ -378,6 +378,7 @@ export async function syncProdutos(
           apiUrl,
           idLoja,
           PRODUTO,
+          hasSome,
           whitelist
             ? wlRows.includes(`${ID_PRODUTO}`.trim())
             : undefined
@@ -431,6 +432,7 @@ function findOne(
   apiUrl: string,
   idLoja: string,
   produto: any,
+  hasSome: boolean,
   forceOnline: any,
 ): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -473,7 +475,7 @@ function findOne(
     const BODY_PRODUTO: any = {
       "ativo": chkBool(get(produto, 'ativo_produto', true)),
       "barcode": barcodeProduto,
-      "descricao": get(produto, 'descricao_produto') || '',
+      // "descricao": get(produto, 'descricao_produto') || '',
       "estoqueMinimo": ESTOQUE.controlado && ESTOQUE.min
         ? ESTOQUE.atual <= ESTOQUE.min
         : false,
@@ -500,66 +502,74 @@ function findOne(
     //   chkBool(DESTAQUE)
     // );
 
-    const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status', 'F'));
-    const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao', 0);
-    const FRACIONADO_PERC_DESC_PROMO_AUTO: any = get(produto, 'fracionado_perc_desc_promo_auto', 0);
+    // const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status', 'F'));
+    // const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao', 0);
+    // const FRACIONADO_PERC_DESC_PROMO_AUTO: any = get(produto, 'fracionado_perc_desc_promo_auto', 0);
     const FRACIONADO_TIPO: any = get(produto, 'fracionado_tipo', '');
-
-    if (FRACIONADO_STATUS !== null) {
-      set(
-        BODY_PRODUTO,
-        'fracionado.status',
-        chkBool(FRACIONADO_STATUS)
-      );
-
-      FRACIONADO_FRACAO !== null && set(
-        BODY_PRODUTO,
-        'fracionado.unidade.fracao',
-        toFloat(FRACIONADO_FRACAO)
-      );
-
-      FRACIONADO_PERC_DESC_PROMO_AUTO !== null && set(
-        BODY_PRODUTO,
-        'fracionado.percDescPromocaoAutomatica',
-        toFloat(FRACIONADO_PERC_DESC_PROMO_AUTO)
-      );
-
-      FRACIONADO_TIPO !== null && set(
-        BODY_PRODUTO,
-        'fracionado.unidade.tipo',
-        FRACIONADO_TIPO || ''
-      );
-
-      FRACIONADO_STATUS
-        && (+FRACIONADO_FRACAO <= 0 || !FRACIONADO_TIPO)
-        && set(
-          BODY_PRODUTO,
-          'ativo',
-          false
-        );
-    } // if
-    // console.log('BODY_PRODUTO', BODY_PRODUTO);
-
-    const LIMITE_VENDA: any = get(produto, 'qtde_limite_venda');
-    LIMITE_VENDA !== null && set(
+    FRACIONADO_TIPO !== null && set(
       BODY_PRODUTO,
-      'limiteVenda',
-      toFloat(LIMITE_VENDA)
+      'fracionado.unidade.tipo',
+      FRACIONADO_TIPO || ''
     );
 
+    // if (FRACIONADO_STATUS !== null) {
+    // set(
+    //   BODY_PRODUTO,
+    //   'fracionado.status',
+    //   chkBool(FRACIONADO_STATUS)
+    // );
+
+    // FRACIONADO_FRACAO !== null && set(
+    //   BODY_PRODUTO,
+    //   'fracionado.unidade.fracao',
+    //   toFloat(FRACIONADO_FRACAO)
+    // );
+
+    // FRACIONADO_PERC_DESC_PROMO_AUTO !== null && set(
+    //   BODY_PRODUTO,
+    //   'fracionado.percDescPromocaoAutomatica',
+    //   toFloat(FRACIONADO_PERC_DESC_PROMO_AUTO)
+    // );
+
+
+    // FRACIONADO_STATUS
+    //   && (+FRACIONADO_FRACAO <= 0 || !FRACIONADO_TIPO)
+    //   && set(
+    //     BODY_PRODUTO,
+    //     'ativo',
+    //     false
+    //   );
+    // } // if
+    // console.log('BODY_PRODUTO', BODY_PRODUTO);
+
+    const LIMITE_VENDA_MAX: any = get(produto, 'qtde_limite_venda_max');
+    LIMITE_VENDA_MAX !== null && set(
+      BODY_PRODUTO,
+      'limiteVenda.max',
+      toFloat(LIMITE_VENDA_MAX)
+    );
+
+    const LIMITE_VENDA_MIN: any = get(produto, 'qtde_limite_venda_min');
+    LIMITE_VENDA_MIN !== null && set(
+      BODY_PRODUTO,
+      'limiteVenda.min',
+      toFloat(LIMITE_VENDA_MIN)
+    );
+        
+    // console.log('forceOnline', forceOnline);
     if (forceOnline !== undefined) {
       set(
         BODY_PRODUTO,
         'online',
-        chkBool(forceOnline)
+        forceOnline
       );
     } else {
-      const ONLINE_PRODUTO: any = get(produto, 'online_produto');
-      ONLINE_PRODUTO !== null && set(
-        BODY_PRODUTO,
-        'online',
-        chkBool(ONLINE_PRODUTO)
-      );
+      // const ONLINE_PRODUTO: any = get(produto, 'online_produto');
+      // ONLINE_PRODUTO !== null && set(
+      //   BODY_PRODUTO,
+      //   'online',
+      //   chkBool(ONLINE_PRODUTO)
+      // );
     } // else
 
     idSubdepartamento !== null && set(
@@ -596,24 +606,27 @@ function findOne(
                       ? `${idLoja}_${idDepartamento}_${idSubdepartamento}`
                       : `${idLoja}_${idDepartamento}`;
                     const COUNT: number = AUTO_DESTAQUES[KEY] || 0;
-                    // console.log(
-                    //   KEY,
-                    //   COUNT,
-                    //   !!BODY_PRODUTO.ativo,
-                    //   !!BODY_PRODUTO.online
-                    // );
+                    if (!hasSome) {
+                      console.log(
+                        KEY,
+                        COUNT,
+                        forceOnline !== false,
+                        !!BODY_PRODUTO.ativo
+                      );
 
-                    if (
-                      COUNT
-                      && !!BODY_PRODUTO.ativo
-                      && !!BODY_PRODUTO.online
-                    ) {
-                      AUTO_DESTAQUES[KEY] = COUNT - 1;
-                      BODY_PRODUTO.destaque = true;
-                      // console.log(
-                      //   KEY,
-                      //   AUTO_DESTAQUES[KEY]
-                      // );
+                      if (
+                        COUNT
+                        && !!BODY_PRODUTO.ativo
+                        && forceOnline !== false
+                        // && !!BODY_PRODUTO.online
+                      ) {
+                        AUTO_DESTAQUES[KEY] = COUNT - 1;
+                        BODY_PRODUTO.destaque = true;
+                        // console.log(
+                        //   KEY,
+                        //   AUTO_DESTAQUES[KEY]
+                        // );
+                      } // if                      
                     } // if
 
                     await apiUpdateProduto(
@@ -623,7 +636,7 @@ function findOne(
                       idLoja
                     );
 
-                    COUNT && (await new Promise(r => setTimeout(r, 2000)));
+                    !hasSome && COUNT && (await new Promise(r => setTimeout(r, 2000)));
 
                     console.log("\nOK", BODY_PRODUTO);
                     return resolve(1);

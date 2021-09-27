@@ -43,7 +43,7 @@ import {
   ESTOQUE_REQ_FIELDS,
   FORMAS_REQ_FIELDS,
   PRODUTOS_REQ_FIELDS
-} from './consts';
+} from './consts'; 
 
 var Datastore = require('nedb');
 var Firebird = require('node-firebird');
@@ -481,7 +481,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 ativo_departamento: -1,
                 ativo_subdepartamento: -1,
                 barcode_produto: -1,
-                descricao_produto: -1,
+                // descricao_produto: -1,
                 estoque_controlado: -1,
                 nome_departamento: -1,
                 nome_produto: -1,
@@ -500,7 +500,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 // qtde_limite_venda: -1,
                 // destaque: -1,
                 // online_departamento: -1,
-                online_produto: -1,
+                // online_produto: -1,
               };
               if (EXTENSION !== '.csv') {
                 errorLog('Formato inválido. Apenas arquivos .csv são aceitos: config/config.ts: csv.path/produtos/{idLoja}.csv');

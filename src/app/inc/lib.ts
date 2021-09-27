@@ -105,7 +105,7 @@ export function produtosHasSome(
 }
 
 
-export function chkBool(val: any): boolean {
+export function chkBool(val: any): boolean | null {
   switch (typeof val) {
     case 'boolean':
       return !!val;
