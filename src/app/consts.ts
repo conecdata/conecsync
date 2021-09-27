@@ -16,23 +16,23 @@ export const PRODUTOS_REQ_FIELDS: string[] = [
   // 'descricao_produto', // STRING
   // 'online_produto', // BOOLEAN
   // 'destaque_produto', // BOOLEAN
-    
+
   // 'id_subdepartamento', // INTEGER
   // 'nome_subdepartamento', // STRING
   // 'ativo_subdepartamento', // BOOLEAN
-  
+
   // 'atacado_status', // BOOLEAN
   // 'atacado_qtde', // INTEGER
   // 'atacado_preco', // INTEGER/FLOAT
-  
+
   // 'percentual_limite_venda', // INTEGER/FLOAT
   // 'qtde_limite_venda', // INTEGER/FLOAT
-  
+
   // 'fracionado_status', // BOOLEAN
   // 'fracionado_fracao', // FLOAT
   // 'fracionado_perc_desc_promo_auto', // FLOAT
   // 'fracionado_tipo', // STRING
-  
+
   // 'estoque_controlado', // BOOLEAN
   // 'qtde_estoque_atual', // INTEGER/FLOAT
   // 'qtde_estoque_minimo', // INTEGER/FLOAT
@@ -124,17 +124,13 @@ export const CAMPOS_PRODUTOS: any = {
     field: 'id_produto',
     primaryKey: true
   },
-  id_loja: {
-    type: DataTypes.INTEGER,
-    field: 'id_loja'
-  },
-  estoque_controlado: {
-    type: DataTypes.BOOLEAN,
-    field: 'estoque_controlado'
-  },
   barcode_produto: {
     type: DataTypes.STRING,
     field: 'barcode_produto'
+  },
+  preco_venda: {
+    type: DataTypes.DECIMAL,
+    field: 'preco_venda'
   },
   id_departamento: {
     type: DataTypes.INTEGER,
@@ -148,17 +144,33 @@ export const CAMPOS_PRODUTOS: any = {
     type: DataTypes.BOOLEAN,
     field: 'ativo_departamento'
   },
+  id_subdepartamento: {
+    type: DataTypes.INTEGER,
+    field: 'id_subdepartamento'
+  },
+  nome_subdepartamento: {
+    type: DataTypes.STRING,
+    field: 'nome_subdepartamento'
+  },
+  ativo_subdepartamento: {
+    type: DataTypes.BOOLEAN,
+    field: 'ativo_subdepartamento'
+  },
   nome_produto: {
     type: DataTypes.STRING,
     field: 'nome_produto'
   },
-  preco_venda: {
-    type: DataTypes.DECIMAL,
-    field: 'preco_venda'
-  },
-  ativo_produto: {
+  estoque_controlado: {
     type: DataTypes.BOOLEAN,
-    field: 'ativo_produto'
+    field: 'estoque_controlado'
+  },
+  qtde_estoque_minimo: {
+    type: DataTypes.DECIMAL,
+    field: 'qtde_estoque_minimo'
+  },
+  qtde_estoque_atual: {
+    type: DataTypes.DECIMAL,
+    field: 'qtde_estoque_atual'
   },
   atacado_status: {
     type: DataTypes.BOOLEAN,
@@ -172,70 +184,62 @@ export const CAMPOS_PRODUTOS: any = {
     type: DataTypes.DECIMAL,
     field: 'atacado_preco'
   },
-  descricao_produto: {
-    type: DataTypes.STRING,
-    field: 'descricao_produto'
-  },
-  // industrializado: {
-  //   type: DataTypes.BOOLEAN,
-  //   field: 'industrializado'
-  // },
-  id_subdepartamento: {
-    type: DataTypes.INTEGER,
-    field: 'id_subdepartamento'
-  },
-  nome_subdepartamento: {
-    type: DataTypes.STRING,
-    field: 'nome_subdepartamento'
-  },
-  ativo_subdepartamento: {
-    type: DataTypes.BOOLEAN,
-    field: 'ativo_subdepartamento'
-  },
-  fracionado_status: {
-    type: DataTypes.BOOLEAN,
-    field: 'fracionado_status'
-  },
-  fracionado_fracao: {
+  percentual_limite_venda: {
     type: DataTypes.DECIMAL,
-    field: 'fracionado_fracao'
+    field: 'percentual_limite_venda'
   },
-  fracionado_perc_desc_promo_auto: {
+  qtde_limite_venda_max: {
     type: DataTypes.DECIMAL,
-    field: 'fracionado_perc_desc_promo_auto'
+    field: 'qtde_limite_venda_max'
+  },
+  qtde_limite_venda_min: {
+    type: DataTypes.DECIMAL,
+    field: 'qtde_limite_venda_min'
   },
   fracionado_tipo: {
     type: DataTypes.STRING,
     field: 'fracionado_tipo'
   },
-  destaque: {
+  ativo_produto: {
     type: DataTypes.BOOLEAN,
-    field: 'destaque'
+    field: 'ativo_produto'
   },
-  qtde_estoque_minimo: {
-    type: DataTypes.DECIMAL,
-    field: 'qtde_estoque_minimo'
+  descricao_produto: {
+    type: DataTypes.STRING,
+    field: 'descricao_produto'
   },
-  qtde_estoque_atual: {
-    type: DataTypes.DECIMAL,
-    field: 'qtde_estoque_atual'
+  id_loja: {
+    type: DataTypes.INTEGER,
+    field: 'id_loja'
   },
-  percentual_limite_venda: {
-    type: DataTypes.DECIMAL,
-    field: 'percentual_limite_venda'
-  },
-  qtde_limite_venda: {
-    type: DataTypes.DECIMAL,
-    field: 'qtde_limite_venda'
-  },
-  online_produto: {
-    type: DataTypes.BOOLEAN,
-    field: 'online_produto'
-  },
-  online_departamento: {
-    type: DataTypes.BOOLEAN,
-    field: 'online_departamento'
-  },
+  // online_produto: {
+  //   type: DataTypes.BOOLEAN,
+  //   field: 'online_produto'
+  // },
+  // industrializado: {
+  //   type: DataTypes.BOOLEAN,
+  //   field: 'industrializado'
+  // },
+  // fracionado_status: {
+  //   type: DataTypes.BOOLEAN,
+  //   field: 'fracionado_status'
+  // },
+  // fracionado_fracao: {
+  //   type: DataTypes.DECIMAL,
+  //   field: 'fracionado_fracao'
+  // },
+  // fracionado_perc_desc_promo_auto: {
+  //   type: DataTypes.DECIMAL,
+  //   field: 'fracionado_perc_desc_promo_auto'
+  // },
+  // destaque: {
+  //   type: DataTypes.BOOLEAN,
+  //   field: 'destaque'
+  // },
+  // online_departamento: {
+  //   type: DataTypes.BOOLEAN,
+  //   field: 'online_departamento'
+  // },
 };
 
 // produtosPromocoes

@@ -145,6 +145,50 @@ AS SELECT
   sub_b_ativo AS ativo_subdepartamento,
   
   pro_c_produto AS nome_produto,
+  
+  pro_b_estoque AS estoque_controlado,
+  pro_f_qtde_estoque_min AS qtde_estoque_minimo,
+  pro_f_qtde_estoque_loja AS qtde_estoque_atual,
+  
+  pro_b_atacado AS atacado_status,
+  pro_f_qtde_atacado AS atacado_qtde,
+  pro_f_valor_atacado AS atacado_preco,
+  
+  pro_f_perc_limite_venda AS percentual_limite_venda,
+  pro_f_qtde_min_limite_venda AS qtde_min_limite_venda,
+  pro_f_qtde_max_limite_venda AS qtde_max_limite_venda,
+
+  pro_c_fracionado_tipo AS fracionado_tipo,
+  
+  pro_b_ativo AS ativo_produto,
+    
+  pro_c_descricao AS descricao_produto,
+  
+  1 AS id_loja
+FROM
+  produtos
+LEFT JOIN
+  grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk
+LEFT JOIN
+  subgrupos AS subdepartamentos ON produtos.pro_fk_subgrupo = subdepartamentos.sub_pk;
+
+/*
+CREATE VIEW
+  view_conecdata_produtos
+AS SELECT
+  pro_pk AS id_produto,
+  pro_c_barcode AS barcode_produto,
+  pro_f_preco_venda AS preco_venda,
+  
+  pro_fk_grupo AS id_departamento,
+  gru_c_grupo AS nome_departamento,
+  gru_b_ativo AS ativo_departamento,
+  
+  pro_fk_subgrupo AS id_subdepartamento,
+  sub_c_subgrupo AS nome_subdepartamento,
+  sub_b_ativo AS ativo_subdepartamento,
+  
+  pro_c_produto AS nome_produto,
       
   pro_b_estoque AS estoque_controlado,
   pro_f_qtde_estoque_min AS qtde_estoque_minimo,
@@ -179,6 +223,7 @@ LEFT JOIN
   grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk
 LEFT JOIN
   subgrupos AS subdepartamentos ON produtos.pro_fk_subgrupo = subdepartamentos.sub_pk;
+*/
 
 /* CREATE VIEW
   view_conecdata_produtos
@@ -226,3 +271,49 @@ AS SELECT
   1 AS id_loja
 FROM
   produtos */
+
+
+/*
+CREATE VIEW
+  view_conecdata_produtos
+AS SELECT
+  pro_pk AS id_produto,
+  pro_c_barcode AS barcode_produto,
+  pro_f_preco_venda AS preco_venda,
+  
+  pro_fk_grupo AS id_departamento,
+  gru_c_grupo AS nome_departamento,
+  gru_b_ativo AS ativo_departamento,
+  
+  pro_fk_subgrupo AS id_subdepartamento,
+  sub_c_subgrupo AS nome_subdepartamento,
+  sub_b_ativo AS ativo_subdepartamento,
+  
+  pro_c_produto AS nome_produto,
+  
+  pro_b_estoque AS estoque_controlado,
+  pro_f_qtde_estoque_min AS qtde_estoque_minimo,
+  pro_f_qtde_estoque_loja AS qtde_estoque_atual,
+  
+  0 AS atacado_status,
+  0 AS atacado_qtde,
+  0 AS atacado_preco,
+  
+  0 AS percentual_limite_venda,
+  0 AS qtde_limite_venda_min,
+  0 AS qtde_limite_venda_max,
+
+  '' AS fracionado_tipo,
+  
+  pro_b_ativo AS ativo_produto,
+    
+  pro_c_descricao AS descricao_produto,
+  
+  1 AS id_loja
+FROM
+  produtos_ok as produtos
+LEFT JOIN
+  grupos AS departamentos ON produtos.pro_fk_grupo = departamentos.gru_pk
+LEFT JOIN
+  subgrupos AS subdepartamentos ON produtos.pro_fk_subgrupo = subdepartamentos.sub_pk
+*/

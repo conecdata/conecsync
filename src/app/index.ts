@@ -487,17 +487,19 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                 nome_produto: -1,
                 nome_subdepartamento: -1,
                 percentual_limite_venda: -1,
-                fracionado_fracao: -1,
-                fracionado_perc_desc_promo_auto: -1,
-                fracionado_status: -1,
+                // fracionado_fracao: -1,
+                // fracionado_perc_desc_promo_auto: -1,
+                // fracionado_status: -1,
                 fracionado_tipo: -1,
                 preco_venda: -1,
                 ativo_produto: -1,
                 qtde_estoque_atual: -1,
                 qtde_estoque_minimo: -1,
-                qtde_limite_venda: -1,
-                destaque: -1,
-                online_departamento: -1,
+                qtde_limite_venda_max: -1,
+                qtde_limite_venda_min: -1,
+                // qtde_limite_venda: -1,
+                // destaque: -1,
+                // online_departamento: -1,
                 online_produto: -1,
               };
               if (EXTENSION !== '.csv') {
@@ -645,25 +647,25 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                           ? chkBool(ROW[FIELDPOS['online_produto']] || '')
                           : true,
 
-                        'online_departamento': FIELDPOS['online_departamento'] >= 0
-                          ? chkBool(ROW[FIELDPOS['online_departamento']] || '')
-                          : true,
+                        // 'online_departamento': FIELDPOS['online_departamento'] >= 0
+                        //   ? chkBool(ROW[FIELDPOS['online_departamento']] || '')
+                        //   : true,
 
-                        'fracionado_status': FIELDPOS['fracionado_status'] >= 0
-                          ? chkBool(ROW[FIELDPOS['fracionado_status']] || '')
-                          : false,
+                        // 'fracionado_status': FIELDPOS['fracionado_status'] >= 0
+                        //   ? chkBool(ROW[FIELDPOS['fracionado_status']] || '')
+                        //   : false,
 
                         'percentual_limite_venda': FIELDPOS['percentual_limite_venda'] >= 0
                           ? toFloat(ROW[FIELDPOS['percentual_limite_venda']])
                           : 0,
 
-                        'fracionado_fracao': FIELDPOS['fracionado_fracao'] >= 0
-                          ? toFloat(ROW[FIELDPOS['fracionado_fracao']])
-                          : 0,
+                        // 'fracionado_fracao': FIELDPOS['fracionado_fracao'] >= 0
+                        //   ? toFloat(ROW[FIELDPOS['fracionado_fracao']])
+                        //   : 0,
 
-                        'fracionado_perc_desc_promo_auto': FIELDPOS['fracionado_perc_desc_promo_auto'] >= 0
-                          ? toFloat(ROW[FIELDPOS['fracionado_perc_desc_promo_auto']])
-                          : 0,
+                        // 'fracionado_perc_desc_promo_auto': FIELDPOS['fracionado_perc_desc_promo_auto'] >= 0
+                        //   ? toFloat(ROW[FIELDPOS['fracionado_perc_desc_promo_auto']])
+                        //   : 0,
 
                         'fracionado_tipo': FIELDPOS['fracionado_tipo'] >= 0
                           ? `${ROW[FIELDPOS['fracionado_tipo']].trim()}`
@@ -673,9 +675,9 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                           ? `${ROW[FIELDPOS['descricao_produto']].trim()}`
                           : '',
 
-                        'destaque': FIELDPOS['destaque'] >= 0
-                          ? chkBool(ROW[FIELDPOS['destaque']] || '')
-                          : null,
+                        // 'destaque': FIELDPOS['destaque'] >= 0
+                        //   ? chkBool(ROW[FIELDPOS['destaque']] || '')
+                        //   : null,
 
                         'qtde_estoque_minimo': FIELDPOS['qtde_estoque_minimo'] >= 0
                           ? toFloat(ROW[FIELDPOS['qtde_estoque_minimo']])
@@ -685,8 +687,12 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
                           ? toFloat(ROW[FIELDPOS['qtde_estoque_atual']])
                           : 0,
 
-                        'qtde_limite_venda': FIELDPOS['qtde_limite_venda'] >= 0
-                          ? toFloat(ROW[FIELDPOS['qtde_limite_venda']])
+                        'qtde_limite_venda_max': FIELDPOS['qtde_limite_venda_max'] >= 0
+                          ? toFloat(ROW[FIELDPOS['qtde_limite_venda_max']])
+                          : 0,
+
+                        'qtde_limite_venda_min': FIELDPOS['qtde_limite_venda_min'] >= 0
+                          ? toFloat(ROW[FIELDPOS['qtde_limite_venda_min']])
                           : 0,
 
                         'estoque_controlado': FIELDPOS['estoque_controlado'] >= 0

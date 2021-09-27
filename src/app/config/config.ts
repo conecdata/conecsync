@@ -9,8 +9,8 @@ export const CONFIG = {
     // }
     conexao: {
       host: '127.0.0.1',
-      tabela: 'zebu',
-      usuario: 'conecdata',
+      tabela: 'hypico',
+      usuario: 'root',
       senha: 'masterkey',
       tipo: 'mysql', /* 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
     }

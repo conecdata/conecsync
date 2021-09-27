@@ -190,25 +190,25 @@ export async function buscaProdutosFB(idLoja: string) {
                   // IMPORTANT: close the connection
                   // console.log(result);
                   result.forEach((row) => {
+                    row.ID_LOJA = fixBuffStr(row.ID_LOJA);
                     row.ID_PRODUTO = fixBuffStr(row.ID_PRODUTO);
-                    row.BARCODE_PRODUTO = fixBuffStr(row.BARCODE_PRODUTO);
                     row.NOME_PRODUTO = fixBuffStr(row.NOME_PRODUTO);
+                    row.ATIVO_PRODUTO = fixBuffStr(row.ATIVO_PRODUTO);
+                    row.BARCODE_PRODUTO = fixBuffStr(row.BARCODE_PRODUTO);
+                    row.DESCRICAO_PRODUTO = fixBuffStr(row.DESCRICAO_PRODUTO);
                     row.ID_DEPARTAMENTO = fixBuffStr(row.ID_DEPARTAMENTO);
                     row.NOME_DEPARTAMENTO = fixBuffStr(row.NOME_DEPARTAMENTO);
                     row.ATIVO_DEPARTAMENTO = fixBuffStr(row.ATIVO_DEPARTAMENTO);
-                    row.ONLINE_DEPARTAMENTO = fixBuffStr(row.ONLINE_DEPARTAMENTO);
                     row.ID_SUBDEPARTAMENTO = fixBuffStr(row.ID_SUBDEPARTAMENTO);
                     row.NOME_SUBDEPARTAMENTO = fixBuffStr(row.NOME_SUBDEPARTAMENTO);
                     row.ATIVO_SUBDEPARTAMENTO = fixBuffStr(row.ATIVO_SUBDEPARTAMENTO);
-                    // row.INDUSTRIALIZADO = fixBuffStr(row.INDUSTRIALIZADO);
                     row.ESTOQUE_CONTROLADO = fixBuffStr(row.ESTOQUE_CONTROLADO);
-                    row.FRACIONADO_STATUS = fixBuffStr(row.FRACIONADO_STATUS);
                     row.FRACIONADO_TIPO = fixBuffStr(row.FRACIONADO_TIPO);
-                    row.ATIVO_PRODUTO = fixBuffStr(row.ATIVO_PRODUTO);
-                    row.ONLINE_PRODUTO = fixBuffStr(row.ONLINE_PRODUTO);
-                    row.DESCRICAO_PRODUTO = fixBuffStr(row.DESCRICAO_PRODUTO);
-                    row.DESTAQUE = fixBuffStr(row.DESTAQUE);
-                    row.ID_LOJA = fixBuffStr(row.ID_LOJA);
+                    // row.ONLINE_PRODUTO = fixBuffStr(row.ONLINE_PRODUTO);
+                    // row.DESTAQUE = fixBuffStr(row.DESTAQUE);
+                    // row.ONLINE_DEPARTAMENTO = fixBuffStr(row.ONLINE_DEPARTAMENTO);
+                    // row.INDUSTRIALIZADO = fixBuffStr(row.INDUSTRIALIZADO);
+                    // row.FRACIONADO_STATUS = fixBuffStr(row.FRACIONADO_STATUS);
                   });
                   db.detach();
                   resolve(result);
@@ -250,12 +250,12 @@ export function buscaDepartamentosSubdepartamentos(produtos: any[]): {
       const BODY_DEPARTAMENTO: any = {
         id: `${idDepartamento}`,
         ativo: chkBool(get(produtos[i], 'ativo_departamento')),
-        nome: get(produtos[i], 'nome_departamento') || '',
+        nome: get(produtos[i], 'nome_departamento') || ''
       };
-      const ONLINE_DEPARTAMENTO: any = get(produtos[i], 'online_departamento');
-      if (ONLINE_DEPARTAMENTO !== null) {
-        BODY_DEPARTAMENTO.online = chkBool(ONLINE_DEPARTAMENTO);
-      } // if
+      // const ONLINE_DEPARTAMENTO: any = get(produtos[i], 'online_departamento');
+      // if (ONLINE_DEPARTAMENTO !== null) {
+      //   BODY_DEPARTAMENTO.online = chkBool(ONLINE_DEPARTAMENTO);
+      // } // if
       RETORNO.departamentos.push(BODY_DEPARTAMENTO);
 
       // Gera lista de subdepartamentos dos produtos.
@@ -493,12 +493,12 @@ function findOne(
       }
     );
 
-    const DESTAQUE: any = get(produto, 'destaque');
-    DESTAQUE !== null && set(
-      BODY_PRODUTO,
-      'destaque',
-      chkBool(DESTAQUE)
-    );
+    // const DESTAQUE: any = get(produto, 'destaque');
+    // DESTAQUE !== null && set(
+    //   BODY_PRODUTO,
+    //   'destaque',
+    //   chkBool(DESTAQUE)
+    // );
 
     const FRACIONADO_STATUS: any = chkBool(get(produto, 'fracionado_status', 'F'));
     const FRACIONADO_FRACAO: any = get(produto, 'fracionado_fracao', 0);
