@@ -476,7 +476,9 @@ function findOne(
       "ativo": chkBool(get(produto, 'ativo_produto', true)),
       "barcode": barcodeProduto,
       // "descricao": get(produto, 'descricao_produto') || '',
-      "estoqueMinimo": ESTOQUE.controlado && ESTOQUE.min
+      "estoqueMinimo": ESTOQUE.controlado
+        && (ESTOQUE.min > 0)
+        && (ESTOQUE.atual >= 0)
         ? ESTOQUE.atual <= ESTOQUE.min
         : false,
       "idDepartamento": idDepartamento === null ? '' : `${idDepartamento}`,
@@ -555,7 +557,7 @@ function findOne(
       'limiteVenda.min',
       toFloat(LIMITE_VENDA_MIN)
     );
-        
+
     // console.log('forceOnline', forceOnline);
     if (forceOnline !== undefined) {
       set(
