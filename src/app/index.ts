@@ -1561,7 +1561,7 @@ import { CONFIG_ESTOQUE } from './config/origens/config-estoque';
               const FIELDPOS = {
                 id_interno: -1,
                 forma_ativa: -1,
-                nome_forma: -1,
+                // nome_forma: -1,
                 id_externo: -1
               };
               if (EXTENSION !== '.csv') {
